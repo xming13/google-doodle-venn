@@ -4,7 +4,7 @@
     <title>Google Doodle Venn</title>
 	<style type="text/css">
 		canvas { 
-			background:url(background.png);
+			background:url(images/background.png);
 		}
 	</style>
 </head>
@@ -13,75 +13,257 @@
 		This text is displayed if your browser does not support HTML5 Canvas.
 	</canvas>
 </body>  
+<script src="js/requestAnimFrame.js"></script>
 <script type="text/javascript">
-	window.requestAnimFrame = (function() {
-	  return window.requestAnimationFrame || 
-		window.webkitRequestAnimationFrame || 
-		window.mozRequestAnimationFrame || 
-		window.oRequestAnimationFrame || 
-		window.msRequestAnimationFrame ||
-		function(callback) {
-			window.setTimeout(callback, 1000 / 60);
-		};
-	})();
-
+	
 	var Anim = (function() {
 	
 		// declare the variables
-		var circles = [],
-			mainCanvas = null,
-			mainContext = null,
-			posX = 0,
-			pixelsPerFrame = 10,
-			areaAnimation = [];
+		var	requestID			= null,
+			canvas 				= null,
+			context 			= null,
+			smallLeftIcons		= [],
+			smallRightIcons 	= [],
+			bigLeftIcons 		= [],
+			bigRightIcons	 	= [],
+			centerIcons			= [],
+			bigDefaultLeftIcon  = null,
+			bigDefaultRightIcon = null,
+			selectedLeftIcon 	= null,
+			selectedRightIcon 	= null,
+			selectedCenterIcon	= null,
+			leftIconMapping 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'];
+			rightIconMapping	= [
+									[
+										{ index: 0, text: 'Tiny'}, 
+										{ index: 1, text: 'Has Wings'}, 
+										{ index: 4, text: 'Thrives in Cold'},
+										{ index: 7, text: 'Has a Shell'},
+										{ index: 9, text: 'Mythical'}
+									],
+								 	[
+										{ index: 0, text: 'Tiny'},
+										{ index: 1, text: 'Has Wings'},
+										{ index: 4, text: 'Thrives in Cold'}, 
+										{ index: 5, text: 'Spiral-Shaped'},
+										{ index: 8, text: 'In Space'}
+									],
+									[
+										{ index: 0, text: 'Tiny'},
+										{ index: 1, text: 'Has Wings'},
+										{ index: 4, text: 'Thrives in Cold'},
+										{ index: 6, text: 'Leaves a Trail'},
+										{ index: 8, text: 'In Space'}
+									],
+									[
+										{ index: 0, text: 'Tiny'},
+										{ index: 2, text: 'Can Fly'},
+										{ index: 3, text: 'Cone-Shaped'},
+										{ index: 7, text: 'Has a Shell'},
+										{ index: 9, text: 'Mythical'}
+									],
+									[
+										{ index: 0, text: 'Tiny'},
+										{ index: 1, text: 'Has Wings'},
+										{ index: 4, text: 'Thrives in Cold'},
+										{ index: 7, text: 'Has a Shell'},
+										{ index: 9, text: 'Mythical'}
+									],
+								  ]
+			bigLeftIconCenterX 	= 150,
+			bigRightIconCenterX = 450,
+			distSmallLeftIcon 	= 122,
+			distSmallRightIcon  = 0;
+			
+		// declare constants
+		var BIG_LEFT_ICON_CENTER_X_FINAL	= 250,
+			BIG_RIGHT_ICON_CENTER_X_FINAL	= 350,
+			BIG_LEFT_ICON_CENTER_Y 			= 109,
+			BIG_RIGHT_ICON_CENTER_Y 		= 109,
+			CENTER_X_FINAL					= 300,
+			CENTER_Y_FINAL					= 109,
+			BIG_ICON_RADIUS 				= 89,
+			TYPE_ICON_LEFT 					= 'left',
+			TYPE_ICON_RIGHT 				= 'right',
+			TYPE_ICON_CENTER				= 'center';
+			
 		var colors = ['#FF0000', '#FFFF00', '#0000FF'];
 		
 		// init method
 		function initialize() {
-			// create a canvas for the animation
-			mainCanvas = document.getElementById("canvas");
-			mainContext = mainCanvas.getContext('2d');
-			createCircles();
+			canvas = document.getElementById("canvas");
+			context = canvas.getContext('2d');
 			
-			mainCanvas.addEventListener("mousemove", onMouseMove, false);
-			mainCanvas.addEventListener("click", onClick, false);
-			 // add the canvas in
-			document.body.appendChild(mainCanvas);
+			createIcons();
 			
-			// and now we set off
+			canvas.addEventListener("mousemove", onMouseMove, false);
+			canvas.addEventListener("click", onClick, false);
+			
 			update();
+		}
+		
+		function reset() {
+			cancelAnimationFrame(requestID);
+			canvas 				= null,
+			context 			= null,
+			smallLeftIcons		= [],
+			smallRightIcons 	= [],
+			bigLeftIcons 		= [],
+			bigRightIcons	 	= [],
+			centerIcons			= [],
+			bigDefaultLeftIcon  = null,
+			bigDefaultRightIcon = null,
+			selectedLeftIcon 	= null;
+			selectedRightIcon 	= null;
+			selectedCenterIcon 	= null;
+			bigLeftIconCenterX 	= 150,
+			bigRightIconCenterX = 450,
+			distSmallLeftIcon 	= 122,
+			distSmallRightIcon  = 0;
+			initialize();
+		}
+		
+		function createIcons() {
+			var spriteBigIcons = new Sprite("images/sprite-initial.png", [
+				[0, 1266, 178, 178],
+				[0, 1637, 178, 178]
+			]);
+			bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, spriteBigIcons.image, spriteBigIcons.coordsArray[0]);
+			bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, spriteBigIcons.image, spriteBigIcons.coordsArray[1]);
+			
+			var spriteSmallLeftIcons = new Sprite("images/sprite-circles.png", [
+				[52, 2509, 49, 49],
+				[52, 2276, 49, 49],
+				[0, 2043, 49, 49],
+				[104, 2509, 49, 49],
+				[0, 2509, 49, 49]
+			]);
+			spriteSmallLeftIcons.loadIcons(TYPE_ICON_LEFT);
+			
+			var spriteSmallRightIcons = new Sprite("images/sprite-circles.png", [
+				[0, 2276, 49, 49],
+				[52, 0, 49, 49],
+				[104, 0, 49, 49],
+				[104, 2276, 49, 49],
+				[0, 0, 49, 49]
+			]);
+			spriteSmallRightIcons.loadIcons(TYPE_ICON_RIGHT);
+			
+			var spriteBigLeftIcons = new Sprite("images/sprite-circles.png", [
+				[0, 414, 178, 178],
+				[0, 957, 178, 178],
+				[0, 776, 178, 178],
+				[0, 1500, 178, 178],
+				[0, 1319, 178, 178]
+            ]);
+			spriteBigLeftIcons.loadIcons(TYPE_ICON_LEFT);
+			
+			var spriteBigRightIcons = new Sprite("images/sprite-circles.png", [
+				[0, 1862, 178, 178],
+				[0, 1138, 178, 178],
+				[0, 2561, 178, 178],
+				[0, 52, 178, 178],
+				[0, 233, 178, 178],
+				[0, 2095, 178, 178],
+				[0, 595, 178, 178],
+				[0, 1681, 178, 178],
+				[0, 2328, 178, 178],
+				[0, 2742, 178, 178]				
+			]);
+			spriteBigRightIcons.loadIcons(TYPE_ICON_RIGHT);
+			
+			var spriteCenterIcons = new Sprite("images/sprite-circles.png", [
+				[0, 233, 178, 178],
+				[0, 2095, 178, 178],
+				[0, 595, 178, 178],
+				[0, 1681, 178, 178],
+				[0, 2328, 178, 178],
+				[0, 2742, 178, 178],
+				[0, 233, 178, 178],
+				[0, 2095, 178, 178],
+				[0, 595, 178, 178],
+				[0, 1681, 178, 178],
+				[0, 2328, 178, 178],
+				[0, 2742, 178, 178],
+				[0, 233, 178, 178],
+				[0, 2095, 178, 178],
+				[0, 595, 178, 178],
+				[0, 1681, 178, 178],
+				[0, 2328, 178, 178],
+				[0, 2742, 178, 178],
+				[0, 233, 178, 178],
+				[0, 2095, 178, 178],
+				[0, 595, 178, 178],
+				[0, 1681, 178, 178],
+				[0, 2328, 178, 178],
+				[0, 2742, 178, 178],
+				[0, 233, 178, 178],
+				[0, 2095, 178, 178],
+				[0, 595, 178, 178],
+				[0, 1681, 178, 178],
+				[0, 2328, 178, 178],
+				[0, 2742, 178, 178]
+			]);
+			spriteCenterIcons.loadIcons(TYPE_ICON_CENTER);
 		}
 				
 		function onMouseMove(event) {
 			var mousePos = getMousePos(this, event);
-			for (var i = 0; i < circles.length; i++) {
-				var circle = circles[i];
+			
+			var icons = smallLeftIcons.concat(smallRightIcons);
+			
+			var isHover = false;
+			for (var i = 0; i < icons.length; i++) {
 				
-				if (mousePos.x >= circle.startX && mousePos.x <= circle.endX
-					&& mousePos.y >= circle.startY && mousePos.y <= circle.endY) {
-					//mainContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-					circle = circle.onHover(true);
-				} 
-				else {
-					if (circle.isHovered) {
-						circle = circle.onHover(false);
+				var icon = icons[i];
+				if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
+					|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				{
+					var startX = icon.centerX - icon.width / 2;
+					var endX = icon.centerX + icon.width / 2;
+					var startY = icon.centerY - icon.height / 2;
+					var endY = icon.centerY + icon.height / 2;
+					
+					if (mousePos.x >= startX 
+						&& mousePos.x <= endX
+						&& mousePos.y >= startY 
+						&& mousePos.y <= endY) {
+						icon.setHover(true);
+						isHover = true;
+					} 
+					else {
+						icon.setHover(false);
 					}
 				}
 			}
-			
-			console.log('x : ' + mousePos.x + ', y : ' + mousePos.y);
+			canvas.style.cursor = isHover ? 'pointer' : 'auto';
 		}
 		
 		function onClick(event) {
 			var mousePos = getMousePos(this, event);
 
-			for (var i = 0; i < circles.length; i++) {
-				var circle = circles[i];
+			var icons = smallLeftIcons.concat(smallRightIcons);
+			if (selectedCenterIcon != null) {	
+				icons.push(selectedCenterIcon);
+			}
+			for (var i = 0; i < icons.length; i++) {
+				var icon = icons[i];
 				
-				if (mousePos.x >= circle.startX && mousePos.x <= circle.endX
-					&& mousePos.y >= circle.startY && mousePos.y <= circle.endY) {
-					if (!circle.isClicked) {
-						circle.isClicked = true;
+				i
+				if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
+					|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
+					|| (icon.type == TYPE_ICON_CENTER && selectedLeftIcon && selectedRightIcon))
+				{
+					var startX = icon.centerX - icon.width / 2;
+					var endX = icon.centerX + icon.width / 2;
+					var startY = icon.centerY - icon.height / 2;
+					var endY = icon.centerY + icon.height / 2;
+
+					if (mousePos.x >= startX 
+						&& mousePos.x <= endX
+						&& mousePos.y >= startY 
+						&& mousePos.y <= endY) {
+						icon.onClick();
 					}
 				}
 			}
@@ -97,133 +279,262 @@
 		
 		// The main loop where everything happens
 		function update() {
-			requestAnimFrame(update);
+			requestID = requestAnimFrame(update);
 			draw();
 		}
 		
 		// draw method
 		function draw() {
-			mainContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-			var i = circles.length;
-			while (i--) {
-				var circle = circles[i];
-				circle = circle.render(mainContext, mainCanvas);
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			
+			if (selectedLeftIcon != null) {
+				context.font = '14px Arial';
+				context.textAlign = 'center';
+				context.fillText(leftIconMapping[selectedLeftIcon.index], 
+					bigLeftIconCenterX, 
+					BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
+				);
+				if (distSmallLeftIcon > 0) {
+					distSmallLeftIcon -= 3;
+					// animate the right small icons!
+					distSmallRightIcon += 3;
+					for (var i = 0; i < smallLeftIcons.length; i++) {
+						var icon = smallLeftIcons[i];
+						if (icon.alpha - 0.05 > 0) {
+							icon.alpha -= 0.05;
+						} 
+						else {
+							icon.alpha = 0.0;
+						}
+					}
+				}
+				if (distSmallLeftIcon > BIG_ICON_RADIUS) {
+					bigDefaultLeftIcon.alpha = 0.4;
+					bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
+				} 
+				else {
+					if (bigDefaultLeftIcon.alpha + 0.015 < 1) {
+						bigDefaultLeftIcon.alpha += 0.015;
+					}
+					else {
+						bigDefaultLeftIcon.alpha = 1.0;
+					}
+				}				
+			}
+			if (selectedRightIcon != null) {
+				context.font = '14px Arial';
+				context.textAlign = 'center';
+				context.fillText(rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].text, 
+					bigRightIconCenterX, 
+					BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
+				);	
+				if (distSmallRightIcon > 0) {
+					distSmallRightIcon -= 3;
+					for (var i = 0; i < smallRightIcons.length; i++) {
+						var icon = smallRightIcons[i];
+						if (icon.alpha - 0.05 > 0) {
+							icon.alpha -= 0.05;
+						} 
+						else {
+							icon.alpha = 0.0;
+						}
+					}
+				}
+				if (distSmallRightIcon > BIG_ICON_RADIUS) {
+					bigDefaultRightIcon.alpha = 0.4;
+					var index = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].index;
+					bigDefaultRightIcon.copyImage(bigRightIcons[index]);
+				} 
+				else {
+					if (bigDefaultRightIcon.alpha + 0.015 < 1) {
+						bigDefaultRightIcon.alpha += 0.015;
+					}
+					else {
+						bigDefaultRightIcon.alpha = 1.0;
+					}
+				}
+			}
+			if (selectedLeftIcon != null && selectedRightIcon != null) {
+				if (bigLeftIconCenterX + 2 < BIG_LEFT_ICON_CENTER_X_FINAL) {
+					bigLeftIconCenterX += 2;
+				} 
+				else {
+					bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
+				}
+				if (bigRightIconCenterX - 2 > BIG_RIGHT_ICON_CENTER_X_FINAL) {
+					bigRightIconCenterX -= 2;
+				} 
+				else {
+					bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
+				}
+				
+				// animate center icon
+				if (bigLeftIconCenterX > CENTER_X_FINAL - BIG_ICON_RADIUS && bigRightIconCenterX < CENTER_X_FINAL + BIG_ICON_RADIUS) {
+					if (selectedCenterIcon.alpha + 0.025 < 1) {
+						selectedCenterIcon.alpha += 0.025;
+					}
+					else {
+						selectedCenterIcon.alpha = 1.0;
+					}
+				}
+			}
+			
+			for (var i = 0; i < smallLeftIcons.length; i++) {
+				smallLeftIcons[i].render(
+					bigLeftIconCenterX - Math.cos((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallLeftIcon, 
+					BIG_LEFT_ICON_CENTER_Y - Math.sin((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallLeftIcon
+				);
+			}
+			for (var i = 0; i < smallRightIcons.length; i++) {
+				smallRightIcons[i].render(
+					bigRightIconCenterX + Math.cos((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallRightIcon,
+					BIG_RIGHT_ICON_CENTER_Y - Math.sin((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallRightIcon
+				);
+			}
+			
+			bigDefaultLeftIcon.render(bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
+			bigDefaultRightIcon.render(bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
+			if (selectedCenterIcon) {
+				selectedCenterIcon.centerRender();
 			}
 		}
 		
-		function createCircles() {
-			var radius = 20;
+		var Sprite = function(imagePath, coordsArray) {
+			this.image = new Image();		
+			this.image.src = imagePath;
+			this.coordsArray = coordsArray;		
+		};
+		Sprite.prototype = {
+			loadIcons: function(type) {
+				for (var i = 0; i < this.coordsArray.length; i++) {
+					var icon = new Icon(i, type, this.image, this.coordsArray[i]);
 					
-			var circle1 = new Circle(true, { x: 100, y: 25 }, radius, colors[0]);
-			var circle2 = new Circle(true, { x: 100, y: 100 }, radius, colors[1]);
-			var circle3 = new Circle(true, { x: 100, y: 175 }, radius, colors[2]);
-			var circle4 = new Circle(false, { x: 500, y: 25 }, radius, colors[0]);
-			var circle5 = new Circle(false, { x: 500, y: 100 }, radius, colors[1]);
-			var circle6 = new Circle(false, { x: 500, y: 175 }, radius, colors[2]);
-			
-			circles.push(circle1);
-			circles.push(circle2);
-			circles.push(circle3);
-			circles.push(circle4);
-			circles.push(circle5);
-			circles.push(circle6);
-		}
+					if (icon.width < 100) {
+						icon.alpha = 0.8;
+						if (type == TYPE_ICON_LEFT) {
+							smallLeftIcons.push(icon);
+						}
+						else if (type == TYPE_ICON_RIGHT) {
+							smallRightIcons.push(icon);
+						}
+						else if (type == TYPE_ICON_CENTER) {
+							centerIcons.push(icon);
+						}
+					}
+					else {
+						if (type == TYPE_ICON_LEFT) {
+							bigLeftIcons.push(icon);
+						}
+						else if (type == TYPE_ICON_RIGHT) {
+							bigRightIcons.push(icon);
+						}
+						else if (type == TYPE_ICON_CENTER) {
+							centerIcons.push(icon);
+						}
+					}
+				}
+			}
+		};
 		
+		var Icon = function(index, type, image, coords) {
+			this.index = index;
+			this.type = type;
+			this.image = image;
+			if (coords != null) {
+				this.clipX = coords[0];
+				this.clipY = coords[1];
+				this.width = coords[2];
+				this.height = coords[3];
+			}
+			this.centerX = 0;
+			this.centerY = 0;
+			this.alpha = 1.0;
+			this.isHovered = false;
+		}
+	
+		Icon.prototype = {
+			copyImage: function(icon) {
+				this.image = icon.image;
+				this.clipX = icon.clipX;
+				this.clipY = icon.clipY;
+				this.width = icon.width;
+				this.height = icon.height;
+			},
+			setHover: function(isHover) {
+				if (!this.isHovered && isHover) {
+					this.isHovered = isHover;
+					this.alpha = 1.0;
+				}
+				else if (this.isHovered && !isHover) {
+					this.isHovered = isHover;
+					this.alpha = 0.8;
+				}
+			},
+			onClick: function() {
+				if (this.type == TYPE_ICON_LEFT && !selectedLeftIcon) {
+					selectedLeftIcon = this;
+				}
+				else if (this.type == TYPE_ICON_RIGHT && !selectedRightIcon) {
+					selectedRightIcon = this;
+					
+					//set center icon
+					selectedCenterIcon = new Icon(-1, TYPE_ICON_CENTER, null, null);
+					selectedCenterIcon.copyImage(centerIcons[selectedLeftIcon.index * smallLeftIcons.length + selectedRightIcon.index]);
+					selectedCenterIcon.alpha = 0.0;
+				} 
+				else if (this.type == TYPE_ICON_CENTER) {
+					reset();
+				}
+			},
+			render: function(centerX, centerY) {
+				this.centerX = centerX;
+				this.centerY = centerY;
+				context.save();
+				context.globalAlpha = this.alpha;
+				context.beginPath();
+				context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
+				context.closePath();
+				context.clip();
+				context.drawImage(
+					this.image, 
+					this.clipX, this.clipY, 
+					this.width, this.height, 
+					centerX - this.width / 2, centerY - this.height / 2, 
+					this.width, this.height);
+				context.restore();
+			},
+			centerRender: function() {
+				this.centerX = CENTER_X_FINAL;
+				this.centerY = CENTER_Y_FINAL;
+				context.save();
+				context.globalAlpha = this.alpha;
+				context.beginPath();
+				
+				var distX = (BIG_RIGHT_ICON_CENTER_X_FINAL - BIG_LEFT_ICON_CENTER_X_FINAL) / 2;
+				var radian = Math.acos(distX / BIG_ICON_RADIUS);
+				
+				context.arc(BIG_LEFT_ICON_CENTER_X_FINAL, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+					-1 * radian, radian, false);
+				context.arc(BIG_RIGHT_ICON_CENTER_X_FINAL, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+					Math.PI - radian, Math.PI + radian, false);
+				context.closePath();
+				context.clip();
+				context.drawImage(
+					this.image, 
+					this.clipX, this.clipY, 
+					this.width, this.height, 
+					this.centerX - this.width / 2, this.centerY - this.height / 2, 
+					this.width, this.height);
+				context.restore();
+			}
+		}
+	
 		// declare an API
 		return {
 			initialize: initialize
 	    };
 	})();
-	
-	var Circle = function(isLeft, pos, radius, color) {
-		this.isLeft = isLeft;
-		this.pos = {
-			x: pos.x || 0,
-			y: pos.y || 0
-		};		
-		this.radius = radius;
-		this.color = color;
-		this.startX = pos.x - radius;
-		this.endX = pos.x + radius;
-		this.startY = pos.y - radius;
-		this.endY = pos.y + radius;
-		this.isHovered = false;
-		this.isClicked = false;
-	};
-	
-	Circle.prototype = {
-		update: function() {
-			return this;
-		},
 		
-		onHover: function(isHover) {
-			if (isHover) {
-				if (!this.isHovered) {
-					this.pos.x -= 5;
-					this.pos.y -= 5;
-					this.isHovered = true;
-				}
-			}
-			else {
-				if (this.isHovered) {
-					this.pos.x += 5;
-					this.pos.y += 5;
-					this.isHovered = false;
-				}
-			}
-		},
-		
-		onClick: function() {
-			if (this.radius <= 40) {
-				this.radius *= 1.028113;
-			}
-			if (this.isLeft) {
-				if (this.pos.x <= 275) {
-					this.pos.x += 7
-				}
-			}
-			else {
-				if (this.pos.x >= 325) {
-					this.pos.x -= 7;
-				}
-			}			
-			if (this.pos.y >= 100) {
-				this.pos.y -= 3;
-			}
-			if (this.pos.y <= 100) {
-				this.pos.y += 3;
-			}
-			
-			this.isClicked = true;
-			
-			if (this.radius > 40) {
-			
-			}
-			return this;
-		},
-		
-		render: function(context, canvas) {	
-			if (this.isClicked) {
-				this.onHover(false);
-				this.onClick();
-			}
-			
-			context.save();
-			context.fillStyle = this.color;
-			context.shadowOffsetX = 5;
-			context.shadowOffsetY = 5;
-			context.shadowBlur    = 4;
-			context.shadowColor   = 'rgba(204, 204, 204, 0.5)';
-			context.beginPath();
-			context.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI*2, true);
-			context.closePath();
-			context.fill();
-			context.restore();
-
-			return this;
-		}
-	}
-	
 	// Go
 	window.onload = function() {
 		Anim.initialize();
