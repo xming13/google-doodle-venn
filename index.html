@@ -1,0 +1,233 @@
+<html>
+<head>
+	<meta charset="uft-8">
+    <title>Google Doodle Venn</title>
+	<style type="text/css">
+		canvas { 
+			background:url(background.png);
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="600" height="220">
+		This text is displayed if your browser does not support HTML5 Canvas.
+	</canvas>
+</body>  
+<script type="text/javascript">
+	window.requestAnimFrame = (function() {
+	  return window.requestAnimationFrame || 
+		window.webkitRequestAnimationFrame || 
+		window.mozRequestAnimationFrame || 
+		window.oRequestAnimationFrame || 
+		window.msRequestAnimationFrame ||
+		function(callback) {
+			window.setTimeout(callback, 1000 / 60);
+		};
+	})();
+
+	var Anim = (function() {
+	
+		// declare the variables
+		var circles = [],
+			mainCanvas = null,
+			mainContext = null,
+			posX = 0,
+			pixelsPerFrame = 10,
+			areaAnimation = [];
+		var colors = ['#FF0000', '#FFFF00', '#0000FF'];
+		
+		// init method
+		function initialize() {
+			// create a canvas for the animation
+			mainCanvas = document.getElementById("canvas");
+			mainContext = mainCanvas.getContext('2d');
+			createCircles();
+			
+			mainCanvas.addEventListener("mousemove", onMouseMove, false);
+			mainCanvas.addEventListener("click", onClick, false);
+			 // add the canvas in
+			document.body.appendChild(mainCanvas);
+			
+			// and now we set off
+			update();
+		}
+				
+		function onMouseMove(event) {
+			var mousePos = getMousePos(this, event);
+			for (var i = 0; i < circles.length; i++) {
+				var circle = circles[i];
+				
+				if (mousePos.x >= circle.startX && mousePos.x <= circle.endX
+					&& mousePos.y >= circle.startY && mousePos.y <= circle.endY) {
+					//mainContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+					circle = circle.onHover(true);
+				} 
+				else {
+					if (circle.isHovered) {
+						circle = circle.onHover(false);
+					}
+				}
+			}
+			
+			console.log('x : ' + mousePos.x + ', y : ' + mousePos.y);
+		}
+		
+		function onClick(event) {
+			var mousePos = getMousePos(this, event);
+
+			for (var i = 0; i < circles.length; i++) {
+				var circle = circles[i];
+				
+				if (mousePos.x >= circle.startX && mousePos.x <= circle.endX
+					&& mousePos.y >= circle.startY && mousePos.y <= circle.endY) {
+					if (!circle.isClicked) {
+						circle.isClicked = true;
+					}
+				}
+			}
+		}
+		
+		function getMousePos(canvas, evt) {
+			var rect = canvas.getBoundingClientRect();
+			return {
+			  x: evt.clientX - rect.left,
+			  y: evt.clientY - rect.top
+			};
+		}
+		
+		// The main loop where everything happens
+		function update() {
+			requestAnimFrame(update);
+			draw();
+		}
+		
+		// draw method
+		function draw() {
+			mainContext.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+			var i = circles.length;
+			while (i--) {
+				var circle = circles[i];
+				circle = circle.render(mainContext, mainCanvas);
+			}
+		}
+		
+		function createCircles() {
+			var radius = 20;
+					
+			var circle1 = new Circle(true, { x: 100, y: 25 }, radius, colors[0]);
+			var circle2 = new Circle(true, { x: 100, y: 100 }, radius, colors[1]);
+			var circle3 = new Circle(true, { x: 100, y: 175 }, radius, colors[2]);
+			var circle4 = new Circle(false, { x: 500, y: 25 }, radius, colors[0]);
+			var circle5 = new Circle(false, { x: 500, y: 100 }, radius, colors[1]);
+			var circle6 = new Circle(false, { x: 500, y: 175 }, radius, colors[2]);
+			
+			circles.push(circle1);
+			circles.push(circle2);
+			circles.push(circle3);
+			circles.push(circle4);
+			circles.push(circle5);
+			circles.push(circle6);
+		}
+		
+		// declare an API
+		return {
+			initialize: initialize
+	    };
+	})();
+	
+	var Circle = function(isLeft, pos, radius, color) {
+		this.isLeft = isLeft;
+		this.pos = {
+			x: pos.x || 0,
+			y: pos.y || 0
+		};		
+		this.radius = radius;
+		this.color = color;
+		this.startX = pos.x - radius;
+		this.endX = pos.x + radius;
+		this.startY = pos.y - radius;
+		this.endY = pos.y + radius;
+		this.isHovered = false;
+		this.isClicked = false;
+	};
+	
+	Circle.prototype = {
+		update: function() {
+			return this;
+		},
+		
+		onHover: function(isHover) {
+			if (isHover) {
+				if (!this.isHovered) {
+					this.pos.x -= 5;
+					this.pos.y -= 5;
+					this.isHovered = true;
+				}
+			}
+			else {
+				if (this.isHovered) {
+					this.pos.x += 5;
+					this.pos.y += 5;
+					this.isHovered = false;
+				}
+			}
+		},
+		
+		onClick: function() {
+			if (this.radius <= 40) {
+				this.radius *= 1.028113;
+			}
+			if (this.isLeft) {
+				if (this.pos.x <= 275) {
+					this.pos.x += 7
+				}
+			}
+			else {
+				if (this.pos.x >= 325) {
+					this.pos.x -= 7;
+				}
+			}			
+			if (this.pos.y >= 100) {
+				this.pos.y -= 3;
+			}
+			if (this.pos.y <= 100) {
+				this.pos.y += 3;
+			}
+			
+			this.isClicked = true;
+			
+			if (this.radius > 40) {
+			
+			}
+			return this;
+		},
+		
+		render: function(context, canvas) {	
+			if (this.isClicked) {
+				this.onHover(false);
+				this.onClick();
+			}
+			
+			context.save();
+			context.fillStyle = this.color;
+			context.shadowOffsetX = 5;
+			context.shadowOffsetY = 5;
+			context.shadowBlur    = 4;
+			context.shadowColor   = 'rgba(204, 204, 204, 0.5)';
+			context.beginPath();
+			context.arc(this.pos.x, this.pos.y, this.radius, 0, Math.PI*2, true);
+			context.closePath();
+			context.fill();
+			context.restore();
+
+			return this;
+		}
+	}
+	
+	// Go
+	window.onload = function() {
+		Anim.initialize();
+	};
+	
+</script>
+</html>
