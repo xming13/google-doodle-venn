@@ -73,7 +73,9 @@
 			bigLeftIconCenterX 	= 150,
 			bigRightIconCenterX = 450,
 			distSmallLeftIcon 	= 122,
-			distSmallRightIcon  = 0;
+			distSmallRightIcon  = 0,
+			tick				= 0,
+			iconIndexRotate		= 0;
 			
 		// declare constants
 		var BIG_LEFT_ICON_CENTER_X_FINAL	= 250,
@@ -119,7 +121,9 @@
 			bigLeftIconCenterX 	= 150,
 			bigRightIconCenterX = 450,
 			distSmallLeftIcon 	= 122,
-			distSmallRightIcon  = 0;
+			distSmallRightIcon  = 0,
+			tick				= 0,
+			iconIndexRotate 	= 0;
 			initialize();
 		}
 		
@@ -285,9 +289,13 @@
 		
 		// draw method
 		function draw() {
+			tick++;
+			
+			rotateSmallIcon();
+
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			
-			if (selectedLeftIcon != null) {
+			if (selectedLeftIcon) {
 				context.font = '14px Arial';
 				context.textAlign = 'center';
 				context.fillText(leftIconMapping[selectedLeftIcon.index], 
@@ -321,7 +329,7 @@
 					}
 				}				
 			}
-			if (selectedRightIcon != null) {
+			if (selectedRightIcon) {
 				context.font = '14px Arial';
 				context.textAlign = 'center';
 				context.fillText(rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].text, 
@@ -353,14 +361,14 @@
 						bigDefaultRightIcon.alpha = 1.0;
 					}
 				}
-			}
-			if (selectedLeftIcon != null && selectedRightIcon != null) {
+				
 				if (bigLeftIconCenterX + 2 < BIG_LEFT_ICON_CENTER_X_FINAL) {
 					bigLeftIconCenterX += 2;
 				} 
 				else {
 					bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
 				}
+				
 				if (bigRightIconCenterX - 2 > BIG_RIGHT_ICON_CENTER_X_FINAL) {
 					bigRightIconCenterX -= 2;
 				} 
@@ -397,6 +405,45 @@
 			if (selectedCenterIcon) {
 				selectedCenterIcon.centerRender();
 			}
+		}
+		
+		function rotateSmallIcon() {
+			if (tick > 160) {
+				if (!selectedLeftIcon) {
+					smallLeftIcons[iconIndexRotate].rotateRad = 0;	
+					iconIndexRotate = (iconIndexRotate + 1) % smallLeftIcons.length;
+				} 
+				else if (!selectedRightIcon) {
+					smallRightIcons[iconIndexRotate].rotateRad = 0;
+					iconIndexRotate = (iconIndexRotate + 1) % smallRightIcons.length;
+				}
+
+				tick = 0;
+			} 
+			else if (tick > 140) {
+				if (!selectedLeftIcon) {
+					smallLeftIcons[iconIndexRotate].rotateRad += Math.PI * 2 * 2 / 360;
+				}
+				else if (!selectedRightIcon) {
+					smallRightIcons[iconIndexRotate].rotateRad -= Math.PI * 2 * 2 / 360;
+				}
+			}
+			else if (tick > 120) {
+				if (!selectedLeftIcon) {
+					smallLeftIcons[iconIndexRotate].rotateRad -= Math.PI * 2 * 4 / 360;
+				} 
+				else if (!selectedRightIcon) {
+					smallRightIcons[iconIndexRotate].rotateRad += Math.PI * 2 * 4 / 360;
+				}
+			}
+			else if (tick > 100) {
+				if (!selectedLeftIcon) {
+					smallLeftIcons[iconIndexRotate].rotateRad += Math.PI * 2 * 2 / 360;
+				}
+				else if (!selectedRightIcon) {
+					smallRightIcons[iconIndexRotate].rotateRad -= Math.PI * 2 * 2 / 360;
+				}
+			}	
 		}
 		
 		var Sprite = function(imagePath, coordsArray) {
@@ -449,6 +496,7 @@
 			this.centerX = 0;
 			this.centerY = 0;
 			this.alpha = 1.0;
+			this.rotateRad = 0;
 			this.isHovered = false;
 		}
 	
@@ -473,6 +521,7 @@
 			onClick: function() {
 				if (this.type == TYPE_ICON_LEFT && !selectedLeftIcon) {
 					selectedLeftIcon = this;
+					iconIndexRotate = 0;
 				}
 				else if (this.type == TYPE_ICON_RIGHT && !selectedRightIcon) {
 					selectedRightIcon = this;
@@ -495,12 +544,17 @@
 				context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
 				context.closePath();
 				context.clip();
+				context.translate(this.centerX, this.centerY);
+				context.rotate(this.rotateRad);
+				context.translate(-this.centerX, -this.centerY);
+				
 				context.drawImage(
 					this.image, 
 					this.clipX, this.clipY, 
 					this.width, this.height, 
 					centerX - this.width / 2, centerY - this.height / 2, 
 					this.width, this.height);
+					
 				context.restore();
 			},
 			centerRender: function() {
