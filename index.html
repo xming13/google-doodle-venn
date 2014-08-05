@@ -16,22 +16,21 @@
 	</canvas>
 </body>  
 <script src="js/requestAnimFrame.js"></script>
+<script src="js/sprite-manager.js"></script>
+<script src="js/animation-manager.js"></script>
 <script type="text/javascript">
 	
-	var Venns = (function() {
-	
+	var Venns = new function() {
 		// declare the variables
 		var	requestID			= null,
 			canvas 				= null,
 			context 			= null,
-			smallLeftIcons		= [],
-			smallRightIcons 	= [],
-			bigLeftIcons 		= [],
-			bigRightIcons	 	= [],
+			smallLeftIcons		= null,
+			smallRightIcons 	= null,
+			bigLeftIcons 		= null,
+			bigRightIcons	 	= null,
 			bigDefaultLeftIcon  = null,
-			bigDefaultRightIcon = null,			
-			sprites				= [],
-			animations 			= [],
+			bigDefaultRightIcon = null,
 			selectedLeftIcon 	= null,
 			selectedRightIcon 	= null,
 			requireCenterRender	= false,
@@ -39,25 +38,25 @@
 			leftIconMapping 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'],
 			rightIconMapping	= [
 									[
-										{ index: 0, text: 'Tiny', animIndex: 0},
+										{ index: 0, text: 'Tiny', animIndex: 3},
 										{ index: 1, text: 'Has Wings', animIndex: 0},
-										{ index: 4, text: 'Thrives in Cold', animIndex: 0},
-										{ index: 7, text: 'Has a Shell', animIndex: 0},
-										{ index: 9, text: 'Mythical', animIndex: 0}
+										{ index: 4, text: 'Thrives in Cold', animIndex: 4},
+										{ index: 7, text: 'Has a Shell', animIndex: 2},
+										{ index: 9, text: 'Mythical', animIndex: 1}
 									],
 								 	[
-										{ index: 0, text: 'Tiny', animIndex: 1},
-										{ index: 1, text: 'Has Wings', animIndex: 1},
-										{ index: 4, text: 'Thrives in Cold', animIndex: 1}, 
-										{ index: 5, text: 'Spiral-Shaped', animIndex: 1},
-										{ index: 8, text: 'In Space', animIndex: 1}
+										{ index: 0, text: 'Tiny', animIndex: 8},
+										{ index: 1, text: 'Has Wings', animIndex: 9},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 6}, 
+										{ index: 5, text: 'Spiral-Shaped', animIndex: 7},
+										{ index: 8, text: 'In Space', animIndex: 5}
 									],
 									[
-										{ index: 0, text: 'Tiny', animIndex: 2},
-										{ index: 1, text: 'Has Wings', animIndex: 2},
-										{ index: 4, text: 'Thrives in Cold', animIndex: 2},
-										{ index: 6, text: 'Leaves a Trail', animIndex: 2},
-										{ index: 8, text: 'In Space', animIndex: 2}
+										{ index: 0, text: 'Tiny', animIndex: 15},
+										{ index: 1, text: 'Has Wings', animIndex: 16},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 17},
+										{ index: 6, text: 'Leaves a Trail', animIndex: 18},
+										{ index: 8, text: 'In Space', animIndex: 19}
 									],
 									[
 										{ index: 0, text: 'Tiny', animIndex: 3},
@@ -67,11 +66,11 @@
 										{ index: 9, text: 'Mythical', animIndex: 3}
 									],
 									[
-										{ index: 0, text: 'Tiny', animIndex: 4},
-										{ index: 1, text: 'Has Wings', animIndex: 4},
-										{ index: 4, text: 'Thrives in Cold', animIndex: 4},
-										{ index: 7, text: 'Has a Shell', animIndex: 4},
-										{ index: 9, text: 'Mythical', animIndex: 4}
+										{ index: 0, text: 'Tiny', animIndex: 14},
+										{ index: 1, text: 'Has Wings', animIndex: 10},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 12},
+										{ index: 7, text: 'Has a Shell', animIndex: 13},
+										{ index: 9, text: 'Mythical', animIndex: 11}
 									],
 								  ],
 			bigLeftIconCenterX 	= 150,
@@ -79,19 +78,7 @@
 			distSmallLeftIcon 	= 122,
 			distSmallRightIcon  = 0,
 			tick				= 0,
-			iconIndexRotate		= 0,
-			animationEvents		= {
-									'leftIconSelectedStart' : { isStart: false, isEnd: false },
-									'leftIconSelectedEnd' 	: { isStart: false, isEnd: false },
-									'rightIconSelectedStart': { isStart: false, isEnd: false },
-									'rightIconSelectedEnd' 	: { isStart: false, isEnd: false },
-									'bigIconsToCenterStart' : { isStart: false, isEnd: false },
-									'bigIconsToCenterEnd' 	: { isStart: false, isEnd: false },
-									'iconCenterStart' 		: { isStart: false, isEnd: false },
-									'iconCenterEnd' 		: { isStart: false, isEnd: false },
-									'animationCenterStart' 	: { isStart: false, isEnd: false },
-									'animationCenterEnd' 	: { isStart: false, isEnd: false }
-								  };
+			iconIndexRotate		= 0;
 			
 		// declare constants
 		var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
@@ -103,26 +90,30 @@
 			BIG_ICON_RADIUS 				= 89,
 			SMALL_ICON_DIST					= 122,
 			TYPE_ICON_LEFT 					= 'left',
-			TYPE_ICON_RIGHT 				= 'right',
-			TYPE_ICON_CENTER				= 'center';
+			TYPE_ICON_RIGHT 				= 'right';
 			
 		var colors = ['#FF0000', '#FFFF00', '#0000FF'];
 		
 		// init method
-		function initialize() {
+		this.initialize = function() {
 			canvas = document.getElementById("canvas");
 			context = canvas.getContext('2d');
 			
-			createIcons();
-			createAnimations();
-			
+			XMing.SpriteManager.init();
+			XMing.AnimationManager.init();
+			smallLeftIcons		= XMing.SpriteManager.smallLeftIcons;
+			smallRightIcons 	= XMing.SpriteManager.smallRightIcons;
+			bigLeftIcons 		= XMing.SpriteManager.bigLeftIcons;
+			bigRightIcons	 	= XMing.SpriteManager.bigRightIcons;
+			bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftIcon;
+			bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightIcon;
+		
 			canvas.addEventListener("mousemove", onMouseMove, false);
 			canvas.addEventListener("click", onClick, false);
 			
-			update();
-		}
-		
-		function reset() {
+			this.update();
+		},
+		this.reset = function() {
 			cancelAnimationFrame(requestID);
 			canvas 				= null,
 			context 			= null,
@@ -142,150 +133,17 @@
 			tick				= 0,
 			iconIndexRotate 	= 0;
 			initialize();
-		}
-		
-		function createIcons() {
-			var spriteBigIcons = new Sprite('images/sprite-initial.png', [
-				[0, 1266, 178, 178],
-				[0, 1637, 178, 178]
-			]);
-			sprites.push(spriteBigIcons);
-			bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, spriteBigIcons.image, spriteBigIcons.coordsArray[0]);
-			bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, spriteBigIcons.image, spriteBigIcons.coordsArray[1]);
-			
-			var spriteSmallLeftIcons = new Sprite('images/sprite-circles.png', [
-				[52, 2509, 49, 49],
-				[52, 2276, 49, 49],
-				[0, 2043, 49, 49],
-				[104, 2509, 49, 49],
-				[0, 2509, 49, 49]
-			]);
-			sprites.push(spriteSmallLeftIcons);
-			spriteSmallLeftIcons.loadIcons(TYPE_ICON_LEFT);
-			
-			var spriteSmallRightIcons = new Sprite('images/sprite-circles.png', [
-				[0, 2276, 49, 49],
-				[52, 0, 49, 49],
-				[104, 0, 49, 49],
-				[104, 2276, 49, 49],
-				[0, 0, 49, 49]
-			]);
-			sprites.push(spriteSmallRightIcons);
-			spriteSmallRightIcons.loadIcons(TYPE_ICON_RIGHT);
-			
-			var spriteBigLeftIcons = new Sprite('images/sprite-circles.png', [
-				[0, 414, 178, 178],
-				[0, 957, 178, 178],
-				[0, 776, 178, 178],
-				[0, 1500, 178, 178],
-				[0, 1319, 178, 178]
-            ]);
-			sprites.push(spriteBigLeftIcons);
-			spriteBigLeftIcons.loadIcons(TYPE_ICON_LEFT);
-			
-			var spriteBigRightIcons = new Sprite('images/sprite-circles.png', [
-				[0, 1862, 178, 178],
-				[0, 1138, 178, 178],
-				[0, 2561, 178, 178],
-				[0, 52, 178, 178],
-				[0, 233, 178, 178],
-				[0, 2095, 178, 178],
-				[0, 595, 178, 178],
-				[0, 1681, 178, 178],
-				[0, 2328, 178, 178],
-				[0, 2742, 178, 178]				
-			]);
-			sprites.push(spriteBigRightIcons);
-			spriteBigRightIcons.loadIcons(TYPE_ICON_RIGHT);
-		}
-					
-		function createAnimations() {
-//			var animCircle = new Animation(sprites[sprites.length - 1]);
-//			animations.push(animCircle);
-			
-			for (var i = 0; i < sprites.length; i++) {
-				animations.push(new Animation(sprites[i]));
-			}
-		}
-		
-		function onMouseMove(event) {
-			var mousePos = getMousePos(this, event);
-			
-			var icons = smallLeftIcons.concat(smallRightIcons);
-			
-			var isHover = false;
-			for (var i = 0; i < icons.length; i++) {
-				
-				var icon = icons[i];
-				if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-					|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
-				{
-					var startX = icon.centerX - icon.width / 2;
-					var endX = icon.centerX + icon.width / 2;
-					var startY = icon.centerY - icon.height / 2;
-					var endY = icon.centerY + icon.height / 2;
-					
-					if (mousePos.x >= startX 
-						&& mousePos.x <= endX
-						&& mousePos.y >= startY 
-						&& mousePos.y <= endY) {
-						icon.setHover(true);
-						isHover = true;
-					} 
-					else {
-						icon.setHover(false);
-					}
-				}
-			}
-			canvas.style.cursor = isHover ? 'pointer' : 'auto';
-		}
-		
-		function onClick(event) {
-			var mousePos = getMousePos(this, event);
-
-			var icons = smallLeftIcons.concat(smallRightIcons);
-			for (var i = 0; i < icons.length; i++) {
-				var icon = icons[i];
-				
-				i
-				if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-					|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
-					|| (icon.type == TYPE_ICON_CENTER && selectedLeftIcon && selectedRightIcon))
-				{
-					var startX = icon.centerX - icon.width / 2;
-					var endX = icon.centerX + icon.width / 2;
-					var startY = icon.centerY - icon.height / 2;
-					var endY = icon.centerY + icon.height / 2;
-
-					if (mousePos.x >= startX 
-						&& mousePos.x <= endX
-						&& mousePos.y >= startY 
-						&& mousePos.y <= endY) {
-						icon.onClick();
-					}
-				}
-			}
-		}
-		
-		function getMousePos(canvas, evt) {
-			var rect = canvas.getBoundingClientRect();
-			return {
-			  x: evt.clientX - rect.left,
-			  y: evt.clientY - rect.top
-			};
-		}
-		
+		},		
 		// The main loop where everything happens
-		function update() {
-			requestID = requestAnimFrame(update);
-			draw();
-		}
-		
+		this.update = function() {
+			requestID = requestAnimFrame(this.update.bind(this));
+			this.draw();
+		},
 		// draw method
-		function draw() {
+		this.draw = function() {
 			tick++;
 			
-			rotateSmallIcon();
+			this.rotateSmallIcon();
 
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			
@@ -352,7 +210,7 @@
 				// set selected Animation based on the combination of the selected left and right choices
 				if (!selectedAnimation) {
 					var animIndex = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
-					selectedAnimation = animations[animIndex];
+					selectedAnimation = XMing.AnimationManager.getAnimation(animIndex);
 				}
 				
 				// animate smallRightIcon to center of BigRightIcon
@@ -418,6 +276,7 @@
 						// start center animation
 						if (selectedAnimation.alpha + 0.01 < 1.0) {
 							selectedAnimation.alpha += 0.01;
+							selectedAnimation.start();
 						}
 						else {
 							selectedAnimation.alpha = 1.0;
@@ -430,6 +289,7 @@
 			// render smallLeftIcons
 			for (var i = 0; i < smallLeftIcons.length; i++) {
 				smallLeftIcons[i].render(
+					context,
 					bigLeftIconCenterX - Math.cos((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallLeftIcon, 
 					BIG_LEFT_ICON_CENTER_Y - Math.sin((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallLeftIcon
 				);
@@ -438,27 +298,27 @@
 			// render smallRightIcons
 			for (var i = 0; i < smallRightIcons.length; i++) {
 				smallRightIcons[i].render(
+					context,
 					bigRightIconCenterX + Math.cos((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallRightIcon,
 					BIG_RIGHT_ICON_CENTER_Y - Math.sin((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallRightIcon
 				);
 			}
 			
 			// render bigDefaultLeftIcon and bigDefaultRightIcon
-			bigDefaultLeftIcon.render(bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
-			bigDefaultRightIcon.render(bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
+			bigDefaultLeftIcon.render(context,bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
+			bigDefaultRightIcon.render(context,bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
 			
 			// render center
 			if (requireCenterRender) {
-				renderOverlappedCenter(bigLeftIconCenterX, bigRightIconCenterX);
+				this.renderOverlappedCenter(bigLeftIconCenterX, bigRightIconCenterX);
 			}
 			
 			// render selectedAnimation
-			if (selectedAnimation) {
-				selectedAnimation.render();
+			if (selectedAnimation && selectedAnimation.isStarted) {
+				selectedAnimation.render(context);
 			}
-		}
-		
-		function renderOverlappedCenter(leftCenterX, rightCenterX) {
+		},
+		this.renderOverlappedCenter = function(leftCenterX, rightCenterX) {
 			this.centerX = CENTER_X_FINAL;
 			this.centerY = CENTER_Y_FINAL;
 			context.save();
@@ -477,9 +337,8 @@
 			context.fillStyle = '#f3f3f3';
 			context.fill();
 			context.restore();
-		}
-		
-		function rotateSmallIcon() {			
+		},
+		this.rotateSmallIcon = function() {			
 			if (tick > 160) {
 				if (!selectedLeftIcon) {
 					smallLeftIcons[iconIndexRotate].rotateRad = 0;	
@@ -502,177 +361,77 @@
 			}
 		}
 		
-		var Sprite = function(imagePath, coordsArray) {
-			this.image = new Image();		
-			this.image.src = imagePath;
-			this.coordsArray = coordsArray;		
-		};
-		Sprite.prototype = {
-			loadIcons: function(type) {
-				for (var i = 0; i < this.coordsArray.length; i++) {
-					var icon = new Icon(i, type, this.image, this.coordsArray[i]);
+		
+		function onMouseMove(event) {
+			var mousePos = getMousePos(this, event);
+			
+			var icons = smallLeftIcons.concat(smallRightIcons);
+			
+			var isHover = false;
+			for (var i = 0; i < icons.length; i++) {
+				
+				var icon = icons[i];
+				if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
+					|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				{
+					var startX = icon.centerX - icon.width / 2;
+					var endX = icon.centerX + icon.width / 2;
+					var startY = icon.centerY - icon.height / 2;
+					var endY = icon.centerY + icon.height / 2;
 					
-					if (icon.width < 100) {
-						icon.alpha = 0.8;
-						if (type == TYPE_ICON_LEFT) {
-							smallLeftIcons.push(icon);
-						}
-						else if (type == TYPE_ICON_RIGHT) {
-							smallRightIcons.push(icon);
-						}
-					}
+					if (mousePos.x >= startX 
+						&& mousePos.x <= endX
+						&& mousePos.y >= startY 
+						&& mousePos.y <= endY) {
+						icon.setHover(true);
+						isHover = true;
+					} 
 					else {
-						if (type == TYPE_ICON_LEFT) {
-							bigLeftIcons.push(icon);
-						}
-						else if (type == TYPE_ICON_RIGHT) {
-							bigRightIcons.push(icon);
+						icon.setHover(false);
+					}
+				}
+			}
+			canvas.style.cursor = isHover ? 'pointer' : 'auto';
+		}
+		
+		function onClick(event) {
+			var mousePos = getMousePos(this, event);
+
+			var icons = smallLeftIcons.concat(smallRightIcons);
+			for (var i = 0; i < icons.length; i++) {
+				var icon = icons[i];
+				
+				i
+				if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
+					|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				{
+					var startX = icon.centerX - icon.width / 2;
+					var endX = icon.centerX + icon.width / 2;
+					var startY = icon.centerY - icon.height / 2;
+					var endY = icon.centerY + icon.height / 2;
+
+					if (mousePos.x >= startX && mousePos.x <= endX
+						&& mousePos.y >= startY && mousePos.y <= endY) {
+						if (icon.type == TYPE_ICON_LEFT) {
+							selectedLeftIcon = icon;
+							iconIndexRotate = 0;
+						} 
+						else if (icon.type == TYPE_ICON_RIGHT) {
+							selectedRightIcon = icon;			
 						}
 					}
 				}
 			}
-		};
+		}
 		
-		var Icon = function(index, type, image, coords) {
-			this.index = index;
-			this.type = type;
-			this.image = image;
-			if (coords != null) {
-				this.clipX = coords[0];
-				this.clipY = coords[1];
-				this.width = coords[2];
-				this.height = coords[3];
-			}
-			this.centerX = 0;
-			this.centerY = 0;
-			this.alpha = 1.0;
-			this.rotateRad = 0;
-			this.isHovered = false;
-		};
-		Icon.prototype = {
-			copyImage: function(icon) {
-				this.image = icon.image;
-				this.clipX = icon.clipX;
-				this.clipY = icon.clipY;
-				this.width = icon.width;
-				this.height = icon.height;
-			},
-			updateRotateRad: function(tick) {
-				if (tick > 160) {
-					return;
-				} 
-				else if (tick > 140) {
-					this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-						Math.PI * 2 * 2 / 360 :
-						-Math.PI * 2 * 2 / 360;
-				}
-				else if (tick > 120) {			
-					this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-						-Math.PI * 2 * 4 / 360 :
-						Math.PI * 2 * 4 / 360;
-				}
-				else if (tick > 100) {
-					this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-						Math.PI * 2 * 2 / 360 :
-						-Math.PI * 2 * 2 / 360;
-				}	
-			},
-			setHover: function(isHover) {
-				if (!this.isHovered && isHover) {
-					this.isHovered = isHover;
-					this.alpha = 1.0;
-				}
-				else if (this.isHovered && !isHover) {
-					this.isHovered = isHover;
-					this.alpha = 0.8;
-				}
-			},
-			onClick: function() {
-				if (this.type == TYPE_ICON_LEFT && !selectedLeftIcon) {
-					selectedLeftIcon = this;
-					iconIndexRotate = 0;
-				}
-				else if (this.type == TYPE_ICON_RIGHT && !selectedRightIcon) {
-					selectedRightIcon = this;			
-				}
-			},
-			render: function(centerX, centerY) {
-				this.centerX = centerX;
-				this.centerY = centerY;
-				context.save();
-				context.globalAlpha = this.alpha;
-				context.beginPath();
-				context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
-				context.closePath();
-				context.clip();
-				context.translate(this.centerX, this.centerY);
-				context.rotate(this.rotateRad);
-				context.translate(-this.centerX, -this.centerY);
-				context.drawImage(
-					this.image, 
-					this.clipX, this.clipY, 
-					this.width, this.height, 
-					centerX - this.width / 2, centerY - this.height / 2, 
-					this.width, this.height
-				);
-				context.restore();
-			}
-		};
-	
-		var Animation = function(sprite) {
-			this.sprite = sprite;
-			this.frameIndex = 0;
-			this.frame = this.sprite.coordsArray[0];
-			this.frameThreshold = this.sprite.coordsArray[0].length * 3;
-			this.tick = 0;
-			this.alpha = 0;
-		};
-		Animation.prototype = {
-			animateStart: function() {
-				selectedAnimation = this;
-			},
-			animateStop: function() {
-				selectedAnimation = null;
-			},			
-			render: function() {
-				this.tick++;
-				if (this.tick > this.frameThreshold) {
-					this.frameIndex = (this.frameIndex + 1) % this.sprite.coordsArray.length;
-					this.tick %= this.frameThreshold;
-				}
-				this.frame = this.sprite.coordsArray[this.frameIndex];
-				this.centerX = CENTER_X_FINAL;
-				this.centerY = CENTER_Y_FINAL;
-				context.save();
-				context.globalAlpha = this.alpha;
-				context.beginPath();
-				
-				var distX = (BIG_RIGHT_ICON_CENTER_X_FINAL - BIG_LEFT_ICON_CENTER_X_FINAL) / 2;
-				var radian = Math.acos(distX / BIG_ICON_RADIUS);
-				
-				context.arc(BIG_LEFT_ICON_CENTER_X_FINAL, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
-					-1 * radian, radian, false);
-				context.arc(BIG_RIGHT_ICON_CENTER_X_FINAL, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
-					Math.PI - radian, Math.PI + radian, false);
-				context.closePath();
-				context.clip();
-				context.drawImage(
-					this.sprite.image, 
-					this.frame[0], this.frame[1], 
-					this.frame[2], this.frame[3], 
-					this.centerX - this.frame[2] / 2, 
-					this.centerY - this.frame[3] / 2, 
-					this.frame[2], this.frame[3]);
-				context.restore();
-			}
-		};
-		
-		// declare an API
-		return {
-			initialize: initialize,
-			reset: reset
-	    };
-	})();
+		function getMousePos(canvas, evt) {
+			var rect = canvas.getBoundingClientRect();
+			return {
+			  x: evt.clientX - rect.left,
+			  y: evt.clientY - rect.top
+			};
+		}
+	};
 		
 	// Go
 	window.onload = function() {
