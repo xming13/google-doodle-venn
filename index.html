@@ -3,8 +3,10 @@
 	<meta charset="uft-8">
     <title>Google Doodle Venn</title>
 	<style type="text/css">
-		canvas { 
+		#canvas { 
 			background:url(images/background.png);
+			margin: 0 auto;
+			display: block;
 		}
 	</style>
 </head>
@@ -16,7 +18,7 @@
 <script src="js/requestAnimFrame.js"></script>
 <script type="text/javascript">
 	
-	var Anim = (function() {
+	var Venns = (function() {
 	
 		// declare the variables
 		var	requestID			= null,
@@ -28,54 +30,69 @@
 			bigRightIcons	 	= [],
 			centerIcons			= [],
 			bigDefaultLeftIcon  = null,
-			bigDefaultRightIcon = null,
+			bigDefaultRightIcon = null,			
+			sprites				= [],
+			animations 			= [],
 			selectedLeftIcon 	= null,
 			selectedRightIcon 	= null,
 			selectedCenterIcon	= null,
-			leftIconMapping 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'];
+			selectedAnimation   = null,
+			leftIconMapping 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'],
 			rightIconMapping	= [
 									[
-										{ index: 0, text: 'Tiny'}, 
-										{ index: 1, text: 'Has Wings'}, 
-										{ index: 4, text: 'Thrives in Cold'},
-										{ index: 7, text: 'Has a Shell'},
-										{ index: 9, text: 'Mythical'}
+										{ index: 0, text: 'Tiny', animIndex: 0},
+										{ index: 1, text: 'Has Wings', animIndex: 0},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 0},
+										{ index: 7, text: 'Has a Shell', animIndex: 0},
+										{ index: 9, text: 'Mythical', animIndex: 0}
 									],
 								 	[
-										{ index: 0, text: 'Tiny'},
-										{ index: 1, text: 'Has Wings'},
-										{ index: 4, text: 'Thrives in Cold'}, 
-										{ index: 5, text: 'Spiral-Shaped'},
-										{ index: 8, text: 'In Space'}
+										{ index: 0, text: 'Tiny', animIndex: 1},
+										{ index: 1, text: 'Has Wings', animIndex: 1},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 1}, 
+										{ index: 5, text: 'Spiral-Shaped', animIndex: 1},
+										{ index: 8, text: 'In Space', animIndex: 1}
 									],
 									[
-										{ index: 0, text: 'Tiny'},
-										{ index: 1, text: 'Has Wings'},
-										{ index: 4, text: 'Thrives in Cold'},
-										{ index: 6, text: 'Leaves a Trail'},
-										{ index: 8, text: 'In Space'}
+										{ index: 0, text: 'Tiny', animIndex: 2},
+										{ index: 1, text: 'Has Wings', animIndex: 2},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 2},
+										{ index: 6, text: 'Leaves a Trail', animIndex: 2},
+										{ index: 8, text: 'In Space', animIndex: 2}
 									],
 									[
-										{ index: 0, text: 'Tiny'},
-										{ index: 2, text: 'Can Fly'},
-										{ index: 3, text: 'Cone-Shaped'},
-										{ index: 7, text: 'Has a Shell'},
-										{ index: 9, text: 'Mythical'}
+										{ index: 0, text: 'Tiny', animIndex: 3},
+										{ index: 2, text: 'Can Fly', animIndex: 3},
+										{ index: 3, text: 'Cone-Shaped', animIndex: 3},
+										{ index: 7, text: 'Has a Shell', animIndex: 3},
+										{ index: 9, text: 'Mythical', animIndex: 3}
 									],
 									[
-										{ index: 0, text: 'Tiny'},
-										{ index: 1, text: 'Has Wings'},
-										{ index: 4, text: 'Thrives in Cold'},
-										{ index: 7, text: 'Has a Shell'},
-										{ index: 9, text: 'Mythical'}
+										{ index: 0, text: 'Tiny', animIndex: 4},
+										{ index: 1, text: 'Has Wings', animIndex: 4},
+										{ index: 4, text: 'Thrives in Cold', animIndex: 4},
+										{ index: 7, text: 'Has a Shell', animIndex: 4},
+										{ index: 9, text: 'Mythical', animIndex: 4}
 									],
-								  ]
+								  ],
 			bigLeftIconCenterX 	= 150,
 			bigRightIconCenterX = 450,
 			distSmallLeftIcon 	= 122,
 			distSmallRightIcon  = 0,
 			tick				= 0,
-			iconIndexRotate		= 0;
+			iconIndexRotate		= 0,
+			animationEvents		= {
+									'leftIconSelectedStart' : { isStart: false, isEnd: false },
+									'leftIconSelectedEnd' 	: { isStart: false, isEnd: false },
+									'rightIconSelectedStart': { isStart: false, isEnd: false },
+									'rightIconSelectedEnd' 	: { isStart: false, isEnd: false },
+									'bigIconsToCenterStart' : { isStart: false, isEnd: false },
+									'bigIconsToCenterEnd' 	: { isStart: false, isEnd: false },
+									'iconCenterStart' 		: { isStart: false, isEnd: false },
+									'iconCenterEnd' 		: { isStart: false, isEnd: false },
+									'animationCenterStart' 	: { isStart: false, isEnd: false },
+									'animationCenterEnd' 	: { isStart: false, isEnd: false }
+								  };
 			
 		// declare constants
 		var BIG_LEFT_ICON_CENTER_X_FINAL	= 250,
@@ -85,6 +102,7 @@
 			CENTER_X_FINAL					= 300,
 			CENTER_Y_FINAL					= 109,
 			BIG_ICON_RADIUS 				= 89,
+			SMALL_ICON_DIST					= 122,
 			TYPE_ICON_LEFT 					= 'left',
 			TYPE_ICON_RIGHT 				= 'right',
 			TYPE_ICON_CENTER				= 'center';
@@ -97,6 +115,7 @@
 			context = canvas.getContext('2d');
 			
 			createIcons();
+			createAnimations();
 			
 			canvas.addEventListener("mousemove", onMouseMove, false);
 			canvas.addEventListener("click", onClick, false);
@@ -128,41 +147,45 @@
 		}
 		
 		function createIcons() {
-			var spriteBigIcons = new Sprite("images/sprite-initial.png", [
+			var spriteBigIcons = new Sprite('images/sprite-initial.png', [
 				[0, 1266, 178, 178],
 				[0, 1637, 178, 178]
 			]);
+			sprites.push(spriteBigIcons);
 			bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, spriteBigIcons.image, spriteBigIcons.coordsArray[0]);
 			bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, spriteBigIcons.image, spriteBigIcons.coordsArray[1]);
 			
-			var spriteSmallLeftIcons = new Sprite("images/sprite-circles.png", [
+			var spriteSmallLeftIcons = new Sprite('images/sprite-circles.png', [
 				[52, 2509, 49, 49],
 				[52, 2276, 49, 49],
 				[0, 2043, 49, 49],
 				[104, 2509, 49, 49],
 				[0, 2509, 49, 49]
 			]);
+			sprites.push(spriteSmallLeftIcons);
 			spriteSmallLeftIcons.loadIcons(TYPE_ICON_LEFT);
 			
-			var spriteSmallRightIcons = new Sprite("images/sprite-circles.png", [
+			var spriteSmallRightIcons = new Sprite('images/sprite-circles.png', [
 				[0, 2276, 49, 49],
 				[52, 0, 49, 49],
 				[104, 0, 49, 49],
 				[104, 2276, 49, 49],
 				[0, 0, 49, 49]
 			]);
+			sprites.push(spriteSmallRightIcons);
 			spriteSmallRightIcons.loadIcons(TYPE_ICON_RIGHT);
 			
-			var spriteBigLeftIcons = new Sprite("images/sprite-circles.png", [
+			var spriteBigLeftIcons = new Sprite('images/sprite-circles.png', [
 				[0, 414, 178, 178],
 				[0, 957, 178, 178],
 				[0, 776, 178, 178],
 				[0, 1500, 178, 178],
 				[0, 1319, 178, 178]
             ]);
+			sprites.push(spriteBigLeftIcons);
 			spriteBigLeftIcons.loadIcons(TYPE_ICON_LEFT);
 			
-			var spriteBigRightIcons = new Sprite("images/sprite-circles.png", [
+			var spriteBigRightIcons = new Sprite('images/sprite-circles.png', [
 				[0, 1862, 178, 178],
 				[0, 1138, 178, 178],
 				[0, 2561, 178, 178],
@@ -174,9 +197,10 @@
 				[0, 2328, 178, 178],
 				[0, 2742, 178, 178]				
 			]);
+			sprites.push(spriteBigRightIcons);
 			spriteBigRightIcons.loadIcons(TYPE_ICON_RIGHT);
 			
-			var spriteCenterIcons = new Sprite("images/sprite-circles.png", [
+			var spriteCenterIcons = new Sprite('images/sprite-circles.png', [
 				[0, 233, 178, 178],
 				[0, 2095, 178, 178],
 				[0, 595, 178, 178],
@@ -208,9 +232,19 @@
 				[0, 2328, 178, 178],
 				[0, 2742, 178, 178]
 			]);
+			sprites.push(spriteCenterIcons);
 			spriteCenterIcons.loadIcons(TYPE_ICON_CENTER);
 		}
-				
+					
+		function createAnimations() {
+//			var animCircle = new Animation(sprites[sprites.length - 1]);
+//			animations.push(animCircle);
+			
+			for (var i = 0; i < sprites.length; i++) {
+				animations.push(new Animation(sprites[i]));
+			}
+		}
+		
 		function onMouseMove(event) {
 			var mousePos = getMousePos(this, event);
 			
@@ -296,32 +330,60 @@
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			
 			if (selectedLeftIcon) {
+				// 
+				animationEvents['leftIconSelectedStart'].isStart = true;
+				
+				// set Text based on selectedLeftIcon
 				context.font = '14px Arial';
 				context.textAlign = 'center';
 				context.fillText(leftIconMapping[selectedLeftIcon.index], 
 					bigLeftIconCenterX, 
 					BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 				);
-				if (distSmallLeftIcon > 0) {
-					distSmallLeftIcon -= 3;
-					// animate the right small icons!
-					distSmallRightIcon += 3;
+				
+				// animate smallLeftIcon to center of BigLeftIcon
+				if (!animationEvents['leftIconSelectedStart'].isEnd) {
+					if (distSmallLeftIcon - 3 > 0) {
+						distSmallLeftIcon -= 3;
+					} 
+					else {
+						distSmallLeftIcon = 0;
+					}
+
+					var isFinishedAnim = true;
 					for (var i = 0; i < smallLeftIcons.length; i++) {
 						var icon = smallLeftIcons[i];
 						if (icon.alpha - 0.05 > 0) {
 							icon.alpha -= 0.05;
+							isFinishedAnim = false;
 						} 
 						else {
-							icon.alpha = 0.0;
+							icon.alpha = 0.0;								
 						}
-					}
+					}					
+					animationEvents['leftIconSelectedStart'].isEnd = distSmallLeftIcon == 0 && isFinishedAnim;
+				} 
+				else {
+					animationEvents['leftIconSelectedEnd'].isStart = true;
+					
+					if (!animationEvents['leftIconSelectedEnd'].isEnd) {
+						// animate the right small icons from center to outer
+						if (distSmallRightIcon + 3 < SMALL_ICON_DIST) {
+							distSmallRightIcon += 3;
+						}
+						else {
+							distSmallRightIcon = SMALL_ICON_DIST;
+							animationEvents['leftIconSelectedEnd'].isEnd = true;
+						}
+					}					
 				}
+				
 				if (distSmallLeftIcon > BIG_ICON_RADIUS) {
 					bigDefaultLeftIcon.alpha = 0.4;
 					bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
 				} 
 				else {
-					if (bigDefaultLeftIcon.alpha + 0.015 < 1) {
+					if (bigDefaultLeftIcon.alpha + 0.015 < 1.0) {
 						bigDefaultLeftIcon.alpha += 0.015;
 					}
 					else {
@@ -330,12 +392,17 @@
 				}				
 			}
 			if (selectedRightIcon) {
+				animationEvents['rightIconSelectedStart'].isStart = true;
+			
+				// set Text based on selectedRightIcon
 				context.font = '14px Arial';
 				context.textAlign = 'center';
 				context.fillText(rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].text, 
 					bigRightIconCenterX, 
 					BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
-				);	
+				);		
+				
+				// animate smallRightIcon to center of BigRightIcon
 				if (distSmallRightIcon > 0) {
 					distSmallRightIcon -= 3;
 					for (var i = 0; i < smallRightIcons.length; i++) {
@@ -348,6 +415,12 @@
 						}
 					}
 				}
+				else {
+					animationEvents['rightIconSelectedStart'].isEnd = true;
+					animationEvents['rightIconSelectedEnd'].isStart = true;
+					animationEvents['rightIconSelectedEnd'].isEnd = true;
+				}
+				
 				if (distSmallRightIcon > BIG_ICON_RADIUS) {
 					bigDefaultRightIcon.alpha = 0.4;
 					var index = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].index;
@@ -362,37 +435,77 @@
 					}
 				}
 				
-				if (bigLeftIconCenterX + 2 < BIG_LEFT_ICON_CENTER_X_FINAL) {
-					bigLeftIconCenterX += 2;
-				} 
-				else {
-					bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
+				// set selected Animation based on the combination of the selected left and right choices
+				if (!selectedAnimation) {
+					var animIndex = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
+					selectedAnimation = animations[animIndex];
 				}
 				
-				if (bigRightIconCenterX - 2 > BIG_RIGHT_ICON_CENTER_X_FINAL) {
-					bigRightIconCenterX -= 2;
-				} 
-				else {
-					bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
-				}
-				
-				// animate center icon
-				if (bigLeftIconCenterX > CENTER_X_FINAL - BIG_ICON_RADIUS && bigRightIconCenterX < CENTER_X_FINAL + BIG_ICON_RADIUS) {
-					if (selectedCenterIcon.alpha + 0.025 < 1) {
-						selectedCenterIcon.alpha += 0.025;
+				if (animationEvents['rightIconSelectedEnd'].isEnd) {
+					animationEvents['bigIconsToCenterStart'].isStart = true;
+					// animate bigLeftIcon to center of the canvas
+					if (bigLeftIconCenterX + 2 < BIG_LEFT_ICON_CENTER_X_FINAL) {
+						bigLeftIconCenterX += 2;
 					}
 					else {
-						selectedCenterIcon.alpha = 1.0;
+						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
+					}
+				
+					// animate bigRightIcon to center of the canvas
+					if (bigRightIconCenterX - 2 > BIG_RIGHT_ICON_CENTER_X_FINAL) {
+						bigRightIconCenterX -= 2;
+					} 
+					else {
+						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
+					}
+
+					animationEvents['bigIconsToCenterStart'].isEnd = 
+						bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL &&
+						bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL;
+					animationEvents['bigIconsToCenterEnd'].isStart =
+						animationEvents['bigIconsToCenterEnd'].isEnd =
+						animationEvents['bigIconsToCenterStart'].isEnd;
+						
+					// animate center icon
+					if (bigLeftIconCenterX > CENTER_X_FINAL - BIG_ICON_RADIUS 
+						&& bigRightIconCenterX < CENTER_X_FINAL + BIG_ICON_RADIUS) {
+						animationEvents['iconCenterStart'].isStart = true;
+						
+						if (selectedCenterIcon.alpha + 0.025 < 1) {
+							selectedCenterIcon.alpha += 0.025;
+						}
+						else {
+							selectedCenterIcon.alpha = 1.0;
+							animationEvents['iconCenterStart'].isEnd = true;
+							animationEvents['iconCenterEnd'].isStart = true;
+							animationEvents['iconCenterEnd'].isEnd = true;
+						}
+						
+						if (animationEvents['iconCenterEnd'].isEnd) {
+							animationEvents['animationCenterStart'].isStart = true;
+							if (selectedAnimation.alpha + 0.025 < 1) {
+								selectedAnimation.alpha += 0.025;
+								animationEvents['animationCenterStart'].isEnd = true;
+							}
+							else {
+								selectedAnimation.alpha = 1.0;
+								animationEvents['animationCenterEnd'].isStart = true;
+								animationEvents['animationCenterEnd'].isEnd = true;
+							}
+						}
 					}
 				}
 			}
 			
+			// render smallLeftIcons
 			for (var i = 0; i < smallLeftIcons.length; i++) {
 				smallLeftIcons[i].render(
 					bigLeftIconCenterX - Math.cos((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallLeftIcon, 
 					BIG_LEFT_ICON_CENTER_Y - Math.sin((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallLeftIcon
 				);
 			}
+			
+			// render smallRightIcons
 			for (var i = 0; i < smallRightIcons.length; i++) {
 				smallRightIcons[i].render(
 					bigRightIconCenterX + Math.cos((45.0 - i * 22.5) / 180.0 * Math.PI) * distSmallRightIcon,
@@ -400,14 +513,22 @@
 				);
 			}
 			
+			// render bigDefaultLeftIcon and bigDefaultRightIcon
 			bigDefaultLeftIcon.render(bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
 			bigDefaultRightIcon.render(bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
+			
+			// render selectedCenterIcon
 			if (selectedCenterIcon) {
 				selectedCenterIcon.centerRender();
 			}
+			
+			// render selectedAnimation
+			if (selectedAnimation) {
+				selectedAnimation.render();
+			}
 		}
 		
-		function rotateSmallIcon() {
+		function rotateSmallIcon() {			
 			if (tick > 160) {
 				if (!selectedLeftIcon) {
 					smallLeftIcons[iconIndexRotate].rotateRad = 0;	
@@ -420,30 +541,14 @@
 
 				tick = 0;
 			} 
-			else if (tick > 140) {
+			else {
 				if (!selectedLeftIcon) {
-					smallLeftIcons[iconIndexRotate].rotateRad += Math.PI * 2 * 2 / 360;
+					smallLeftIcons[iconIndexRotate].updateRotateRad(tick);
 				}
 				else if (!selectedRightIcon) {
-					smallRightIcons[iconIndexRotate].rotateRad -= Math.PI * 2 * 2 / 360;
+					smallRightIcons[iconIndexRotate].updateRotateRad(tick);
 				}
 			}
-			else if (tick > 120) {
-				if (!selectedLeftIcon) {
-					smallLeftIcons[iconIndexRotate].rotateRad -= Math.PI * 2 * 4 / 360;
-				} 
-				else if (!selectedRightIcon) {
-					smallRightIcons[iconIndexRotate].rotateRad += Math.PI * 2 * 4 / 360;
-				}
-			}
-			else if (tick > 100) {
-				if (!selectedLeftIcon) {
-					smallLeftIcons[iconIndexRotate].rotateRad += Math.PI * 2 * 2 / 360;
-				}
-				else if (!selectedRightIcon) {
-					smallRightIcons[iconIndexRotate].rotateRad -= Math.PI * 2 * 2 / 360;
-				}
-			}	
 		}
 		
 		var Sprite = function(imagePath, coordsArray) {
@@ -498,8 +603,7 @@
 			this.alpha = 1.0;
 			this.rotateRad = 0;
 			this.isHovered = false;
-		}
-	
+		};
 		Icon.prototype = {
 			copyImage: function(icon) {
 				this.image = icon.image;
@@ -507,6 +611,26 @@
 				this.clipY = icon.clipY;
 				this.width = icon.width;
 				this.height = icon.height;
+			},
+			updateRotateRad: function(tick) {
+				if (tick > 160) {
+					return;
+				} 
+				else if (tick > 140) {
+					this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+						Math.PI * 2 * 2 / 360 :
+						-Math.PI * 2 * 2 / 360;
+				}
+				else if (tick > 120) {			
+					this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+						-Math.PI * 2 * 4 / 360 :
+						Math.PI * 2 * 4 / 360;
+				}
+				else if (tick > 100) {
+					this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+						Math.PI * 2 * 2 / 360 :
+						-Math.PI * 2 * 2 / 360;
+				}	
 			},
 			setHover: function(isHover) {
 				if (!this.isHovered && isHover) {
@@ -529,7 +653,7 @@
 					//set center icon
 					selectedCenterIcon = new Icon(-1, TYPE_ICON_CENTER, null, null);
 					selectedCenterIcon.copyImage(centerIcons[selectedLeftIcon.index * smallLeftIcons.length + selectedRightIcon.index]);
-					selectedCenterIcon.alpha = 0.0;
+					selectedCenterIcon.alpha = 0.0;					
 				} 
 				else if (this.type == TYPE_ICON_CENTER) {
 					reset();
@@ -581,17 +705,66 @@
 					this.width, this.height);
 				context.restore();
 			}
-		}
+		};
 	
+		var Animation = function(sprite) {
+			this.sprite = sprite;
+			this.frameIndex = 0;
+			this.frame = this.sprite.coordsArray[0];
+			this.frameThreshold = this.sprite.coordsArray[0].length * 3;
+			this.tick = 0;
+			this.alpha = 0;
+		};
+		Animation.prototype = {
+			animateStart: function() {
+				selectedAnimation = this;
+			},
+			animateStop: function() {
+				selectedAnimation = null;
+			},			
+			render: function() {
+				this.tick++;
+				if (this.tick > this.frameThreshold) {
+					this.frameIndex = (this.frameIndex + 1) % this.sprite.coordsArray.length;
+					this.tick %= this.frameThreshold;
+				}
+				this.frame = this.sprite.coordsArray[this.frameIndex];
+				this.centerX = CENTER_X_FINAL;
+				this.centerY = CENTER_Y_FINAL;
+				context.save();
+				context.globalAlpha = this.alpha;
+				context.beginPath();
+				
+				var distX = (BIG_RIGHT_ICON_CENTER_X_FINAL - BIG_LEFT_ICON_CENTER_X_FINAL) / 2;
+				var radian = Math.acos(distX / BIG_ICON_RADIUS);
+				
+				context.arc(BIG_LEFT_ICON_CENTER_X_FINAL, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+					-1 * radian, radian, false);
+				context.arc(BIG_RIGHT_ICON_CENTER_X_FINAL, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+					Math.PI - radian, Math.PI + radian, false);
+				context.closePath();
+				context.clip();
+				context.drawImage(
+					this.sprite.image, 
+					this.frame[0], this.frame[1], 
+					this.frame[2], this.frame[3], 
+					this.centerX - this.frame[2] / 2, 
+					this.centerY - this.frame[3] / 2, 
+					this.frame[2], this.frame[3]);
+				context.restore();
+			}
+		};
+		
 		// declare an API
 		return {
-			initialize: initialize
+			initialize: initialize,
+			reset: reset
 	    };
 	})();
 		
 	// Go
 	window.onload = function() {
-		Anim.initialize();
+		Venns.initialize();
 	};
 	
 </script>
