@@ -28,14 +28,13 @@
 			smallRightIcons 	= [],
 			bigLeftIcons 		= [],
 			bigRightIcons	 	= [],
-			centerIcons			= [],
 			bigDefaultLeftIcon  = null,
 			bigDefaultRightIcon = null,			
 			sprites				= [],
 			animations 			= [],
 			selectedLeftIcon 	= null,
 			selectedRightIcon 	= null,
-			selectedCenterIcon	= null,
+			requireCenterRender	= false,
 			selectedAnimation   = null,
 			leftIconMapping 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'],
 			rightIconMapping	= [
@@ -95,8 +94,8 @@
 								  };
 			
 		// declare constants
-		var BIG_LEFT_ICON_CENTER_X_FINAL	= 250,
-			BIG_RIGHT_ICON_CENTER_X_FINAL	= 350,
+		var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
+			BIG_RIGHT_ICON_CENTER_X_FINAL	= 336,
 			BIG_LEFT_ICON_CENTER_Y 			= 109,
 			BIG_RIGHT_ICON_CENTER_Y 		= 109,
 			CENTER_X_FINAL					= 300,
@@ -131,12 +130,11 @@
 			smallRightIcons 	= [],
 			bigLeftIcons 		= [],
 			bigRightIcons	 	= [],
-			centerIcons			= [],
 			bigDefaultLeftIcon  = null,
 			bigDefaultRightIcon = null,
 			selectedLeftIcon 	= null;
-			selectedRightIcon 	= null;
-			selectedCenterIcon 	= null;
+			selectedRightIcon 	= null,
+			requireCenterRender	= false,
 			bigLeftIconCenterX 	= 150,
 			bigRightIconCenterX = 450,
 			distSmallLeftIcon 	= 122,
@@ -199,41 +197,6 @@
 			]);
 			sprites.push(spriteBigRightIcons);
 			spriteBigRightIcons.loadIcons(TYPE_ICON_RIGHT);
-			
-			var spriteCenterIcons = new Sprite('images/sprite-circles.png', [
-				[0, 233, 178, 178],
-				[0, 2095, 178, 178],
-				[0, 595, 178, 178],
-				[0, 1681, 178, 178],
-				[0, 2328, 178, 178],
-				[0, 2742, 178, 178],
-				[0, 233, 178, 178],
-				[0, 2095, 178, 178],
-				[0, 595, 178, 178],
-				[0, 1681, 178, 178],
-				[0, 2328, 178, 178],
-				[0, 2742, 178, 178],
-				[0, 233, 178, 178],
-				[0, 2095, 178, 178],
-				[0, 595, 178, 178],
-				[0, 1681, 178, 178],
-				[0, 2328, 178, 178],
-				[0, 2742, 178, 178],
-				[0, 233, 178, 178],
-				[0, 2095, 178, 178],
-				[0, 595, 178, 178],
-				[0, 1681, 178, 178],
-				[0, 2328, 178, 178],
-				[0, 2742, 178, 178],
-				[0, 233, 178, 178],
-				[0, 2095, 178, 178],
-				[0, 595, 178, 178],
-				[0, 1681, 178, 178],
-				[0, 2328, 178, 178],
-				[0, 2742, 178, 178]
-			]);
-			sprites.push(spriteCenterIcons);
-			spriteCenterIcons.loadIcons(TYPE_ICON_CENTER);
 		}
 					
 		function createAnimations() {
@@ -281,9 +244,6 @@
 			var mousePos = getMousePos(this, event);
 
 			var icons = smallLeftIcons.concat(smallRightIcons);
-			if (selectedCenterIcon != null) {	
-				icons.push(selectedCenterIcon);
-			}
 			for (var i = 0; i < icons.length; i++) {
 				var icon = icons[i];
 				
@@ -330,9 +290,6 @@
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			
 			if (selectedLeftIcon) {
-				// 
-				animationEvents['leftIconSelectedStart'].isStart = true;
-				
 				// set Text based on selectedLeftIcon
 				context.font = '14px Arial';
 				context.textAlign = 'center';
@@ -341,15 +298,25 @@
 					BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 				);
 				
-				// animate smallLeftIcon to center of BigLeftIcon
-				if (!animationEvents['leftIconSelectedStart'].isEnd) {
-					if (distSmallLeftIcon - 3 > 0) {
+				if (!selectedRightIcon) {
+					// animate smallLeftIcon to center of BigLeftIcon
+					if (distSmallLeftIcon > 0) {
 						distSmallLeftIcon -= 3;
+					}
+					
+					if (distSmallLeftIcon > BIG_ICON_RADIUS) {
+						bigDefaultLeftIcon.alpha = 0.4;
+						bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
 					} 
 					else {
-						distSmallLeftIcon = 0;
+						if (bigDefaultLeftIcon.alpha + 0.015 < 1.0) {
+							bigDefaultLeftIcon.alpha += 0.015;
+						}
+						else {
+							bigDefaultLeftIcon.alpha = 1.0;
+						}
 					}
-
+					
 					var isFinishedAnim = true;
 					for (var i = 0; i < smallLeftIcons.length; i++) {
 						var icon = smallLeftIcons[i];
@@ -360,40 +327,20 @@
 						else {
 							icon.alpha = 0.0;								
 						}
-					}					
-					animationEvents['leftIconSelectedStart'].isEnd = distSmallLeftIcon == 0 && isFinishedAnim;
-				} 
-				else {
-					animationEvents['leftIconSelectedEnd'].isStart = true;
-					
-					if (!animationEvents['leftIconSelectedEnd'].isEnd) {
+					}
+
+					if (isFinishedAnim && distSmallLeftIcon <= 0) {					
 						// animate the right small icons from center to outer
 						if (distSmallRightIcon + 3 < SMALL_ICON_DIST) {
 							distSmallRightIcon += 3;
 						}
 						else {
 							distSmallRightIcon = SMALL_ICON_DIST;
-							animationEvents['leftIconSelectedEnd'].isEnd = true;
 						}
-					}					
+					}
 				}
-				
-				if (distSmallLeftIcon > BIG_ICON_RADIUS) {
-					bigDefaultLeftIcon.alpha = 0.4;
-					bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
-				} 
-				else {
-					if (bigDefaultLeftIcon.alpha + 0.015 < 1.0) {
-						bigDefaultLeftIcon.alpha += 0.015;
-					}
-					else {
-						bigDefaultLeftIcon.alpha = 1.0;
-					}
-				}				
 			}
-			if (selectedRightIcon) {
-				animationEvents['rightIconSelectedStart'].isStart = true;
-			
+			if (selectedRightIcon) {		
 				// set Text based on selectedRightIcon
 				context.font = '14px Arial';
 				context.textAlign = 'center';
@@ -402,25 +349,16 @@
 					BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 				);		
 				
+				// set selected Animation based on the combination of the selected left and right choices
+				if (!selectedAnimation) {
+					var animIndex = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
+					selectedAnimation = animations[animIndex];
+				}
+				
 				// animate smallRightIcon to center of BigRightIcon
 				if (distSmallRightIcon > 0) {
 					distSmallRightIcon -= 3;
-					for (var i = 0; i < smallRightIcons.length; i++) {
-						var icon = smallRightIcons[i];
-						if (icon.alpha - 0.05 > 0) {
-							icon.alpha -= 0.05;
-						} 
-						else {
-							icon.alpha = 0.0;
-						}
-					}
 				}
-				else {
-					animationEvents['rightIconSelectedStart'].isEnd = true;
-					animationEvents['rightIconSelectedEnd'].isStart = true;
-					animationEvents['rightIconSelectedEnd'].isEnd = true;
-				}
-				
 				if (distSmallRightIcon > BIG_ICON_RADIUS) {
 					bigDefaultRightIcon.alpha = 0.4;
 					var index = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].index;
@@ -434,67 +372,59 @@
 						bigDefaultRightIcon.alpha = 1.0;
 					}
 				}
-				
-				// set selected Animation based on the combination of the selected left and right choices
-				if (!selectedAnimation) {
-					var animIndex = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
-					selectedAnimation = animations[animIndex];
-				}
-				
-				if (animationEvents['rightIconSelectedEnd'].isEnd) {
-					animationEvents['bigIconsToCenterStart'].isStart = true;
-					// animate bigLeftIcon to center of the canvas
-					if (bigLeftIconCenterX + 2 < BIG_LEFT_ICON_CENTER_X_FINAL) {
-						bigLeftIconCenterX += 2;
-					}
-					else {
-						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
-					}
-				
-					// animate bigRightIcon to center of the canvas
-					if (bigRightIconCenterX - 2 > BIG_RIGHT_ICON_CENTER_X_FINAL) {
-						bigRightIconCenterX -= 2;
+				var isFinishedAnim = true;
+				for (var i = 0; i < smallRightIcons.length; i++) {
+					var icon = smallRightIcons[i];
+					if (icon.alpha - 0.05 > 0) {
+						icon.alpha -= 0.05;
+						isFinishedAnim = false;
 					} 
 					else {
-						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
-					}
-
-					animationEvents['bigIconsToCenterStart'].isEnd = 
-						bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL &&
-						bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL;
-					animationEvents['bigIconsToCenterEnd'].isStart =
-						animationEvents['bigIconsToCenterEnd'].isEnd =
-						animationEvents['bigIconsToCenterStart'].isEnd;
-						
-					// animate center icon
-					if (bigLeftIconCenterX > CENTER_X_FINAL - BIG_ICON_RADIUS 
-						&& bigRightIconCenterX < CENTER_X_FINAL + BIG_ICON_RADIUS) {
-						animationEvents['iconCenterStart'].isStart = true;
-						
-						if (selectedCenterIcon.alpha + 0.025 < 1) {
-							selectedCenterIcon.alpha += 0.025;
-						}
-						else {
-							selectedCenterIcon.alpha = 1.0;
-							animationEvents['iconCenterStart'].isEnd = true;
-							animationEvents['iconCenterEnd'].isStart = true;
-							animationEvents['iconCenterEnd'].isEnd = true;
-						}
-						
-						if (animationEvents['iconCenterEnd'].isEnd) {
-							animationEvents['animationCenterStart'].isStart = true;
-							if (selectedAnimation.alpha + 0.025 < 1) {
-								selectedAnimation.alpha += 0.025;
-								animationEvents['animationCenterStart'].isEnd = true;
-							}
-							else {
-								selectedAnimation.alpha = 1.0;
-								animationEvents['animationCenterEnd'].isStart = true;
-								animationEvents['animationCenterEnd'].isEnd = true;
-							}
-						}
+						icon.alpha = 0.0;
 					}
 				}
+				
+				// smallRightIcon finish animate to center of BigRightIcon
+				// start animate BigIcons to center
+				if (isFinishedAnim && distSmallRightIcon <= 0) {
+					requireCenterRender = true;
+					var speed = 7;
+					
+					// animate bigLeftIcon to center of the canvas				
+					if (bigLeftIconCenterX > BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
+						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL + speed;
+					} 
+					else if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
+						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
+					}
+					else if (bigLeftIconCenterX != BIG_LEFT_ICON_CENTER_X_FINAL) {
+						bigLeftIconCenterX += speed;
+					}
+				
+					// animate bigRightIcon to center of the canvas					
+					if (bigRightIconCenterX < BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
+						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL - speed;
+					} 
+					else if (bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
+						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
+					}
+					else if (bigRightIconCenterX != BIG_RIGHT_ICON_CENTER_X_FINAL) {
+						bigRightIconCenterX -= speed;
+					}
+					
+					// big icons finish animating to center of the canvas
+					if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL &&
+						bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL) {
+						// start center animation
+						if (selectedAnimation.alpha + 0.01 < 1.0) {
+							selectedAnimation.alpha += 0.01;
+						}
+						else {
+							selectedAnimation.alpha = 1.0;
+							requireCenterRender = false;
+						}
+					}
+				}	
 			}
 			
 			// render smallLeftIcons
@@ -517,15 +447,36 @@
 			bigDefaultLeftIcon.render(bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
 			bigDefaultRightIcon.render(bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
 			
-			// render selectedCenterIcon
-			if (selectedCenterIcon) {
-				selectedCenterIcon.centerRender();
+			// render center
+			if (requireCenterRender) {
+				renderOverlappedCenter(bigLeftIconCenterX, bigRightIconCenterX);
 			}
 			
 			// render selectedAnimation
 			if (selectedAnimation) {
 				selectedAnimation.render();
 			}
+		}
+		
+		function renderOverlappedCenter(leftCenterX, rightCenterX) {
+			this.centerX = CENTER_X_FINAL;
+			this.centerY = CENTER_Y_FINAL;
+			context.save();
+			context.globalAlpha = 1.0;
+			context.beginPath();
+			
+			var distX = (rightCenterX - leftCenterX) / 2;
+			var radian = Math.acos(distX / BIG_ICON_RADIUS);
+			
+			context.arc(leftCenterX, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+				-1 * radian, radian, false);
+			context.arc(rightCenterX, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+				Math.PI - radian, Math.PI + radian, false);
+			context.closePath();
+			context.clip();
+			context.fillStyle = '#f3f3f3';
+			context.fill();
+			context.restore();
 		}
 		
 		function rotateSmallIcon() {			
@@ -569,9 +520,6 @@
 						else if (type == TYPE_ICON_RIGHT) {
 							smallRightIcons.push(icon);
 						}
-						else if (type == TYPE_ICON_CENTER) {
-							centerIcons.push(icon);
-						}
 					}
 					else {
 						if (type == TYPE_ICON_LEFT) {
@@ -579,9 +527,6 @@
 						}
 						else if (type == TYPE_ICON_RIGHT) {
 							bigRightIcons.push(icon);
-						}
-						else if (type == TYPE_ICON_CENTER) {
-							centerIcons.push(icon);
 						}
 					}
 				}
@@ -648,15 +593,7 @@
 					iconIndexRotate = 0;
 				}
 				else if (this.type == TYPE_ICON_RIGHT && !selectedRightIcon) {
-					selectedRightIcon = this;
-					
-					//set center icon
-					selectedCenterIcon = new Icon(-1, TYPE_ICON_CENTER, null, null);
-					selectedCenterIcon.copyImage(centerIcons[selectedLeftIcon.index * smallLeftIcons.length + selectedRightIcon.index]);
-					selectedCenterIcon.alpha = 0.0;					
-				} 
-				else if (this.type == TYPE_ICON_CENTER) {
-					reset();
+					selectedRightIcon = this;			
 				}
 			},
 			render: function(centerX, centerY) {
@@ -671,38 +608,13 @@
 				context.translate(this.centerX, this.centerY);
 				context.rotate(this.rotateRad);
 				context.translate(-this.centerX, -this.centerY);
-				
 				context.drawImage(
 					this.image, 
 					this.clipX, this.clipY, 
 					this.width, this.height, 
 					centerX - this.width / 2, centerY - this.height / 2, 
-					this.width, this.height);
-					
-				context.restore();
-			},
-			centerRender: function() {
-				this.centerX = CENTER_X_FINAL;
-				this.centerY = CENTER_Y_FINAL;
-				context.save();
-				context.globalAlpha = this.alpha;
-				context.beginPath();
-				
-				var distX = (BIG_RIGHT_ICON_CENTER_X_FINAL - BIG_LEFT_ICON_CENTER_X_FINAL) / 2;
-				var radian = Math.acos(distX / BIG_ICON_RADIUS);
-				
-				context.arc(BIG_LEFT_ICON_CENTER_X_FINAL, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
-					-1 * radian, radian, false);
-				context.arc(BIG_RIGHT_ICON_CENTER_X_FINAL, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
-					Math.PI - radian, Math.PI + radian, false);
-				context.closePath();
-				context.clip();
-				context.drawImage(
-					this.image, 
-					this.clipX, this.clipY, 
-					this.width, this.height, 
-					this.centerX - this.width / 2, this.centerY - this.height / 2, 
-					this.width, this.height);
+					this.width, this.height
+				);
 				context.restore();
 			}
 		};
