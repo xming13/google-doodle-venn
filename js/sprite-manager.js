@@ -1,22 +1,44 @@
 var XMing = XMing || {};
 
 XMing.SpriteManager = new function() {
-	this.bigDefaultLeftIcon		= null;
-	this.bigDefaultRightIcon 	= null;
-	this.smallLeftIcons 		= [];
-	this.smallRightIcons 		= [];
-	this.bigLeftIcons 			= [];
-	this.bigRightIcons 			= [];
-	this.selectedLeftIcon		= null;
-	this.selectedRightIcon		= null;
+	this.bigDefaultLeftIcon			= null;
+	this.bigDefaultRightIcon 		= null;
+	this.smallLeftIcons 			= [];
+	this.smallRightIcons 			= [];
+	this.bigLeftIcons 				= [];
+	this.bigRightIcons 				= [];
+	
+	this.bigDefaultLeftColorIcon	= null;
+	this.bigDefaultRightColorIcon 	= null;
+	this.smallLeftColorIcons		= [];
+	this.smallRightColorIcons 		= [];
+	this.bigLeftColorIcons			= [];
+	this.bigRightColorIcons			= [];
 	
 	// declare variable
-	var TYPE_ICON_LEFT = 'left',
+	var TYPE_ICON_LEFT 	= 'left',
 		TYPE_ICON_RIGHT = 'right';
 	
 	this.init = function() {
+		this.reset();
 		this.loadInitial();
 		this.loadCircles();
+		this.loadColorIcons();
+	},
+	this.reset = function() {
+		this.bigDefaultLeftIcon			= null;
+		this.bigDefaultRightIcon 		= null;
+		this.smallLeftIcons 			= [];
+		this.smallRightIcons 			= [];
+		this.bigLeftIcons 				= [];
+		this.bigRightIcons 				= [];
+		
+		this.bigDefaultLeftColorIcon	= null;
+		this.bigDefaultRightColorIcon 	= null;
+		this.smallLeftColorIcons		= [];
+		this.smallRightColorIcons 		= [];
+		this.bigLeftColorIcons			= [];
+		this.bigRightColorIcons			= [];
 	},
 	this.loadInitial = function() {
 		var imageInitial = new Image();
@@ -72,7 +94,7 @@ XMing.SpriteManager = new function() {
 			} 
 			else if (i < 10) {
 				icon = new Icon(this.smallRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i]);
-				icon.alpha = 0.8;
+				icon.alpha = 0.0;
 				this.smallRightIcons.push(icon);
 			}
 			else if (i < 15) {
@@ -84,24 +106,121 @@ XMing.SpriteManager = new function() {
 				this.bigRightIcons.push(icon);
 			}
 		}
-	}
+	},	
+	this.loadColorIcons = function() {	
+		this.bigDefaultLeftColorIcon = new ColorIcon(-1, TYPE_ICON_LEFT, '#F3F3F3', 178, 178);
+		this.bigDefaultRightColorIcon = new ColorIcon(-1, TYPE_ICON_RIGHT, '#F3F3F3', 178, 178);
 		
+		this.smallLeftColorIcons.push(new ColorIcon(0, TYPE_ICON_LEFT, '#FFFF00', 49, 49)); // yellow
+		this.smallLeftColorIcons.push(new ColorIcon(1, TYPE_ICON_LEFT, '#00FFFF', 49, 49)); // cyan
+		this.smallLeftColorIcons.push(new ColorIcon(2, TYPE_ICON_LEFT, '#FF00FF', 49, 49)); // magenta
+		
+		this.smallRightColorIcons.push(new ColorIcon(0, TYPE_ICON_RIGHT, '#00FFFF', 49, 49)); // cyan
+		this.smallRightColorIcons.push(new ColorIcon(1, TYPE_ICON_RIGHT, '#0000FF', 49, 49)); // blue
+		this.smallRightColorIcons.push(new ColorIcon(2, TYPE_ICON_RIGHT, '#FF00FF', 49, 49)); // magenta
+		this.smallRightColorIcons.push(new ColorIcon(3, TYPE_ICON_RIGHT, '#FF0000', 49, 49)); // red
+		this.smallRightColorIcons.push(new ColorIcon(4, TYPE_ICON_RIGHT, '#00FF00', 49, 49)); // green
+		this.smallRightColorIcons.push(new ColorIcon(5, TYPE_ICON_RIGHT, '#FFFF00', 49, 49)); // yellow
+		
+		this.bigLeftColorIcons.push(new ColorIcon(0, TYPE_ICON_LEFT, '#FFFF00', 178, 178)); // yellow
+		this.bigLeftColorIcons.push(new ColorIcon(1, TYPE_ICON_LEFT, '#00FFFF', 178, 178)); // cyan
+		this.bigLeftColorIcons.push(new ColorIcon(2, TYPE_ICON_LEFT, '#FF00FF', 178, 178)); // magenta
+		
+		this.bigRightColorIcons.push(new ColorIcon(0, TYPE_ICON_RIGHT, '#00FFFF', 178, 178)); // cyan
+		this.bigRightColorIcons.push(new ColorIcon(1, TYPE_ICON_RIGHT, '#0000FF', 178, 178)); // blue
+		this.bigRightColorIcons.push(new ColorIcon(2, TYPE_ICON_RIGHT, '#FF00FF', 178, 178)); // magenta
+		this.bigRightColorIcons.push(new ColorIcon(3, TYPE_ICON_RIGHT, '#FF0000', 178, 178)); // red
+		this.bigRightColorIcons.push(new ColorIcon(4, TYPE_ICON_RIGHT, '#00FF00', 178, 178)); // green
+		this.bigRightColorIcons.push(new ColorIcon(5, TYPE_ICON_RIGHT, '#FFFF00', 178, 178)); // yellow
+	}
+	var ColorIcon = function(index, type, hex, width, height) {
+		this.index 		= index;
+		this.type 		= type;
+		this.hex 		= hex;
+		this.width 		= width;
+		this.height 	= height;
+		this.centerX 	= 0;
+		this.centerY 	= 0;
+		this.alpha 		= 1.0;
+		this.factor 	= type == TYPE_ICON_LEFT ? 1.0 : 0.0;
+		this.isStart 	= false;
+		this.isOverlay 	= false;
+		this.rotateRad 	= 0;
+		this.isHovered 	= false;
+	};
+	ColorIcon.prototype = {
+		copyImage: function(colorIcon) {
+			this.hex = colorIcon.hex;
+			this.width = colorIcon.width;
+			this.height = colorIcon.height;
+		},
+		updateRotateRad: function(tick) {
+			if (tick > 160) {
+				return;
+			} 
+			else if (tick > 140) {
+				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+					Math.PI * 2 * 2 / 360 :
+					-Math.PI * 2 * 2 / 360;
+			}
+			else if (tick > 120) {			
+				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+					-Math.PI * 2 * 4 / 360 :
+					Math.PI * 2 * 4 / 360;
+			}
+			else if (tick > 100) {
+				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+					Math.PI * 2 * 2 / 360 :
+					-Math.PI * 2 * 2 / 360;
+			}	
+		},
+		setHover: function(isHover) {
+			if (!this.isHovered && isHover) {
+				this.isHovered = isHover;
+				this.alpha = 1.0;
+			}
+			else if (this.isHovered && !isHover) {
+				this.isHovered = isHover;
+				this.alpha = 0.8;
+			}
+		},
+		render: function(context, centerX, centerY) {
+			this.centerX = centerX;
+			this.centerY = centerY;
+			context.save();
+			context.globalAlpha = this.alpha;
+			context.beginPath();
+			context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
+			context.closePath();
+			context.clip();
+			context.translate(this.centerX, this.centerY);
+			context.rotate(this.rotateRad);
+			context.translate(-this.centerX, -this.centerY);
+			context.fillStyle = this.hex;
+			context.fill();
+				
+			context.restore();
+		}		
+	};
+	
 	var Icon = function(index, type, image, coords) {
-		this.index = index;
-		this.type = type;
-		this.image = image;
+		this.index 		= index;
+		this.type 		= type;
+		this.image 		= image;
 		if (coords != null) {
-			this.clipX = coords[0];
-			this.clipY = coords[1];
-			this.width = coords[2];
+			this.clipX 	= coords[0];
+			this.clipY 	= coords[1];
+			this.width 	= coords[2];
 			this.height = coords[3];
 		}
-		this.centerX = 0;
-		this.centerY = 0;
-		this.alpha = 1.0;
-		this.isOverlay = false;
-		this.rotateRad = 0;
-		this.isHovered = false;
+		this.centerX 	= 0;
+		this.centerY 	= 0;
+		this.alpha 		= 1.0;
+		this.factor 	= type == TYPE_ICON_LEFT ? 1.0 : 0.0;
+		this.isStart 	= false;
+		this.isOverlay 	= false;
+		this.rotateRad 	= 0;
+		this.isHovered 	= false;
 	};
 	Icon.prototype = {
 		copyImage: function(icon) {

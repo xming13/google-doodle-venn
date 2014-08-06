@@ -1,13 +1,23 @@
 var XMing = XMing || {};
 
 XMing.AnimationManager = new function() {
-	this.animations = [];
+	this.animations 		= [];
+	this.colorAnimations 	= [];
 	
 	this.init = function() {
+		this.reset();
 		this.loadAnimation();
+		this.loadColorAnimation();
+	},
+	this.reset = function() {
+		this.animations 		= [];
+		this.colorAnimations 	= [];
 	},
 	this.getAnimation = function(index) {
 		return this.animations[index];
+	},
+	this.getColorAnimation = function(index) {
+		return this.colorAnimations[index];
 	},
 	this.loadAnimation = function() {
 		var imagePath = 'images/sprite-middlemammals1.png';
@@ -1196,22 +1206,77 @@ XMing.AnimationManager = new function() {
 		
 		this.animations.push(new Animation(imagePath, coordsArray.slice(0, 94), false, 22));
 		this.animations.push(new Animation(imagePath, coordsArray.slice(94), false, 22));
-		
-		console.log(coordsArray.length);
+	},
+	this.loadColorAnimation = function() {
+		this.colorAnimations.push(new ColorAnimation('#00FF00', 'Green'));
+		this.colorAnimations.push(new ColorAnimation('#FF0000', 'Red'));
+		this.colorAnimations.push(new ColorAnimation('#0000FF', 'Blue'));
+		this.colorAnimations.push(new ColorAnimation('#000000', 'Black'));
 	}
 	
-	var Animation = function(imagePath, coordsArray, isReplay, numFrameLoopBack) {
-		this.image = new Image();
-		this.image.src = imagePath;
-		this.coordsArray = coordsArray;
+	var ColorAnimation = function(hex, name) {
+		this.hex 		= hex;
+		this.name		= name;
+		this.tick		= 0;
 		this.frameIndex = 0;
-		this.frame = coordsArray;[0];
-		this.frameThreshold = 5;
-		this.tick = 0;
-		this.alpha = 0;
-		this.isReplay = isReplay;
-		this.numFrameLoopBack = numFrameLoopBack;
-		this.isStarted = false;
+		this.alpha		= 0.0;
+		this.isStarted 	= false;		
+	};
+	ColorAnimation.prototype = {
+		start: function() {
+			this.isStarted = true;
+		},
+		render: function(context) {
+			var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
+				BIG_RIGHT_ICON_CENTER_X_FINAL	= 336,
+				BIG_LEFT_ICON_CENTER_Y 			= 109,
+				BIG_RIGHT_ICON_CENTER_Y 		= 109,
+				CENTER_X_FINAL					= 300,
+				CENTER_Y_FINAL					= 109,
+				BIG_ICON_RADIUS 				= 89;
+			
+			this.tick++;
+			
+			context.save();
+			context.globalAlpha = 1.0;
+			context.beginPath();
+			
+			var distX = (BIG_RIGHT_ICON_CENTER_X_FINAL - BIG_LEFT_ICON_CENTER_X_FINAL) / 2;
+			var radian = Math.acos(distX / BIG_ICON_RADIUS);
+			
+			context.arc(BIG_LEFT_ICON_CENTER_X_FINAL, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+				-1 * radian, radian, false);
+			context.arc(BIG_RIGHT_ICON_CENTER_X_FINAL, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+				Math.PI - radian, Math.PI + radian, false);
+			context.closePath();
+			context.clip();
+			context.fillStyle = this.hex;
+			context.fill();
+			
+			context.font = 'bold 18px Arial';
+			context.textAlign = 'center';
+			context.fillStyle = '#f7f7f7';
+			context.fillText(
+				this.name, 
+				CENTER_X_FINAL, 
+				CENTER_Y_FINAL
+			);	
+			context.restore();
+		}
+	};
+	
+	var Animation = function(imagePath, coordsArray, isReplay, numFrameLoopBack) {
+		this.image 				= new Image();
+		this.image.src 			= imagePath;
+		this.coordsArray 		= coordsArray;
+		this.frameIndex 		= 0;
+		this.frame 				= coordsArray;[0];
+		this.frameThreshold	 	= 5;
+		this.tick 				= 0;
+		this.alpha 				= 0.0;
+		this.isReplay 			= isReplay;
+		this.numFrameLoopBack 	= numFrameLoopBack;
+		this.isStarted 			= false;
 	};
 	Animation.prototype = {	
 		start: function() {
@@ -1243,8 +1308,6 @@ XMing.AnimationManager = new function() {
 				this.tick %= this.frameThreshold;					
 			}
 				
-			this.centerX = CENTER_X_FINAL;
-			this.centerY = CENTER_Y_FINAL;
 			context.save();
 			context.globalAlpha = this.alpha;
 			context.beginPath();
