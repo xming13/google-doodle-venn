@@ -1212,13 +1212,16 @@ XMing.AnimationManager = new function() {
 		this.colorAnimations.push(new ColorAnimation('#FF0000', 'Red'));
 		this.colorAnimations.push(new ColorAnimation('#0000FF', 'Blue'));
 		this.colorAnimations.push(new ColorAnimation('#000000', 'Black'));
+		
+		this.colorAnimations.push(new ColorAnimation('#FFFF00', 'Yellow'));
+		this.colorAnimations.push(new ColorAnimation('#00FFFF', 'Cyan'));
+		this.colorAnimations.push(new ColorAnimation('#FF00FF', 'Magenta'));
+		this.colorAnimations.push(new ColorAnimation('#FFFFFF', 'White'));
 	}
 	
 	var ColorAnimation = function(hex, name) {
 		this.hex 		= hex;
 		this.name		= name;
-		this.tick		= 0;
-		this.frameIndex = 0;
 		this.alpha		= 0.0;
 		this.isStarted 	= false;		
 	};
@@ -1229,13 +1232,11 @@ XMing.AnimationManager = new function() {
 		render: function(context) {
 			var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
 				BIG_RIGHT_ICON_CENTER_X_FINAL	= 336,
-				BIG_LEFT_ICON_CENTER_Y 			= 109,
-				BIG_RIGHT_ICON_CENTER_Y 		= 109,
+				BIG_LEFT_ICON_CENTER_Y 			= 150,
+				BIG_RIGHT_ICON_CENTER_Y 		= 150,
 				CENTER_X_FINAL					= 300,
-				CENTER_Y_FINAL					= 109,
-				BIG_ICON_RADIUS 				= 89;
-			
-			this.tick++;
+				CENTER_Y_FINAL					= 150,
+				BIG_ICON_RADIUS 				= 89;			
 			
 			context.save();
 			context.globalAlpha = 1.0;
@@ -1253,9 +1254,15 @@ XMing.AnimationManager = new function() {
 			context.fillStyle = this.hex;
 			context.fill();
 			
+			var rgb = this.hex.substring(1);
+			var r = parseInt(rgb.substring(0,2),16)/255;
+			var g = parseInt(rgb.substring(2,4),16)/255;
+			var b = parseInt(rgb.substring(4,6),16)/255;
+			var v = Math.max.apply(Math, [r, g, b]);
+			
 			context.font = 'bold 18px Arial';
 			context.textAlign = 'center';
-			context.fillStyle = '#f7f7f7';
+			context.fillStyle = v <= 0.5 ? '#f7f7f7' : '#1b1b1b';
 			context.fillText(
 				this.name, 
 				CENTER_X_FINAL, 

@@ -38,43 +38,32 @@ XMing.VennsColor = new function() {
 	// declare constants
 	var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
 		BIG_RIGHT_ICON_CENTER_X_FINAL	= 336,
-		BIG_LEFT_ICON_CENTER_Y 			= 109,
-		BIG_RIGHT_ICON_CENTER_Y 		= 109,
+		BIG_LEFT_ICON_CENTER_Y 			= 150,
+		BIG_RIGHT_ICON_CENTER_Y 		= 150,
 		CENTER_X_FINAL					= 300,
-		CENTER_Y_FINAL					= 109,
+		CENTER_Y_FINAL					= 150,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
 		TYPE_ICON_LEFT 					= 'left',
 		TYPE_ICON_RIGHT 				= 'right',
-		COLOR_MAPPING			= [ [0, 1, 2], [2, 3, 5], [5, 4, 0] ],
-		LEFT_ICONS_TEXT_MAPPED 	= ['Yellow', 'Cyan', 'Magenta'],
-		RIGHT_ICONS_INFO_MAPPED	= [
-									// 0: green
-									// 1: red
-									// 2: blue
-									// 3: black
-									[
-										{ index: 0, text: 'Cyan', animIndex: 0},
-										{ index: 1, text: 'Blue', animIndex: 3},
-										{ index: 2, text: 'Magenta', animIndex: 1}
-									],
-									[
-										{},
-										{},
-										{ index: 2, text: 'Magenta', animIndex: 2},
-										{ index: 3, text: 'Red', animIndex: 3},
-										{},
-										{ index: 5, text: 'Yellow', animIndex: 0}
-									],
-									[
-										{ index: 0, text: 'Cyan', animIndex: 2},
-										{},
-										{},
-										{},
-										{ index: 4, text: 'Green', animIndex: 3},
-										{ index: 5, text: 'Yellow', animIndex: 1}								
-									]
-								  ];
+		COLOR_MAPPING					= [ 
+											[1, 5, 2], 
+											[2, 3, 0], 
+											[0, 4, 1], 
+											[4, 1, 5],
+											[5, 2, 3],
+											[3, 0, 4]										
+										  ],
+		RIGHT_ICONS_INFO_MAPPED			= [
+											// 0: green, 1: red, 2: blue, 3: black
+											// 4: yellow, 5: cyan, 6: magenta, 7: white
+											{ 1 : 0, 2 : 1, 5 : 3},
+											{ 0 : 0, 2 : 2, 3 : 3},
+											{ 0 : 1, 1 : 2, 4 : 3},
+											{ 1 : 7, 4 : 4, 5 : 6},
+											{ 2 : 7, 3 : 4, 5 : 5},
+											{ 0 : 7, 3 : 6, 4 : 5}
+										  ];
 	
 	// init method
 	this.initialize = function() {
@@ -89,8 +78,8 @@ XMing.VennsColor = new function() {
 		bigRightIcons	 	= XMing.SpriteManager.bigRightColorIcons;
 		bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftColorIcon;
 		bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightColorIcon;
-		leftAngle 			= 90.0 / (smallLeftIcons.length - 1);
-		rightAngle			= 90.0 / (smallRightIcons.length - 1);
+		leftAngle 			= 300.0 / (smallLeftIcons.length - 1);
+		rightAngle			= 300.0 / (smallRightIcons.length - 1);
 		
 		canvas.addEventListener("mousemove", onMouseMove, false);
 		canvas.addEventListener("click", onClick, false);
@@ -157,11 +146,11 @@ XMing.VennsColor = new function() {
 		
 		if (selectedLeftIcon) {
 			// set Text based on selectedLeftIcon
-			context.font = '14px Arial';
+			context.font = 'bold 14px Arial';
 			context.textAlign = 'center';
 			context.fillText(
-				LEFT_ICONS_TEXT_MAPPED[selectedLeftIcon.index], 
-				bigLeftIconCenterX - 8, 
+				selectedLeftIcon.name, 
+				bigLeftIconCenterX, 
 				BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 			);
 			
@@ -214,28 +203,25 @@ XMing.VennsColor = new function() {
 			}
 		}
 		if (selectedRightIcon) {
-			var info = RIGHT_ICONS_INFO_MAPPED[selectedLeftIcon.index][selectedRightIcon.index];
-			
 			// set Text based on selectedRightIcon
-			context.font = '14px Arial';
+			context.font = 'bold 14px Arial';
 			context.textAlign = 'center';
 			context.fillText(
-				info.text, 
-				bigRightIconCenterX + 8, 
+				selectedRightIcon.name, 
+				bigRightIconCenterX, 
 				BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 			);		
 			
 			// set selected Animation based on the combination of the selected left and right choices
 			if (!selectedAnimation) {
-				var animIndex = info.animIndex;
+				var animIndex = RIGHT_ICONS_INFO_MAPPED[selectedLeftIcon.index][selectedRightIcon.index];
 				selectedAnimation = XMing.AnimationManager.getColorAnimation(animIndex);
 			}
 					
 			// set bigDefaultRightIcon image based on selected right choice
 			if (!animEvents['bigRightIconSelected'].isStart) {
 				bigDefaultRightIcon.alpha = 0.1;
-				var index = info.index;
-				bigDefaultRightIcon.copyImage(bigRightIcons[index]);
+				bigDefaultRightIcon.copyImage(bigRightIcons[selectedRightIcon.index]);
 			} 
 			// still animating right selection
 			if (!animEvents['bigRightIconSelected'].isEnd) {
@@ -420,14 +406,8 @@ XMing.VennsColor = new function() {
 			Math.PI - radian, Math.PI + radian, false);
 		context.closePath();
 		context.clip();
-		
-		if (leftCenterX == CENTER_X_FINAL) {
-			context.fillStyle = '#fff';
-		} 
-		else {
-			context.fillStyle = '#fff';
-		}
-		//context.fill();
+		context.fillStyle = '#fff';
+		context.fill();
 		context.restore();
 	},
 	// rotate small icon periodically

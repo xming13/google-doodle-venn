@@ -108,35 +108,46 @@ XMing.SpriteManager = new function() {
 		}
 	},	
 	this.loadColorIcons = function() {	
-		this.bigDefaultLeftColorIcon = new ColorIcon(-1, TYPE_ICON_LEFT, '#F3F3F3', 178, 178);
-		this.bigDefaultRightColorIcon = new ColorIcon(-1, TYPE_ICON_RIGHT, '#F3F3F3', 178, 178);
+		var sizeSmall = 45,
+			sizeBig = 178;
 		
-		this.smallLeftColorIcons.push(new ColorIcon(0, TYPE_ICON_LEFT, '#FFFF00', 49, 49)); // yellow
-		this.smallLeftColorIcons.push(new ColorIcon(1, TYPE_ICON_LEFT, '#00FFFF', 49, 49)); // cyan
-		this.smallLeftColorIcons.push(new ColorIcon(2, TYPE_ICON_LEFT, '#FF00FF', 49, 49)); // magenta
+		this.bigDefaultLeftColorIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_LEFT, sizeBig, sizeBig);
+		this.bigDefaultRightColorIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_RIGHT, sizeBig, sizeBig);
 		
-		this.smallRightColorIcons.push(new ColorIcon(0, TYPE_ICON_RIGHT, '#00FFFF', 49, 49)); // cyan
-		this.smallRightColorIcons.push(new ColorIcon(1, TYPE_ICON_RIGHT, '#0000FF', 49, 49)); // blue
-		this.smallRightColorIcons.push(new ColorIcon(2, TYPE_ICON_RIGHT, '#FF00FF', 49, 49)); // magenta
-		this.smallRightColorIcons.push(new ColorIcon(3, TYPE_ICON_RIGHT, '#FF0000', 49, 49)); // red
-		this.smallRightColorIcons.push(new ColorIcon(4, TYPE_ICON_RIGHT, '#00FF00', 49, 49)); // green
-		this.smallRightColorIcons.push(new ColorIcon(5, TYPE_ICON_RIGHT, '#FFFF00', 49, 49)); // yellow
+		this.smallLeftColorIcons.push(new ColorIcon(0, 'Yellow', '#FFFF00', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
+		this.smallLeftColorIcons.push(new ColorIcon(1, 'Cyan', '#00FFFF', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
+		this.smallLeftColorIcons.push(new ColorIcon(2, 'Magenta', '#FF00FF', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
+		this.smallLeftColorIcons.push(new ColorIcon(3, 'Red', '#FF0000', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
+		this.smallLeftColorIcons.push(new ColorIcon(4, 'Green', '#00FF00', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
+		this.smallLeftColorIcons.push(new ColorIcon(5, 'Blue', '#0000FF', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
 		
-		this.bigLeftColorIcons.push(new ColorIcon(0, TYPE_ICON_LEFT, '#FFFF00', 178, 178)); // yellow
-		this.bigLeftColorIcons.push(new ColorIcon(1, TYPE_ICON_LEFT, '#00FFFF', 178, 178)); // cyan
-		this.bigLeftColorIcons.push(new ColorIcon(2, TYPE_ICON_LEFT, '#FF00FF', 178, 178)); // magenta
+		this.smallRightColorIcons.push(new ColorIcon(0, 'Yellow', '#FFFF00', TYPE_ICON_RIGHT, sizeSmall, sizeSmall));
+		this.smallRightColorIcons.push(new ColorIcon(1, 'Cyan', '#00FFFF', TYPE_ICON_RIGHT, sizeSmall, sizeSmall));
+		this.smallRightColorIcons.push(new ColorIcon(2, 'Magenta', '#FF00FF', TYPE_ICON_RIGHT, sizeSmall, sizeSmall));
+		this.smallRightColorIcons.push(new ColorIcon(3, 'Red', '#FF0000', TYPE_ICON_RIGHT, sizeSmall, sizeSmall));
+		this.smallRightColorIcons.push(new ColorIcon(4, 'Green', '#00FF00', TYPE_ICON_RIGHT, sizeSmall, sizeSmall));
+		this.smallRightColorIcons.push(new ColorIcon(5, 'Blue', '#0000FF', TYPE_ICON_RIGHT, sizeSmall, sizeSmall));
 		
-		this.bigRightColorIcons.push(new ColorIcon(0, TYPE_ICON_RIGHT, '#00FFFF', 178, 178)); // cyan
-		this.bigRightColorIcons.push(new ColorIcon(1, TYPE_ICON_RIGHT, '#0000FF', 178, 178)); // blue
-		this.bigRightColorIcons.push(new ColorIcon(2, TYPE_ICON_RIGHT, '#FF00FF', 178, 178)); // magenta
-		this.bigRightColorIcons.push(new ColorIcon(3, TYPE_ICON_RIGHT, '#FF0000', 178, 178)); // red
-		this.bigRightColorIcons.push(new ColorIcon(4, TYPE_ICON_RIGHT, '#00FF00', 178, 178)); // green
-		this.bigRightColorIcons.push(new ColorIcon(5, TYPE_ICON_RIGHT, '#FFFF00', 178, 178)); // yellow
+		this.bigLeftColorIcons.push(new ColorIcon(0, 'Yellow', '#FFFF00', TYPE_ICON_LEFT, sizeBig, sizeBig));
+		this.bigLeftColorIcons.push(new ColorIcon(1, 'Cyan', '#00FFFF', TYPE_ICON_LEFT, sizeBig, sizeBig));
+		this.bigLeftColorIcons.push(new ColorIcon(2, 'Magenta', '#FF00FF', TYPE_ICON_LEFT, sizeBig, sizeBig));
+		this.bigLeftColorIcons.push(new ColorIcon(3, 'Red', '#FF0000', TYPE_ICON_LEFT, sizeBig, sizeBig));
+		this.bigLeftColorIcons.push(new ColorIcon(4, 'Green', '#00FF00', TYPE_ICON_LEFT, sizeBig, sizeBig));
+		this.bigLeftColorIcons.push(new ColorIcon(5, 'Blue', '#0000FF', TYPE_ICON_LEFT, sizeBig, sizeBig));
+		
+		this.bigRightColorIcons.push(new ColorIcon(0, 'Yellow', '#FFFF00', TYPE_ICON_RIGHT, sizeBig, sizeBig));
+		this.bigRightColorIcons.push(new ColorIcon(1, 'Cyan', '#00FFFF', TYPE_ICON_RIGHT, sizeBig, sizeBig));
+		this.bigRightColorIcons.push(new ColorIcon(2, 'Magenta', '#FF00FF', TYPE_ICON_RIGHT, sizeBig, sizeBig));
+		this.bigRightColorIcons.push(new ColorIcon(3, 'Red', '#FF0000', TYPE_ICON_RIGHT, sizeBig, sizeBig));
+		this.bigRightColorIcons.push(new ColorIcon(4, 'Green', '#00FF00', TYPE_ICON_RIGHT, sizeBig, sizeBig));
+		this.bigRightColorIcons.push(new ColorIcon(5, 'Blue', '#0000FF', TYPE_ICON_RIGHT, sizeBig, sizeBig));
+		
 	}
-	var ColorIcon = function(index, type, hex, width, height) {
+	var ColorIcon = function(index, name, hex, type, width, height) {
 		this.index 		= index;
-		this.type 		= type;
+		this.name		= name;
 		this.hex 		= hex;
+		this.type 		= type;
 		this.width 		= width;
 		this.height 	= height;
 		this.centerX 	= 0;
@@ -150,6 +161,7 @@ XMing.SpriteManager = new function() {
 	};
 	ColorIcon.prototype = {
 		copyImage: function(colorIcon) {
+			this.name = colorIcon.name;
 			this.hex = colorIcon.hex;
 			this.width = colorIcon.width;
 			this.height = colorIcon.height;
@@ -197,6 +209,10 @@ XMing.SpriteManager = new function() {
 			context.rotate(this.rotateRad);
 			context.translate(-this.centerX, -this.centerY);
 			context.fillStyle = this.hex;
+			context.shadowColor = '#999';
+			context.shadowBlur = 20;
+			context.shadowOffsetX = 15;
+			context.shadowOffsetY = 15;
 			context.fill();
 				
 			context.restore();
