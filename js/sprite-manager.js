@@ -99,6 +99,7 @@ XMing.SpriteManager = new function() {
 		this.centerX = 0;
 		this.centerY = 0;
 		this.alpha = 1.0;
+		this.isOverlay = false;
 		this.rotateRad = 0;
 		this.isHovered = false;
 	};
@@ -159,6 +160,12 @@ XMing.SpriteManager = new function() {
 				centerX - this.width / 2, centerY - this.height / 2, 
 				this.width, this.height
 			);
+			
+			if (this.isOverlay) {
+				context.globalAlpha = (1.0 - this.alpha) / 2;
+				context.fillStyle = '#777';
+				context.fill();
+			}
 			context.restore();
 		}
 	};

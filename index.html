@@ -52,18 +52,18 @@
 										{ index: 8, text: 'In Space', animIndex: 5}
 									],
 									[
-										{ index: 0, text: 'Tiny', animIndex: 15},
-										{ index: 1, text: 'Has Wings', animIndex: 16},
+										{ index: 0, text: 'Tiny', animIndex: 18},
+										{ index: 1, text: 'Has Wings', animIndex: 15},
 										{ index: 4, text: 'Thrives in Cold', animIndex: 17},
-										{ index: 6, text: 'Leaves a Trail', animIndex: 18},
+										{ index: 6, text: 'Leaves a Trail', animIndex: 16},
 										{ index: 8, text: 'In Space', animIndex: 19}
 									],
 									[
-										{ index: 0, text: 'Tiny', animIndex: 3},
-										{ index: 2, text: 'Can Fly', animIndex: 3},
-										{ index: 3, text: 'Cone-Shaped', animIndex: 3},
-										{ index: 7, text: 'Has a Shell', animIndex: 3},
-										{ index: 9, text: 'Mythical', animIndex: 3}
+										{ index: 0, text: 'Tiny', animIndex: 22},
+										{ index: 2, text: 'Can Fly', animIndex: 23},
+										{ index: 3, text: 'Cone-Shaped', animIndex: 21},
+										{ index: 7, text: 'Has a Shell', animIndex: 20},
+										{ index: 9, text: 'Mythical', animIndex: 24}
 									],
 									[
 										{ index: 0, text: 'Tiny', animIndex: 14},
@@ -77,7 +77,8 @@
 			bigRightIconCenterX = 450,
 			distSmallLeftIcon 	= 122,
 			distSmallRightIcon  = 0,
-			tick				= 0,
+			tickRotate			= 0,
+			tickLeftIcon		= 0,
 			iconIndexRotate		= 0;
 			
 		// declare constants
@@ -130,7 +131,7 @@
 			bigRightIconCenterX = 450,
 			distSmallLeftIcon 	= 122,
 			distSmallRightIcon  = 0,
-			tick				= 0,
+			tickRotate				= 0,
 			iconIndexRotate 	= 0;
 			initialize();
 		},		
@@ -141,7 +142,7 @@
 		},
 		// draw method
 		this.draw = function() {
-			tick++;
+			tickRotate++;
 			
 			this.rotateSmallIcon();
 
@@ -152,29 +153,12 @@
 				context.font = '14px Arial';
 				context.textAlign = 'center';
 				context.fillText(leftIconMapping[selectedLeftIcon.index], 
-					bigLeftIconCenterX, 
+					bigLeftIconCenterX - 8, 
 					BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 				);
 				
 				if (!selectedRightIcon) {
-					// animate smallLeftIcon to center of BigLeftIcon
-					if (distSmallLeftIcon > 0) {
-						distSmallLeftIcon -= 3;
-					}
-					
-					if (distSmallLeftIcon > BIG_ICON_RADIUS) {
-						bigDefaultLeftIcon.alpha = 0.4;
-						bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
-					} 
-					else {
-						if (bigDefaultLeftIcon.alpha + 0.015 < 1.0) {
-							bigDefaultLeftIcon.alpha += 0.015;
-						}
-						else {
-							bigDefaultLeftIcon.alpha = 1.0;
-						}
-					}
-					
+					// animate smallLeftIcons opacity
 					var isFinishedAnim = true;
 					for (var i = 0; i < smallLeftIcons.length; i++) {
 						var icon = smallLeftIcons[i];
@@ -186,14 +170,48 @@
 							icon.alpha = 0.0;								
 						}
 					}
-
-					if (isFinishedAnim && distSmallLeftIcon <= 0) {					
+					
+					// set bigDefaultLeftIcon image based on selected left choice 
+					if (distSmallLeftIcon > BIG_ICON_RADIUS) {
+						bigDefaultLeftIcon.alpha = 0.3;
+						bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
+					} 
+					// still animating left selection
+					if (distSmallLeftIcon > 0 || !isFinishedAnim || bigDefaultLeftIcon.alpha < 1.0) {
+						// animate smallLeftIcon to center of BigLeftIcon
+						distSmallLeftIcon -= 3;
+					
+						// animate bigDefaultLeftIcon opacity
+						if (bigDefaultLeftIcon.alpha + 0.006 < 1.0) {
+							bigDefaultLeftIcon.alpha += 0.006;
+						}
+						else {
+							bigDefaultLeftIcon.alpha = 1.0;
+						}
+					}
+					else if (tickLeftIcon < 20) {
+						tickLeftIcon++;
+						//console.log(tickLeftIcon);
+					}
+					// finished animation of left selection
+					else {			
+						console.log('end')
 						// animate the right small icons from center to outer
 						if (distSmallRightIcon + 3 < SMALL_ICON_DIST) {
 							distSmallRightIcon += 3;
 						}
 						else {
 							distSmallRightIcon = SMALL_ICON_DIST;
+						}
+						
+						// change the opacity of bigDefaultLeftIcon
+						bigDefaultLeftIcon.isOverlay = true;
+						if (bigDefaultLeftIcon.alpha - 0.006 > 0.5) {
+							bigDefaultLeftIcon.alpha -= 0.006;
+						}
+						else {
+							console.log('finish');
+							bigDefaultLeftIcon.alpha = 0.5;
 						}
 					}
 				}
@@ -203,7 +221,7 @@
 				context.font = '14px Arial';
 				context.textAlign = 'center';
 				context.fillText(rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].text, 
-					bigRightIconCenterX, 
+					bigRightIconCenterX + 8, 
 					BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 				);		
 				
@@ -213,23 +231,7 @@
 					selectedAnimation = XMing.AnimationManager.getAnimation(animIndex);
 				}
 				
-				// animate smallRightIcon to center of BigRightIcon
-				if (distSmallRightIcon > 0) {
-					distSmallRightIcon -= 3;
-				}
-				if (distSmallRightIcon > BIG_ICON_RADIUS) {
-					bigDefaultRightIcon.alpha = 0.4;
-					var index = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].index;
-					bigDefaultRightIcon.copyImage(bigRightIcons[index]);
-				} 
-				else {
-					if (bigDefaultRightIcon.alpha + 0.015 < 1) {
-						bigDefaultRightIcon.alpha += 0.015;
-					}
-					else {
-						bigDefaultRightIcon.alpha = 1.0;
-					}
-				}
+				// animate smallRightIcons opacity
 				var isFinishedAnim = true;
 				for (var i = 0; i < smallRightIcons.length; i++) {
 					var icon = smallRightIcons[i];
@@ -242,9 +244,28 @@
 					}
 				}
 				
-				// smallRightIcon finish animate to center of BigRightIcon
+				// set bigDefaultRightIcon image based on selected right choice
+				if (distSmallRightIcon > BIG_ICON_RADIUS) {
+					bigDefaultRightIcon.alpha = 0.4;
+					var index = rightIconMapping[selectedLeftIcon.index][selectedRightIcon.index].index;
+					bigDefaultRightIcon.copyImage(bigRightIcons[index]);
+				} 
+				// still animating right selection
+				if (distSmallRightIcon > 0 || !isFinishedAnim) {
+					// animate smallRightIcon to center of BigRightIcon
+					distSmallRightIcon -= 3;
+					
+					// animate bigDefaultRightIcon opacity
+					if (bigDefaultRightIcon.alpha + 0.015 < 1) {
+						bigDefaultRightIcon.alpha += 0.015;
+					}
+					else {
+						bigDefaultRightIcon.alpha = 1.0;
+					}
+				}
+				// finish animation of right selection
 				// start animate BigIcons to center
-				if (isFinishedAnim && distSmallRightIcon <= 0) {
+				else {
 					requireCenterRender = true;
 					var speed = 7;
 					
@@ -273,6 +294,17 @@
 					// big icons finish animating to center of the canvas
 					if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL &&
 						bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL) {
+						
+						// change the opacity of the bigDefaultRightIcon
+						console.log(bigDefaultRightIcon.alpha);
+						bigDefaultRightIcon.isOverlay = true;
+						if (bigDefaultRightIcon.alpha - 0.01 > 0.5) {
+							bigDefaultRightIcon.alpha -= 0.01;
+						}
+						else {
+							bigDefaultRightIcon.alpha = 0.5;
+						}
+						
 						// start center animation
 						if (selectedAnimation.alpha + 0.01 < 1.0) {
 							selectedAnimation.alpha += 0.01;
@@ -339,7 +371,7 @@
 			context.restore();
 		},
 		this.rotateSmallIcon = function() {			
-			if (tick > 160) {
+			if (tickRotate > 160) {
 				if (!selectedLeftIcon) {
 					smallLeftIcons[iconIndexRotate].rotateRad = 0;	
 					iconIndexRotate = (iconIndexRotate + 1) % smallLeftIcons.length;
@@ -349,14 +381,14 @@
 					iconIndexRotate = (iconIndexRotate + 1) % smallRightIcons.length;
 				}
 
-				tick = 0;
+				tickRotate = 0;
 			} 
 			else {
 				if (!selectedLeftIcon) {
-					smallLeftIcons[iconIndexRotate].updateRotateRad(tick);
+					smallLeftIcons[iconIndexRotate].updateRotateRad(tickRotate);
 				}
 				else if (!selectedRightIcon) {
-					smallRightIcons[iconIndexRotate].updateRotateRad(tick);
+					smallRightIcons[iconIndexRotate].updateRotateRad(tickRotate);
 				}
 			}
 		}
