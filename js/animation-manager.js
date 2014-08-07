@@ -2,19 +2,25 @@ var XMing = XMing || {};
 
 XMing.AnimationManager = new function() {
 	this.animations 		= [];
+	this.endAnimations		= [];
 	this.colorAnimations 	= [];
 	
 	this.init = function() {
 		this.reset();
 		this.loadAnimation();
+		this.loadEndAnimation();
 		this.loadColorAnimation();
 	},
 	this.reset = function() {
 		this.animations 		= [];
+		this.endAnimations 		= [];
 		this.colorAnimations 	= [];
 	},
 	this.getAnimation = function(index) {
 		return this.animations[index];
+	},
+	this.getEndAnimation = function(index) {
+		return this.endAnimations[index];
 	},
 	this.getColorAnimation = function(index) {
 		return this.colorAnimations[index];
@@ -1207,6 +1213,34 @@ XMing.AnimationManager = new function() {
 		this.animations.push(new Animation(imagePath, coordsArray.slice(0, 94), false, 22));
 		this.animations.push(new Animation(imagePath, coordsArray.slice(94), false, 22));
 	},
+	this.loadEndAnimation = function() {
+		var imagePath = 'images/sprite-end.png';
+		var coordsArray = [
+            [0, 0, 176, 168],
+            [0, 2939, 176, 168],
+            [0, 171, 176, 168],
+            [0, 2768, 176, 168],
+            [0, 1650, 176, 168],
+            [0, 890, 176, 168],
+            [0, 342, 176, 168],
+            [0, 1821, 176, 168],
+            [0, 2163, 176, 168],
+            [0, 2385, 176, 168],
+            [0, 3452, 176, 168],
+            [0, 1438, 176, 168],
+            [0, 3281, 176, 168],
+            [0, 3623, 176, 168],
+            [0, 2556, 176, 168],
+            [0, 3110, 176, 168],
+            [0, 513, 176, 168],
+            [0, 1992, 176, 168],
+            [0, 1096, 176, 168],
+            [0, 719, 176, 168],
+            [0, 1267, 176, 168]
+        ];
+		
+		this.endAnimations.push(new Animation(imagePath, coordsArray, false, 0));
+	},
 	this.loadColorAnimation = function() {
 		this.colorAnimations.push(new ColorAnimation('#00FF00', 'Green'));
 		this.colorAnimations.push(new ColorAnimation('#FF0000', 'Red'));
@@ -1223,7 +1257,7 @@ XMing.AnimationManager = new function() {
 		this.hex 		= hex;
 		this.name		= name;
 		this.alpha		= 0.0;
-		this.isStarted 	= false;		
+		this.isStarted 	= false;	
 	};
 	ColorAnimation.prototype = {
 		start: function() {
@@ -1283,24 +1317,57 @@ XMing.AnimationManager = new function() {
 		this.alpha 				= 0.0;
 		this.isReplay 			= isReplay;
 		this.numFrameLoopBack 	= numFrameLoopBack;
+		this.centerX			= 0.0;
+		this.centerY			= 0.0;
 		this.isStarted 			= false;
+		this.isFinished			= false;
 	};
 	Animation.prototype = {	
-		start: function() {
+		start: function(centerX, centerY, frameThreshold) {
+			var CENTER_X_FINAL	= 280,
+				CENTER_Y_FINAL	= 109;
+			
+			this.centerX = centerX || CENTER_X_FINAL;
+			this.centerY = centerY || CENTER_Y_FINAL;
+			this.frameThreshold = frameThreshold || 5;
 			this.isStarted = true;
-		},		
+		},
+		renderEnd: function(context) {
+			this.tick++;
+			if (this.tick > this.frameThreshold) {
+				if (this.frameIndex == this.coordsArray.length - 1) {
+					this.isFinished = true;
+				} 
+				else {
+					this.frameIndex++;
+				}
+				this.frame = this.coordsArray[this.frameIndex];
+				this.tick %= this.frameThreshold;
+			}
+			
+			context.save();
+			context.globalAlpha = 1.0;
+			context.beginPath();
+			context.drawImage(
+				this.image, 
+				this.frame[0], this.frame[1], 
+				this.frame[2], this.frame[3], 
+				this.centerX - this.frame[2] / 2, 
+				this.centerY - this.frame[3] / 2, 
+				this.frame[2], this.frame[3]);
+			context.restore();
+		},
 		render: function(context) {
-			var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
-				BIG_RIGHT_ICON_CENTER_X_FINAL	= 336,
+			var BIG_LEFT_ICON_CENTER_X_FINAL	= 234,
+				BIG_RIGHT_ICON_CENTER_X_FINAL	= 316,
 				BIG_LEFT_ICON_CENTER_Y 			= 109,
 				BIG_RIGHT_ICON_CENTER_Y 		= 109,
-				CENTER_X_FINAL					= 300,
-				CENTER_Y_FINAL					= 109,
 				BIG_ICON_RADIUS 				= 89;
 			
 			this.tick++;
 			if (this.tick > this.frameThreshold) {
 				if (this.frameIndex == this.coordsArray.length - 1) {
+					this.isFinished = true;
 					if (this.isReplay) {
 						this.frameIndex = 0;
 					} 
@@ -1332,8 +1399,8 @@ XMing.AnimationManager = new function() {
 				this.image, 
 				this.frame[0], this.frame[1], 
 				this.frame[2], this.frame[3], 
-				CENTER_X_FINAL - this.frame[2] / 2, 
-				CENTER_Y_FINAL - this.frame[3] / 2, 
+				this.centerX - this.frame[2] / 2, 
+				this.centerY - this.frame[3] / 2, 
 				this.frame[2], this.frame[3]);
 			context.restore();
 		}

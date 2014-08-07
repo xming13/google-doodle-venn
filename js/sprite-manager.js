@@ -15,13 +15,15 @@ XMing.SpriteManager = new function() {
 	this.bigLeftColorIcons			= [];
 	this.bigRightColorIcons			= [];
 	
+	this.resetIcon					= null;
+	
 	// declare variable
 	var TYPE_ICON_LEFT 	= 'left',
 		TYPE_ICON_RIGHT = 'right';
 	
 	this.init = function() {
 		this.reset();
-		this.loadInitial();
+		this.loadDefault();
 		this.loadCircles();
 		this.loadColorIcons();
 	},
@@ -39,8 +41,10 @@ XMing.SpriteManager = new function() {
 		this.smallRightColorIcons 		= [];
 		this.bigLeftColorIcons			= [];
 		this.bigRightColorIcons			= [];
+		
+		this.resetIcon					= null;
 	},
-	this.loadInitial = function() {
+	this.loadDefault = function() {
 		var imageInitial = new Image();
 		imageInitial.src = 'images/sprite-initial.png';
 		var coordsArray = [
@@ -50,6 +54,15 @@ XMing.SpriteManager = new function() {
 		
 		this.bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, imageInitial, coordsArray[0]);
 		this.bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, imageInitial, coordsArray[1]);
+		this.bigDefaultRightIcon.isOverlay = true;
+		this.bigDefaultRightIcon.alpha = 0.75;
+		
+		var imageEnd = new Image();
+		imageEnd.src = 'images/sprite-end.png';
+		var coordsArray = [
+			
+		];
+		this.resetIcon = new Icon(-1, TYPE_ICON_RIGHT, imageEnd, coordsArray[0]);
 	},
 	this.loadCircles = function() {
 		var imageCircles = new Image();
@@ -209,7 +222,7 @@ XMing.SpriteManager = new function() {
 			context.rotate(this.rotateRad);
 			context.translate(-this.centerX, -this.centerY);
 			context.fillStyle = this.hex;
-			context.shadowColor = '#999';
+			context.shadowColor = '#999999';
 			context.shadowBlur = 20;
 			context.shadowOffsetX = 15;
 			context.shadowOffsetY = 15;
@@ -298,7 +311,7 @@ XMing.SpriteManager = new function() {
 			
 			if (this.isOverlay) {
 				context.globalAlpha = (1.0 - this.alpha) / 2;
-				context.fillStyle = '#777';
+				context.fillStyle = '#333333';
 				context.fill();
 			}
 			context.restore();

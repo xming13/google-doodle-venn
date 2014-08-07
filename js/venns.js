@@ -17,8 +17,9 @@ XMing.Venns = new function() {
 		selectedRightIcon 	= null,
 		requireCenterRender	= false,
 		selectedAnimation   = null,
+		endAnimation		= null,
 		bigLeftIconCenterX 	= 150,
-		bigRightIconCenterX = 450,
+		bigRightIconCenterX = 420,
 		factorDistLeftIcon	= 1.0,
 		factorDistRightIcon	= 1.0,
 		tickRotate			= 0,
@@ -36,11 +37,11 @@ XMing.Venns = new function() {
 		biggestRightIconFactor		= 0.0;
 		
 	// declare constants
-	var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
-		BIG_RIGHT_ICON_CENTER_X_FINAL	= 336,
-		BIG_LEFT_ICON_CENTER_Y 			= 109,
-		BIG_RIGHT_ICON_CENTER_Y 		= 109,
-		CENTER_X_FINAL					= 300,
+	var BIG_LEFT_ICON_CENTER_X_FINAL	= 234,
+		BIG_RIGHT_ICON_CENTER_X_FINAL	= 316,
+		BIG_LEFT_ICON_CENTER_Y 			= 110,
+		BIG_RIGHT_ICON_CENTER_Y 		= 110,
+		CENTER_X_FINAL					= 280,
 		CENTER_Y_FINAL					= 109,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
@@ -124,6 +125,7 @@ XMing.Venns = new function() {
 		selectedRightIcon 	= null,
 		requireCenterRender	= false,
 		selectedAnimation   = null,
+		endAnimation		= null,
 		bigLeftIconCenterX 	= 150,
 		bigRightIconCenterX = 450,
 		factorDistLeftIcon	= 1.0,
@@ -168,15 +170,18 @@ XMing.Venns = new function() {
 		
 		if (selectedLeftIcon) {
 			// set Text based on selectedLeftIcon
+			context.save();
 			context.font = '14px Arial';
 			context.textAlign = 'center';
+			context.fillStyle = '#1B1B1B';
 			context.fillText(
 				LEFT_ICONS_MAPPING[selectedLeftIcon.index], 
 				bigLeftIconCenterX - 8, 
 				BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
 			);
+			context.restore();
 			
-			if (!selectedRightIcon) {			
+			if (!selectedRightIcon) {
 				// set bigDefaultLeftIcon image based on selected left choice 
 				if (!animEvents['bigLeftIconSelected'].isStart) {
 					bigDefaultLeftIcon.alpha = 0.1;
@@ -206,10 +211,14 @@ XMing.Venns = new function() {
 					
 					// change the opacity of bigDefaultLeftIcon
 					bigDefaultLeftIcon.isOverlay = true;
-					bigDefaultLeftIcon.alpha = this.tween(bigDefaultLeftIcon.alpha, -0.02, 0.5);
+					bigDefaultLeftIcon.alpha = this.tween(bigDefaultLeftIcon.alpha, -0.01, 0.75);
+					
+					// change the opacity of bigDefaultRightIcon
+					bigDefaultRightIcon.isOverlay = false;
+					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, +0.01, 1.0);
 					
 					// set event rightIconExpand end
-					if (smallestRightIconFactor >= 1 && bigDefaultLeftIcon.alpha == 0.5) {
+					if (smallestRightIconFactor >= 1 && bigDefaultLeftIcon.alpha == 0.75) {
 						animEvents['rightIconExpand'].isEnd = true;
 					}
 				}
@@ -217,12 +226,15 @@ XMing.Venns = new function() {
 		}
 		if (selectedRightIcon) {		
 			// set Text based on selectedRightIcon
+			context.save();
 			context.font = '14px Arial';
 			context.textAlign = 'center';
+			context.fillStyle = '#1B1B1B';
 			context.fillText(RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].text, 
 				bigRightIconCenterX + 8, 
 				BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
-			);		
+			);
+			context.restore();
 			
 			// set selected Animation based on the combination of the selected left and right choices
 			if (!selectedAnimation) {
@@ -287,7 +299,7 @@ XMing.Venns = new function() {
 					
 					// change the opacity of the bigDefaultRightIcon
 					bigDefaultRightIcon.isOverlay = true;
-					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.5);
+					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.75);
 					
 					// start center animation
 					if (selectedAnimation.alpha + 0.01 < 1.0) {
@@ -297,6 +309,11 @@ XMing.Venns = new function() {
 					else {
 						selectedAnimation.alpha = 1.0;
 						requireCenterRender = false;
+					}
+					
+					if (selectedAnimation.isFinished) {
+						endAnimation = XMing.AnimationManager.getEndAnimation(0);
+						endAnimation.start(100, 90, 4);
 					}
 				}
 			}	
@@ -403,6 +420,11 @@ XMing.Venns = new function() {
 		if (selectedAnimation && selectedAnimation.isStarted) {
 			selectedAnimation.render(context);
 		}
+		
+		// render endAnimation
+		if (endAnimation && endAnimation.isStarted) {
+			endAnimation.renderEnd(context);
+		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center
 	this.renderOverlappedCenter = function(leftCenterX, rightCenterX) {
@@ -421,10 +443,10 @@ XMing.Venns = new function() {
 		context.clip();
 		
 		if (leftCenterX == CENTER_X_FINAL) {
-			context.fillStyle = '#fff';
+			context.fillStyle = '#FFFFFF';
 		} 
 		else {
-			context.fillStyle = '#f3f3f3';
+			context.fillStyle = '#F3F3F3';
 		}
 		context.fill();
 		context.restore();

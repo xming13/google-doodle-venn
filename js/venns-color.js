@@ -285,6 +285,9 @@ XMing.VennsColor = new function() {
 						selectedAnimation.alpha = 1.0;
 						requireCenterRender = false;
 					}
+					
+					//show reset icon
+					
 				}
 			}	
 		}
