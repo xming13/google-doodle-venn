@@ -2,51 +2,57 @@ var XMing = XMing || {};
 
 XMing.Venns = new function() {
 	// declare the variables
-	var	requestID			= null,
-		canvas 				= null,
-		context 			= null,
-		smallLeftIcons		= [],
-		smallRightIcons 	= [],
-		bigLeftIcons 		= [],
-		bigRightIcons	 	= [],
-		bigDefaultLeftIcon  = null,
-		bigDefaultRightIcon = null,
-		leftAngle 			= 0.0,
-		rightAngle			= 0.0,
-		selectedLeftIcon 	= null,
-		selectedRightIcon 	= null,
-		requireCenterRender	= false,
-		selectedAnimation   = null,
-		endAnimation		= null,
-		bigLeftIconCenterX 	= 150,
-		bigRightIconCenterX = 420,
-		factorDistLeftIcon	= 1.0,
-		factorDistRightIcon	= 1.0,
-		tickRotate			= 0,
-		tickLeftIcon		= 0,
-		tickRightIcon		= 0,
-		iconIndexRotate		= 0,
-		animEvents			= { 
-								'bigLeftIconSelected'   : { isEnd : false },
-								'bigRightIconSelected'  : { isEnd : false },
-								'rightIconExpand'		: { isEnd : false }
-							  },
+	var	requestID					= null,
+		canvas 						= null,
+		context 					= null,
+		smallLeftIcons				= [],
+		smallRightIcons 			= [],
+		bigLeftIcons 				= [],
+		bigRightIcons	 			= [],
+		bigDefaultLeftIcon  		= null,
+		bigDefaultRightIcon 		= null,
+		resetIcon					= null,
+		leftAngle 					= 0.0,
+		rightAngle					= 0.0,
+		selectedLeftIcon 			= null,
+		selectedRightIcon 			= null,
+		requireCenterRender			= true,
+		selectedAnimation   		= null,
+		endAnimation				= null,
+		bigLeftIconCenterX 			= 0,
+		bigRightIconCenterX 		= 0,
+		factorDistLeftIcon			= 1.0,
+		factorDistRightIcon			= 1.0,
+		tickRotate					= 0,
+		tickLeftIcon				= 0,
+		tickRightIcon				= 0,
+		iconIndexRotate				= 0,
 		smallestLeftIconFactor 		= 1.0,
 		biggestLeftIconFactor		= 0.0,
 		smallestRightIconFactor		= 1.0,
-		biggestRightIconFactor		= 0.0;
+		biggestRightIconFactor		= 0.0,
+		animEvents					= { 
+										'startScreen'			: { isEnd : false },
+										'startingAnimation'		: { isEnd : false },
+										'bigLeftIconSelected'   : { isEnd : false },
+										'bigRightIconSelected'  : { isEnd : false },
+										'rightIconExpand'		: { isEnd : false }
+									  };
 		
 	// declare constants
-	var BIG_LEFT_ICON_CENTER_X_FINAL	= 234,
+	var BIG_LEFT_ICON_CENTER_X_INITIAL 	= 150,
+		BIG_RIGHT_ICON_CENTER_X_INITIAL	= 420,
+		BIG_LEFT_ICON_CENTER_X_FINAL	= 234,
 		BIG_RIGHT_ICON_CENTER_X_FINAL	= 316,
 		BIG_LEFT_ICON_CENTER_Y 			= 110,
 		BIG_RIGHT_ICON_CENTER_Y 		= 110,
-		CENTER_X_FINAL					= 280,
+		CENTER_X						= 280,
 		CENTER_Y_FINAL					= 109,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
 		TYPE_ICON_LEFT 					= 'left',
 		TYPE_ICON_RIGHT 				= 'right',
+		TYPE_ICON_RESET					= 'reset',
 		LEFT_ICONS_MAPPING 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'],
 		RIGHT_ICONS_MAPPING	= [
 								[
@@ -85,12 +91,10 @@ XMing.Venns = new function() {
 									{ index: 9, text: 'Mythical', animIndex: 11}
 								],
 							  ];
-		
-	var colors = ['#FF0000', '#FFFF00', '#0000FF'];
 	
 	// init method
 	this.initialize = function() {
-		canvas = document.getElementById("canvas-google-doodle");
+		canvas = document.getElementById('canvas-google-doodle');
 		context = canvas.getContext('2d');
 		
 		XMing.SpriteManager.init();
@@ -101,11 +105,14 @@ XMing.Venns = new function() {
 		bigRightIcons	 	= XMing.SpriteManager.bigRightIcons;
 		bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftIcon;
 		bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightIcon;
+		resetIcon			= XMing.SpriteManager.resetIcon;
+		bigLeftIconCenterX 	= BIG_LEFT_ICON_CENTER_X_FINAL;
+		bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
 		leftAngle 			= 90.0 / (smallLeftIcons.length - 1);
 		rightAngle			= 90.0 / (smallRightIcons.length - 1);
 		
-		canvas.addEventListener("mousemove", onMouseMove, false);
-		canvas.addEventListener("click", onClick, false);
+		canvas.addEventListener('mousemove', onMouseMove, false);
+		canvas.addEventListener('click', onClick, false);	
 		
 		this.update();
 	},
@@ -113,32 +120,42 @@ XMing.Venns = new function() {
 	this.reset = function() {
 		cancelAnimationFrame(requestID);
 		
-		canvas 				= null,
-		context 			= null,
-		smallLeftIcons		= [],
-		smallRightIcons 	= [],
-		bigLeftIcons 		= [],
-		bigRightIcons	 	= [],
-		bigDefaultLeftIcon  = null,
-		bigDefaultRightIcon = null,
-		selectedLeftIcon 	= null;
-		selectedRightIcon 	= null,
-		requireCenterRender	= false,
-		selectedAnimation   = null,
-		endAnimation		= null,
-		bigLeftIconCenterX 	= 150,
-		bigRightIconCenterX = 450,
-		factorDistLeftIcon	= 1.0,
-		factorDistRightIcon	= 1.0,
-		tickRotate			= 0,
-		tickLeftIcon		= 0,
-		tickRightIcon		= 0,
-		iconIndexRotate 	= 0;
-		animEvents			= { 
-								'bigLeftIconSelected'  	: { isStart: false, isEnd : false },
-								'bigRightIconSelected'  : { isEnd : false },
-								'rightIconExpand'		: { isStart: false, isEnd : false }
-							  };
+		canvas 						= null;
+		context 					= null;
+		smallLeftIcons				= [];
+		smallRightIcons 			= [];
+		bigLeftIcons 				= [];
+		bigRightIcons	 			= [];
+		bigDefaultLeftIcon  		= null;
+		bigDefaultRightIcon 		= null;
+		resetIcon					= null;
+		leftAngle 					= 0.0;
+		rightAngle					= 0.0;
+		selectedLeftIcon 			= null;
+		selectedRightIcon 			= null;
+		requireCenterRender			= true;
+		selectedAnimation   		= null;
+		endAnimation				= null;
+		bigLeftIconCenterX 			= 0;
+		bigRightIconCenterX 		= 0;
+		factorDistLeftIcon			= 1.0;
+		factorDistRightIcon			= 1.0;
+		tickRotate					= 0;
+		tickLeftIcon				= 0;
+		tickRightIcon				= 0;
+		iconIndexRotate				= 0;
+		smallestLeftIconFactor 		= 1.0;
+		biggestLeftIconFactor		= 0.0;
+		smallestRightIconFactor		= 1.0;
+		biggestRightIconFactor		= 0.0;
+		animEvents					= { 
+										'startScreen'			: { isEnd : false },
+										'startingAnimation'		: { isEnd : false },
+										'bigLeftIconSelected'   : { isEnd : false },
+										'bigRightIconSelected'  : { isEnd : false },
+										'rightIconExpand'		: { isEnd : false }
+									  };
+		
 		XMing.SpriteManager.reset();
 		XMing.AnimationManager.reset();
 		XMing.Venns.initialize();
@@ -162,254 +179,267 @@ XMing.Venns = new function() {
 	},
 	// draw method
 	this.draw = function() {
-		tickRotate++;
-		
-		this.rotateSmallIcon();
-
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
-		if (selectedLeftIcon) {
-			// set Text based on selectedLeftIcon
-			context.save();
-			context.font = '14px Arial';
-			context.textAlign = 'center';
-			context.fillStyle = '#1B1B1B';
-			context.fillText(
-				LEFT_ICONS_MAPPING[selectedLeftIcon.index], 
-				bigLeftIconCenterX - 8, 
-				BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
-			);
-			context.restore();
+		if (animEvents['startScreen'].isEnd &&
+			!animEvents['startingAnimation'].isEnd) {
+			bigLeftIconCenterX = this.tween(bigLeftIconCenterX, -2, BIG_LEFT_ICON_CENTER_X_INITIAL);
+			bigRightIconCenterX = this.tween(bigRightIconCenterX, 2, BIG_RIGHT_ICON_CENTER_X_INITIAL);
+			bigDefaultLeftIcon.rotateRad += 0.86 / 180.0 * 2 * Math.PI;
+			bigDefaultRightIcon.rotateRad += 0.86 / 180.0 * 2 * Math.PI;
 			
-			if (!selectedRightIcon) {
-				// set bigDefaultLeftIcon image based on selected left choice 
-				if (!animEvents['bigLeftIconSelected'].isStart) {
-					bigDefaultLeftIcon.alpha = 0.1;
-					bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
-				} 
-				// still animating left selection
-				if (!animEvents['bigLeftIconSelected'].isEnd) {
-					// set event 
-					animEvents['bigLeftIconSelected'].isStart = true;
-					
-					// animate bigDefaultLeftIcon opacity
-					bigDefaultLeftIcon.alpha = this.tween(bigDefaultLeftIcon.alpha, 0.02, 1.0)
+			if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_INITIAL 
+				&& bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_INITIAL) {
+				animEvents['startingAnimation'].isEnd = true;
+			}
+		}
+		else if (animEvents['startingAnimation'].isEnd) {		
+			tickRotate++;
+			this.rotateSmallIcon();
+			if (selectedLeftIcon) {
+				// set Text based on selectedLeftIcon
+				context.save();
+				context.font = '14px Arial';
+				context.textAlign = 'center';
+				context.fillStyle = '#1B1B1B';
+				context.fillText(
+					LEFT_ICONS_MAPPING[selectedLeftIcon.index], 
+					bigLeftIconCenterX - 8, 
+					BIG_LEFT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
+				);
+				context.restore();
+				
+				if (!selectedRightIcon) {
+					// set bigDefaultLeftIcon image based on selected left choice 
+					if (!animEvents['bigLeftIconSelected'].isStart) {
+						bigDefaultLeftIcon.alpha = 0.1;
+						bigDefaultLeftIcon.copyImage(bigLeftIcons[selectedLeftIcon.index]);
+					} 
+					// still animating left selection
+					if (!animEvents['bigLeftIconSelected'].isEnd) {
+						// set event 
+						animEvents['bigLeftIconSelected'].isStart = true;
+						
+						// animate bigDefaultLeftIcon opacity
+						bigDefaultLeftIcon.alpha = this.tween(bigDefaultLeftIcon.alpha, 0.02, 1.0)
 
-					// set event bigLeftIconSelected end
-					if (biggestLeftIconFactor <= 0 && bigDefaultLeftIcon.alpha == 1.0) {
-						animEvents['bigLeftIconSelected'].isEnd = true;
+						// set event bigLeftIconSelected end
+						if (biggestLeftIconFactor <= 0 && bigDefaultLeftIcon.alpha == 1.0) {
+							animEvents['bigLeftIconSelected'].isEnd = true;
+						}
+					}
+					// pause a while
+					else if (tickLeftIcon < 5) {
+						tickLeftIcon++;
+					}
+					// animation of left selection finished
+					else if (!animEvents['rightIconExpand'].isEnd) {
+						//set event
+						animEvents['rightIconExpand'].isStart = true;
+						
+						// change the opacity of bigDefaultLeftIcon
+						bigDefaultLeftIcon.isOverlay = true;
+						bigDefaultLeftIcon.alpha = this.tween(bigDefaultLeftIcon.alpha, -0.01, 0.75);
+						
+						// change the opacity of bigDefaultRightIcon
+						bigDefaultRightIcon.isOverlay = false;
+						bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, +0.01, 1.0);
+						
+						// set event rightIconExpand end
+						if (smallestRightIconFactor >= 1 && bigDefaultLeftIcon.alpha == 0.75) {
+							animEvents['rightIconExpand'].isEnd = true;
+						}
+					}
+				}
+			}
+			if (selectedRightIcon) {		
+				// set Text based on selectedRightIcon
+				context.save();
+				context.font = '14px Arial';
+				context.textAlign = 'center';
+				context.fillStyle = '#1B1B1B';
+				context.fillText(
+					RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].text, 
+					bigRightIconCenterX + 8, 
+					BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
+				);
+				context.restore();
+				
+				// set selected Animation based on the combination of the selected left and right choices
+				if (!selectedAnimation) {
+					var animIndex = RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
+					selectedAnimation = XMing.AnimationManager.getAnimation(animIndex);
+				}
+						
+				// set bigDefaultRightIcon image based on selected right choice
+				if (!animEvents['bigRightIconSelected'].isStart) {
+					bigDefaultRightIcon.alpha = 0.1;
+					var index = RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].index;
+					bigDefaultRightIcon.copyImage(bigRightIcons[index]);
+				} 
+				// still animating right selection
+				if (!animEvents['bigRightIconSelected'].isEnd) {
+					// set event 
+					animEvents['bigRightIconSelected'].isStart = true;
+									
+					// animate bigDefaultRightIcon opacity
+					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, 0.02, 1.0);
+					
+					// set event bigRightIconSelected end
+					if (biggestRightIconFactor <= 0 && bigDefaultRightIcon.alpha == 1.0) {
+						animEvents['bigRightIconSelected'].isEnd = true;
 					}
 				}
 				// pause a while
-				else if (tickLeftIcon < 5) {
-					tickLeftIcon++;
-				}
-				// animation of left selection finished
-				else if (!animEvents['rightIconExpand'].isEnd) {
-					//set event
-					animEvents['rightIconExpand'].isStart = true;
+				else if (tickRightIcon < 10) {
+					tickRightIcon++;
+				}	
+				// finish animation of right selection
+				// start animate BigIcons to center
+				else {
+					requireCenterRender = true;
+					var speed = 7;
 					
-					// change the opacity of bigDefaultLeftIcon
-					bigDefaultLeftIcon.isOverlay = true;
-					bigDefaultLeftIcon.alpha = this.tween(bigDefaultLeftIcon.alpha, -0.01, 0.75);
-					
-					// change the opacity of bigDefaultRightIcon
-					bigDefaultRightIcon.isOverlay = false;
-					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, +0.01, 1.0);
-					
-					// set event rightIconExpand end
-					if (smallestRightIconFactor >= 1 && bigDefaultLeftIcon.alpha == 0.75) {
-						animEvents['rightIconExpand'].isEnd = true;
+					// animate bigLeftIcon to center of the canvas				
+					if (bigLeftIconCenterX > BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
+						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL + speed;
+					} 
+					else if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
+						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
 					}
-				}
-			}
-		}
-		if (selectedRightIcon) {		
-			// set Text based on selectedRightIcon
-			context.save();
-			context.font = '14px Arial';
-			context.textAlign = 'center';
-			context.fillStyle = '#1B1B1B';
-			context.fillText(RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].text, 
-				bigRightIconCenterX + 8, 
-				BIG_RIGHT_ICON_CENTER_Y - BIG_ICON_RADIUS - 4
-			);
-			context.restore();
-			
-			// set selected Animation based on the combination of the selected left and right choices
-			if (!selectedAnimation) {
-				var animIndex = RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
-				selectedAnimation = XMing.AnimationManager.getAnimation(animIndex);
-			}
+					else if (bigLeftIconCenterX != BIG_LEFT_ICON_CENTER_X_FINAL) {
+						bigLeftIconCenterX += speed;
+					}
+				
+					// animate bigRightIcon to center of the canvas					
+					if (bigRightIconCenterX < BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
+						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL - speed;
+					} 
+					else if (bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
+						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
+					}
+					else if (bigRightIconCenterX != BIG_RIGHT_ICON_CENTER_X_FINAL) {
+						bigRightIconCenterX -= speed;
+					}
 					
-			// set bigDefaultRightIcon image based on selected right choice
-			if (!animEvents['bigRightIconSelected'].isStart) {
-				bigDefaultRightIcon.alpha = 0.1;
-				var index = RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].index;
-				bigDefaultRightIcon.copyImage(bigRightIcons[index]);
-			} 
-			// still animating right selection
-			if (!animEvents['bigRightIconSelected'].isEnd) {
-				// set event 
-				animEvents['bigRightIconSelected'].isStart = true;
-								
-				// animate bigDefaultRightIcon opacity
-				bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, 0.02, 1.0);
-				
-				// set event bigRightIconSelected end
-				if (biggestRightIconFactor <= 0 && bigDefaultRightIcon.alpha == 1.0) {
-					animEvents['bigRightIconSelected'].isEnd = true;
-				}
+					// big icons finish animating to center of the canvas
+					if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL &&
+						bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL) {
+						
+						// change the opacity of the bigDefaultRightIcon
+						bigDefaultRightIcon.isOverlay = true;
+						bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.75);
+						
+						// start center animation
+						if (selectedAnimation.alpha + 0.01 < 1.0) {
+							selectedAnimation.alpha += 0.01;
+							selectedAnimation.start();
+						}
+						else {
+							selectedAnimation.alpha = 1.0;
+							requireCenterRender = false;
+						}
+						
+						if (selectedAnimation.isFinished) {
+							endAnimation = XMing.AnimationManager.getEndAnimation(0);
+							endAnimation.start(100, 90, 4);
+						}
+					}
+				}	
 			}
-			// pause a while
-			else if (tickRightIcon < 10) {
-				tickRightIcon++;
-			}	
-			// finish animation of right selection
-			// start animate BigIcons to center
-			else {
-				requireCenterRender = true;
-				var speed = 7;
-				
-				// animate bigLeftIcon to center of the canvas				
-				if (bigLeftIconCenterX > BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
-					bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL + speed;
-				} 
-				else if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
-					bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL;
-				}
-				else if (bigLeftIconCenterX != BIG_LEFT_ICON_CENTER_X_FINAL) {
-					bigLeftIconCenterX += speed;
-				}
 			
-				// animate bigRightIcon to center of the canvas					
-				if (bigRightIconCenterX < BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
-					bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL - speed;
-				} 
-				else if (bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
-					bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
+			// render smallLeftIcons
+			biggestLeftIconFactor = smallLeftIcons[0].factor;
+			smallestLeftIconFactor = smallLeftIcons[0].factor;
+			for (var i = 0; i < smallLeftIcons.length; i++) {		
+				var icon = smallLeftIcons[i];
+				
+				if (icon.factor > biggestLeftIconFactor) {
+					biggestLeftIconFactor = icon.factor;
 				}
-				else if (bigRightIconCenterX != BIG_RIGHT_ICON_CENTER_X_FINAL) {
-					bigRightIconCenterX -= speed;
+				if (icon.factor < smallestLeftIconFactor) {
+					smallestLeftIconFactor = icon.factor;
 				}
 				
-				// big icons finish animating to center of the canvas
-				if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_FINAL &&
-					bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_FINAL) {
-					
-					// change the opacity of the bigDefaultRightIcon
-					bigDefaultRightIcon.isOverlay = true;
-					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.75);
-					
-					// start center animation
-					if (selectedAnimation.alpha + 0.01 < 1.0) {
-						selectedAnimation.alpha += 0.01;
-						selectedAnimation.start();
+				if (animEvents['bigLeftIconSelected'].isStart
+					&& !animEvents['bigLeftIconSelected'].isEnd) {
+					if (i == 0) {
+						icon.isStart = true;
 					}
-					else {
-						selectedAnimation.alpha = 1.0;
-						requireCenterRender = false;
+					if (icon.isStart) {
+						icon.factor = this.tween(icon.factor, -5 / 60, 0.0);
+						icon.alpha = this.tween(icon.alpha, -10 / 60, 0);
+						if (icon.factor <= 0.6 && i < smallLeftIcons.length - 1) {
+							var iconNext = smallLeftIcons[i + 1];
+							iconNext.isStart = true;
+						}
 					}
-					
-					if (selectedAnimation.isFinished) {
-						endAnimation = XMing.AnimationManager.getEndAnimation(0);
-						endAnimation.start(100, 90, 4);
-					}
-				}
-			}	
-		}
-		
-		// render smallLeftIcons
-		biggestLeftIconFactor = smallLeftIcons[0].factor;
-		smallestLeftIconFactor = smallLeftIcons[0].factor;
-		for (var i = 0; i < smallLeftIcons.length; i++) {		
-			var icon = smallLeftIcons[i];
-			
-			if (icon.factor > biggestLeftIconFactor) {
-				biggestLeftIconFactor = icon.factor;
-			}
-			if (icon.factor < smallestLeftIconFactor) {
-				smallestLeftIconFactor = icon.factor;
+				}	
+				
+				icon.render(
+					context,
+					bigLeftIconCenterX - Math.cos((45.0 - i * leftAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor, 
+					BIG_LEFT_ICON_CENTER_Y - Math.sin((45.0 - i * leftAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
+				);
 			}
 			
-			if (animEvents['bigLeftIconSelected'].isStart
-				&& !animEvents['bigLeftIconSelected'].isEnd) {
-				if (i == 0) {
-					icon.isStart = true;
+			// render smallRightIcons
+			biggestRightIconFactor = smallRightIcons[0].factor;
+			smallestRightIconFactor = smallRightIcons[0].factor;
+			for (var i = 0; i < smallRightIcons.length; i++) {
+				var icon = smallRightIcons[i];
+				
+				if (icon.factor > biggestRightIconFactor) {
+					biggestRightIconFactor = icon.factor;
 				}
-				if (icon.isStart) {
-					icon.factor = this.tween(icon.factor, -5 / 60, 0.0);
-					icon.alpha = this.tween(icon.alpha, -10 / 60, 0);
-					if (icon.factor <= 0.6 && i < smallLeftIcons.length - 1) {
-						var iconNext = smallLeftIcons[i + 1];
-						iconNext.isStart = true;
+				if (icon.factor < smallestRightIconFactor) {
+					smallestRightIconFactor = icon.factor;
+				}
+				
+				if (animEvents['rightIconExpand'].isStart
+					&& !animEvents['rightIconExpand'].isEnd) {
+					if (i == 0) {
+						icon.isStart = true;
 					}
-				}
-			}	
-			
-			icon.render(
-				context,
-				bigLeftIconCenterX - Math.cos((45.0 - i * leftAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor, 
-				BIG_LEFT_ICON_CENTER_Y - Math.sin((45.0 - i * leftAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
-			);
-		}
-		
-		// render smallRightIcons
-		biggestRightIconFactor = smallRightIcons[0].factor;
-		smallestRightIconFactor = smallRightIcons[0].factor;
-		for (var i = 0; i < smallRightIcons.length; i++) {
-			var icon = smallRightIcons[i];
-			
-			if (icon.factor > biggestRightIconFactor) {
-				biggestRightIconFactor = icon.factor;
-			}
-			if (icon.factor < smallestRightIconFactor) {
-				smallestRightIconFactor = icon.factor;
-			}
-			
-			if (animEvents['rightIconExpand'].isStart
-				&& !animEvents['rightIconExpand'].isEnd) {
-				if (i == 0) {
-					icon.isStart = true;
-				}
-				if (icon.isStart) {					
-					icon.factor = this.tween(icon.factor, 5 / 60, 1.0);
-					icon.alpha = this.tween(icon.alpha, 10 / 60, 0.8);
-					if (icon.factor >= 0.4 && i < smallRightIcons.length - 1) {
-						var iconNext = smallRightIcons[i + 1];
-						iconNext.isStart = true;
+					if (icon.isStart) {					
+						icon.factor = this.tween(icon.factor, 5 / 60, 1.0);
+						icon.alpha = this.tween(icon.alpha, 10 / 60, 0.8);
+						if (icon.factor >= 0.4 && i < smallRightIcons.length - 1) {
+							var iconNext = smallRightIcons[i + 1];
+							iconNext.isStart = true;
+						}
+						if (icon.factor == 1.0 && icon.alpha == 0.8) {
+							icon.isStart = false;
+						}	
 					}
-					if (icon.factor == 1.0 && icon.alpha == 0.8) {
-						icon.isStart = false;
-					}	
-				}
-			}	
-			
-			if (animEvents['bigRightIconSelected'].isStart
-				&& !animEvents['bigRightIconSelected'].isEnd) {
-				if (i == 0) {
-					icon.isStart = true;
-				}
-				if (icon.isStart) {
-					icon.factor = this.tween(icon.factor, -5 / 60, 0.0);
-					icon.alpha = this.tween(icon.alpha, -10 / 60, 0);
-					if (icon.factor <= 0.6 && i < smallRightIcons.length - 1) {
-						var iconNext = smallRightIcons[i + 1];
-						iconNext.isStart = true;
+				}	
+				
+				if (animEvents['bigRightIconSelected'].isStart
+					&& !animEvents['bigRightIconSelected'].isEnd) {
+					if (i == 0) {
+						icon.isStart = true;
 					}
-				}
-			}	
+					if (icon.isStart) {
+						icon.factor = this.tween(icon.factor, -5 / 60, 0.0);
+						icon.alpha = this.tween(icon.alpha, -10 / 60, 0);
+						if (icon.factor <= 0.6 && i < smallRightIcons.length - 1) {
+							var iconNext = smallRightIcons[i + 1];
+							iconNext.isStart = true;
+						}
+					}
+				}	
 
-			icon.render(
-				context,
-				bigRightIconCenterX + Math.cos((45.0 - i * rightAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor,
-				BIG_RIGHT_ICON_CENTER_Y - Math.sin((45.0 - i * rightAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
-			);
+				icon.render(
+					context,
+					bigRightIconCenterX + Math.cos((45.0 - i * rightAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor,
+					BIG_RIGHT_ICON_CENTER_Y - Math.sin((45.0 - i * rightAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
+				);
+			}		
 		}
 		
 		// render bigDefaultLeftIcon and bigDefaultRightIcon
-		bigDefaultLeftIcon.render(context,bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
-		bigDefaultRightIcon.render(context,bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
+		bigDefaultLeftIcon.render(context, bigLeftIconCenterX, BIG_LEFT_ICON_CENTER_Y);
+		bigDefaultRightIcon.render(context, bigRightIconCenterX, BIG_RIGHT_ICON_CENTER_Y);
 		
 		// render center
 		if (requireCenterRender) {
@@ -424,6 +454,8 @@ XMing.Venns = new function() {
 		// render endAnimation
 		if (endAnimation && endAnimation.isStarted) {
 			endAnimation.renderEnd(context);
+			resetIcon.isStart = true;
+			resetIcon.render(context, 525, 100);
 		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center
@@ -435,18 +467,18 @@ XMing.Venns = new function() {
 		var distX = (rightCenterX - leftCenterX) / 2;
 		var radian = Math.acos(distX / BIG_ICON_RADIUS);
 		
-		context.arc(leftCenterX, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
+		context.arc(leftCenterX, BIG_LEFT_ICON_CENTER_Y, BIG_ICON_RADIUS,
 			-1 * radian, radian, false);
 		context.arc(rightCenterX, BIG_RIGHT_ICON_CENTER_Y, BIG_ICON_RADIUS, 
 			Math.PI - radian, Math.PI + radian, false);
 		context.closePath();
 		context.clip();
 		
-		if (leftCenterX == CENTER_X_FINAL) {
+		if (leftCenterX == CENTER_X) {
 			context.fillStyle = '#FFFFFF';
 		} 
 		else {
-			context.fillStyle = '#F3F3F3';
+			context.fillStyle = '#BBBBBB';
 		}
 		context.fill();
 		context.restore();
@@ -478,14 +510,20 @@ XMing.Venns = new function() {
 	function onMouseMove(event) {
 		var mousePos = getMousePos(this, event);
 		
-		var icons = smallLeftIcons.concat(smallRightIcons);
-		
 		var isHover = false;
+		if (!animEvents['startScreen'].isEnd 
+			&& mousePos.x >= BIG_LEFT_ICON_CENTER_X_FINAL 
+			&& mousePos.y <= BIG_RIGHT_ICON_CENTER_X_FINAL) {
+			isHover = true;
+		}
+		
+		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);	
 		for (var i = 0; i < icons.length; i++) {
 			
 			var icon = icons[i];
 			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
+				|| icon.type == TYPE_ICON_RESET)
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -510,12 +548,18 @@ XMing.Venns = new function() {
 	function onClick(event) {
 		var mousePos = getMousePos(this, event);
 
-		var icons = smallLeftIcons.concat(smallRightIcons);
+		if (!animEvents['startScreen'].isEnd 
+			&& mousePos.x >= BIG_LEFT_ICON_CENTER_X_FINAL 
+			&& mousePos.y <= BIG_RIGHT_ICON_CENTER_X_FINAL) {
+			animEvents['startScreen'].isEnd = true;
+		}
+		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			
 			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
+				|| icon.type == TYPE_ICON_RESET)
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -530,6 +574,9 @@ XMing.Venns = new function() {
 					} 
 					else if (icon.type == TYPE_ICON_RIGHT) {
 						selectedRightIcon = icon;			
+					}
+					else if (icon.type == TYPE_ICON_RESET) {
+						XMing.Venns.reset();
 					}
 				}
 			}

@@ -19,7 +19,8 @@ XMing.SpriteManager = new function() {
 	
 	// declare variable
 	var TYPE_ICON_LEFT 	= 'left',
-		TYPE_ICON_RIGHT = 'right';
+		TYPE_ICON_RIGHT = 'right',
+		TYPE_ICON_RESET	= 'reset';
 	
 	this.init = function() {
 		this.reset();
@@ -53,16 +54,13 @@ XMing.SpriteManager = new function() {
 		];
 		
 		this.bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, imageInitial, coordsArray[0]);
-		this.bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, imageInitial, coordsArray[1]);
+		this.bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, imageInitial, coordsArray[1], 0.75);
 		this.bigDefaultRightIcon.isOverlay = true;
-		this.bigDefaultRightIcon.alpha = 0.75;
 		
 		var imageEnd = new Image();
 		imageEnd.src = 'images/sprite-end.png';
-		var coordsArray = [
-			
-		];
-		this.resetIcon = new Icon(-1, TYPE_ICON_RIGHT, imageEnd, coordsArray[0]);
+		var endCoords = [0, 2334, 48, 48];
+		this.resetIcon = new Icon(-1, TYPE_ICON_RESET, imageEnd, endCoords, 0.8);
 	},
 	this.loadCircles = function() {
 		var imageCircles = new Image();
@@ -101,13 +99,11 @@ XMing.SpriteManager = new function() {
 		var icon;
 		for (var i = 0; i < coordsArray.length; i++) {
 			if (i < 5) {
-				icon = new Icon(this.smallLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i]);
-				icon.alpha = 0.8;
+				icon = new Icon(this.smallLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i], 0.8);
 				this.smallLeftIcons.push(icon);
 			} 
 			else if (i < 10) {
-				icon = new Icon(this.smallRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i]);
-				icon.alpha = 0.0;
+				icon = new Icon(this.smallRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i], 0.0);
 				this.smallRightIcons.push(icon);
 			}
 			else if (i < 15) {
@@ -232,7 +228,7 @@ XMing.SpriteManager = new function() {
 		}		
 	};
 	
-	var Icon = function(index, type, image, coords) {
+	var Icon = function(index, type, image, coords, alpha) {
 		this.index 		= index;
 		this.type 		= type;
 		this.image 		= image;
@@ -244,7 +240,12 @@ XMing.SpriteManager = new function() {
 		}
 		this.centerX 	= 0;
 		this.centerY 	= 0;
-		this.alpha 		= 1.0;
+		if (alpha == 0.0) {
+			this.alpha = alpha;
+		}
+		else {
+			this.alpha 	= alpha || 1.0;
+		}
 		this.factor 	= type == TYPE_ICON_LEFT ? 1.0 : 0.0;
 		this.isStart 	= false;
 		this.isOverlay 	= false;
