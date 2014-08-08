@@ -11,6 +11,7 @@ XMing.VennsColor = new function() {
 		bigRightIcons	 	= [],
 		bigDefaultLeftIcon  = null,
 		bigDefaultRightIcon = null,
+		resetIcon			= null,
 		selectedLeftIcon 	= null,
 		selectedRightIcon 	= null,
 		leftAngle			= 0.0;
@@ -26,9 +27,9 @@ XMing.VennsColor = new function() {
 		tickRightIcon		= 0,
 		iconIndexRotate		= 0,
 		animEvents			= { 
-								'bigLeftIconSelected'   : { isEnd : false },
-								'bigRightIconSelected'  : { isEnd : false },
-								'rightIconExpand'		: { isEnd : false }
+								'bigLeftIconSelected'   : { isStart : false, isEnd : false },
+								'bigRightIconSelected'  : { isStart : false, isEnd : false },
+								'rightIconExpand'		: { isStart : false, isEnd : false }
 							  },
 		smallestLeftIconFactor 		= 1.0,
 		biggestLeftIconFactor		= 0.0,
@@ -46,6 +47,7 @@ XMing.VennsColor = new function() {
 		SMALL_ICON_DIST					= 122,
 		TYPE_ICON_LEFT 					= 'left',
 		TYPE_ICON_RIGHT 				= 'right',
+		TYPE_ICON_RESET				 	= 'reset',
 		COLOR_MAPPING					= [ 
 											[1, 5, 2], 
 											[2, 3, 0], 
@@ -78,6 +80,7 @@ XMing.VennsColor = new function() {
 		bigRightIcons	 	= XMing.SpriteManager.bigRightColorIcons;
 		bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftColorIcon;
 		bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightColorIcon;
+		resetIcon			= XMing.SpriteManager.resetIcon;
 		leftAngle 			= 300.0 / (smallLeftIcons.length - 1);
 		rightAngle			= 300.0 / (smallRightIcons.length - 1);
 		
@@ -90,30 +93,31 @@ XMing.VennsColor = new function() {
 	this.reset = function() {
 		cancelAnimationFrame(requestID);
 		
-		canvas 				= null,
-		context 			= null,
-		smallLeftIcons		= [],
-		smallRightIcons 	= [],
-		bigLeftIcons 		= [],
-		bigRightIcons	 	= [],
-		bigDefaultLeftIcon  = null,
-		bigDefaultRightIcon = null,
+		canvas 				= null;
+		context 			= null;
+		smallLeftIcons		= [];
+		smallRightIcons 	= [];
+		bigLeftIcons 		= [];
+		bigRightIcons	 	= [];
+		bigDefaultLeftIcon  = null;
+		bigDefaultRightIcon = null;
+		resetIcon			= null;
 		selectedLeftIcon 	= null;
-		selectedRightIcon 	= null,
-		requireCenterRender	= false,
-		selectedAnimation   = null,
-		bigLeftIconCenterX 	= 150,
-		bigRightIconCenterX = 450,
-		factorDistLeftIcon	= 1.0,
-		factorDistRightIcon	= 1.0,
-		tickRotate			= 0,
-		tickLeftIcon		= 0,
-		tickRightIcon		= 0,
+		selectedRightIcon 	= null;
+		requireCenterRender	= false;
+		selectedAnimation   = null;
+		bigLeftIconCenterX 	= 150;
+		bigRightIconCenterX = 450;
+		factorDistLeftIcon	= 1.0;
+		factorDistRightIcon	= 1.0;
+		tickRotate			= 0;
+		tickLeftIcon		= 0;
+		tickRightIcon		= 0;
 		iconIndexRotate 	= 0;
 		animEvents			= { 
-								'bigLeftIconSelected'  	: { isStart: false, isEnd : false },
-								'bigRightIconSelected'  : { isEnd : false },
-								'rightIconExpand'		: { isStart: false, isEnd : false }
+								'bigLeftIconSelected'  	: { isStart : false, isEnd : false },
+								'bigRightIconSelected'  : { isStart : false, isEnd : false },
+								'rightIconExpand'		: { isStart : false, isEnd : false }
 							  };
 		XMing.SpriteManager.reset();
 		XMing.AnimationManager.reset();
@@ -392,7 +396,11 @@ XMing.VennsColor = new function() {
 		// render selectedAnimation
 		if (selectedAnimation && selectedAnimation.isStarted) {
 			selectedAnimation.render(context);
+			resetIcon.isStart = true;
+			resetIcon.render(context, 558, CENTER_Y_FINAL);
 		}
+		
+		
 	},
 	// render overlapped area when two BigDefaultIcons move to center
 	this.renderOverlappedCenter = function(leftCenterX, rightCenterX) {
@@ -440,14 +448,15 @@ XMing.VennsColor = new function() {
 	function onMouseMove(event) {
 		var mousePos = getMousePos(this, event);
 		
-		var icons = smallLeftIcons.concat(smallRightIcons);
-		
+		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);
 		var isHover = false;
+		
 		for (var i = 0; i < icons.length; i++) {
 			
 			var icon = icons[i];
 			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
+				|| icon.type == TYPE_ICON_RESET)
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -472,12 +481,13 @@ XMing.VennsColor = new function() {
 	function onClick(event) {
 		var mousePos = getMousePos(this, event);
 
-		var icons = smallLeftIcons.concat(smallRightIcons);
+		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			
 			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon))
+				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
+				|| icon.type == TYPE_ICON_RESET)
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -492,6 +502,9 @@ XMing.VennsColor = new function() {
 					} 
 					else if (icon.type == TYPE_ICON_RIGHT) {
 						selectedRightIcon = icon;			
+					}
+					else if (icon.type == TYPE_ICON_RESET) {
+						XMing.VennsColor.reset();
 					}
 				}
 			}

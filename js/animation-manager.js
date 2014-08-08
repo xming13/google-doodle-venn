@@ -4,6 +4,7 @@ XMing.AnimationManager = new function() {
 	this.animations 		= [];
 	this.endAnimations		= [];
 	this.colorAnimations 	= [];
+	this.tick = 0;
 	
 	this.init = function() {
 		this.reset();
@@ -15,6 +16,7 @@ XMing.AnimationManager = new function() {
 		this.animations 		= [];
 		this.endAnimations 		= [];
 		this.colorAnimations 	= [];
+		this.tick				= 0;
 	},
 	this.getAnimation = function(index) {
 		return this.animations[index];
@@ -25,6 +27,76 @@ XMing.AnimationManager = new function() {
 	this.getColorAnimation = function(index) {
 		return this.colorAnimations[index];
 	},
+	this.renderRibbon = function(context) {
+		var centerX = 125;
+		var centerY = 182;
+		var imageEnd = new Image();
+		imageEnd.src = 'images/sprite-end.png';
+		var endCoordsArray = [
+			[0, 1609, 18, 38],
+			[21, 1609, 19, 38],
+			[0, 2727, 182, 38]
+		];
+		
+		if (this.tick < 45) {
+			this.tick++;
+		}
+		context.save();
+		context.globalAlpha = 1.0;
+		
+		var coords;
+		// draw left ribbon
+		coords = endCoordsArray[0];
+		context.drawImage(
+			imageEnd, 
+			coords[0], coords[1], 
+			coords[2], coords[3], 
+			centerX - 9 - coords[2] / 2.0 - this.tick * 2, 
+			centerY - coords[3] / 2.0, 
+			coords[2], 
+			coords[3]
+		);
+		// draw right ribbon
+		coords = endCoordsArray[1];
+		context.drawImage(
+			imageEnd, 
+			coords[0], coords[1], 
+			coords[2], coords[3], 
+			centerX + 9 - coords[2] / 2.0 + this.tick * 2, 
+			centerY - coords[3] / 2.0, 
+			coords[2], 
+			coords[3]
+		);
+		219
+		
+		// draw center ribbon
+		coords = endCoordsArray[2];
+		context.drawImage(
+			imageEnd,
+			coords[0], 
+			coords[1], 
+			this.tick * 2 * 2, 
+			coords[3], 
+			centerX - this.tick * 2, 
+			centerY - coords[3] / 2.0,
+			this.tick * 2 * 2,
+			coords[3]
+		);
+		
+		// draw center text
+		if (this.tick == 45) {
+			context.font = '15px serif';
+			context.textAlign = 'center';
+			context.fillStyle = '#000000';
+			context.fillText(
+				'John Venn\'s 180th Birthday', 
+				centerX, 
+				centerY + 3
+			);			
+		}
+		
+		context.restore();
+	},	
 	this.loadAnimation = function() {
 		var imagePath = 'images/sprite-middlemammals1.png';
 		var coordsArray = [
@@ -98,7 +170,7 @@ XMing.AnimationManager = new function() {
 		];
 		
 		this.animations.push(new Animation(imagePath, coordsArray.slice(0, 10), true, 0));
-		this.animations.push(new Animation(imagePath, coordsArray.slice(10, 51), false, 2));
+		this.animations.push(new Animation(imagePath, coordsArray.slice(10, 51), false, 0));
 		this.animations.push(new Animation(imagePath, coordsArray.slice(51), true, 0));
 	
 		imagePath = 'images/sprite-middlemammals2.png';
@@ -1324,11 +1396,11 @@ XMing.AnimationManager = new function() {
 	};
 	Animation.prototype = {	
 		start: function(centerX, centerY, frameThreshold) {
-			var CENTER_X_FINAL	= 280,
-				CENTER_Y_FINAL	= 109;
+			var CENTER_X	= 310,
+				CENTER_Y	= 109;
 			
-			this.centerX = centerX || CENTER_X_FINAL;
-			this.centerY = centerY || CENTER_Y_FINAL;
+			this.centerX = centerX || CENTER_X;
+			this.centerY = centerY || CENTER_Y;
 			this.frameThreshold = frameThreshold || 5;
 			this.isStarted = true;
 		},
@@ -1352,16 +1424,17 @@ XMing.AnimationManager = new function() {
 				this.image, 
 				this.frame[0], this.frame[1], 
 				this.frame[2], this.frame[3], 
-				this.centerX - this.frame[2] / 2, 
-				this.centerY - this.frame[3] / 2, 
-				this.frame[2], this.frame[3]);
+				this.centerX - this.frame[2] / 2.0, 
+				this.centerY - this.frame[3] / 2.0, 
+				this.frame[2], this.frame[3]
+			);
 			context.restore();
 		},
 		render: function(context) {
-			var BIG_LEFT_ICON_CENTER_X_FINAL	= 234,
-				BIG_RIGHT_ICON_CENTER_X_FINAL	= 316,
-				BIG_LEFT_ICON_CENTER_Y 			= 109,
-				BIG_RIGHT_ICON_CENTER_Y 		= 109,
+			var BIG_LEFT_ICON_CENTER_X_FINAL	= 275,
+				BIG_RIGHT_ICON_CENTER_X_FINAL	= 348,
+				BIG_LEFT_ICON_CENTER_Y 			= 110,
+				BIG_RIGHT_ICON_CENTER_Y 		= 110,
 				BIG_ICON_RADIUS 				= 89;
 			
 			this.tick++;

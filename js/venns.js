@@ -12,6 +12,8 @@ XMing.Venns = new function() {
 		bigDefaultLeftIcon  		= null,
 		bigDefaultRightIcon 		= null,
 		resetIcon					= null,
+		ribbonLeftIcon				= null,
+		ribbonRightIcon				= null,
 		leftAngle 					= 0.0,
 		rightAngle					= 0.0,
 		selectedLeftIcon 			= null,
@@ -27,27 +29,28 @@ XMing.Venns = new function() {
 		tickLeftIcon				= 0,
 		tickRightIcon				= 0,
 		iconIndexRotate				= 0,
-		smallestLeftIconFactor 		= 1.0,
+		smallestLeftIconFactor 		= 0.0,
 		biggestLeftIconFactor		= 0.0,
 		smallestRightIconFactor		= 1.0,
 		biggestRightIconFactor		= 0.0,
 		animEvents					= { 
 										'startScreen'			: { isEnd : false },
 										'startingAnimation'		: { isEnd : false },
-										'bigLeftIconSelected'   : { isEnd : false },
-										'bigRightIconSelected'  : { isEnd : false },
-										'rightIconExpand'		: { isEnd : false }
+										'leftIconExpand'		: { isStart : false, isEnd : false },
+										'bigLeftIconSelected'   : { isStart : false, isEnd : false },
+										'bigRightIconSelected'  : { isStart : false, isEnd : false },
+										'rightIconExpand'		: { isStart : false, isEnd : false }
 									  };
 		
 	// declare constants
-	var BIG_LEFT_ICON_CENTER_X_INITIAL 	= 150,
-		BIG_RIGHT_ICON_CENTER_X_INITIAL	= 420,
-		BIG_LEFT_ICON_CENTER_X_FINAL	= 234,
-		BIG_RIGHT_ICON_CENTER_X_FINAL	= 316,
+	var BIG_LEFT_ICON_CENTER_X_INITIAL 	= 175,
+		BIG_RIGHT_ICON_CENTER_X_INITIAL	= 445,
+		BIG_LEFT_ICON_CENTER_X_FINAL	= 275,
+		BIG_RIGHT_ICON_CENTER_X_FINAL	= 348,
 		BIG_LEFT_ICON_CENTER_Y 			= 110,
 		BIG_RIGHT_ICON_CENTER_Y 		= 110,
-		CENTER_X						= 280,
-		CENTER_Y_FINAL					= 109,
+		CENTER_X						= 310,
+		CENTER_Y						= 110,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
 		TYPE_ICON_LEFT 					= 'left',
@@ -95,6 +98,8 @@ XMing.Venns = new function() {
 	// init method
 	this.initialize = function() {
 		canvas = document.getElementById('canvas-google-doodle');
+		canvas.height = 220;
+		canvas.width = 600;
 		context = canvas.getContext('2d');
 		
 		XMing.SpriteManager.init();
@@ -106,6 +111,8 @@ XMing.Venns = new function() {
 		bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftIcon;
 		bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightIcon;
 		resetIcon			= XMing.SpriteManager.resetIcon;
+		ribbonLeftIcon		= XMing.SpriteManager.ribbonLeftIcon;
+		ribbonRightIcon		= XMing.SpriteManager.ribbonRightIcon;
 		bigLeftIconCenterX 	= BIG_LEFT_ICON_CENTER_X_FINAL;
 		bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
 		leftAngle 			= 90.0 / (smallLeftIcons.length - 1);
@@ -129,6 +136,8 @@ XMing.Venns = new function() {
 		bigDefaultLeftIcon  		= null;
 		bigDefaultRightIcon 		= null;
 		resetIcon					= null;
+		ribbonLeftIcon				= null;
+		ribbonRightIcon				= null;
 		leftAngle 					= 0.0;
 		rightAngle					= 0.0;
 		selectedLeftIcon 			= null;
@@ -144,21 +153,25 @@ XMing.Venns = new function() {
 		tickLeftIcon				= 0;
 		tickRightIcon				= 0;
 		iconIndexRotate				= 0;
-		smallestLeftIconFactor 		= 1.0;
+		smallestLeftIconFactor 		= 0.0;
 		biggestLeftIconFactor		= 0.0;
 		smallestRightIconFactor		= 1.0;
 		biggestRightIconFactor		= 0.0;
 		animEvents					= { 
 										'startScreen'			: { isEnd : false },
 										'startingAnimation'		: { isEnd : false },
-										'bigLeftIconSelected'   : { isEnd : false },
-										'bigRightIconSelected'  : { isEnd : false },
-										'rightIconExpand'		: { isEnd : false }
+										'leftIconExpand'		: { isStart : false, isEnd : false },
+										'bigLeftIconSelected'   : { isStart : false, isEnd : false },
+										'bigRightIconSelected'  : { isStart : false, isEnd : false },
+										'rightIconExpand'		: { isStart : false, isEnd : false }
 									  };
 		
 		XMing.SpriteManager.reset();
 		XMing.AnimationManager.reset();
 		XMing.Venns.initialize();
+		
+		// start animation
+		animEvents['startScreen'].isEnd = true;
 	},		
 	// The main loop where everything happens
 	this.update = function() {
@@ -181,21 +194,42 @@ XMing.Venns = new function() {
 	this.draw = function() {
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		
+		// after center start is clicked
 		if (animEvents['startScreen'].isEnd &&
 			!animEvents['startingAnimation'].isEnd) {
-			bigLeftIconCenterX = this.tween(bigLeftIconCenterX, -2, BIG_LEFT_ICON_CENTER_X_INITIAL);
-			bigRightIconCenterX = this.tween(bigRightIconCenterX, 2, BIG_RIGHT_ICON_CENTER_X_INITIAL);
-			bigDefaultLeftIcon.rotateRad += 0.86 / 180.0 * 2 * Math.PI;
-			bigDefaultRightIcon.rotateRad += 0.86 / 180.0 * 2 * Math.PI;
-			
+			// animate big icons to left and right respectively
+			bigLeftIconCenterX = this.tween(bigLeftIconCenterX, -4, BIG_LEFT_ICON_CENTER_X_INITIAL);
+			bigRightIconCenterX = this.tween(bigRightIconCenterX, 4, BIG_RIGHT_ICON_CENTER_X_INITIAL);
+		
+			tickRotate++;
+			bigDefaultLeftIcon.rotateRebounce(tickRotate);
+			bigDefaultRightIcon.rotateRebounce(tickRotate);
+					
 			if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_INITIAL 
+				&& tickRotate > 45
 				&& bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_INITIAL) {
+				tickRotate = 0;
 				animEvents['startingAnimation'].isEnd = true;
 			}
 		}
-		else if (animEvents['startingAnimation'].isEnd) {		
-			tickRotate++;
-			this.rotateSmallIcon();
+		else if (animEvents['startingAnimation'].isEnd) {
+			if (!animEvents['leftIconExpand'].isEnd) {
+				//set event
+				animEvents['leftIconExpand'].isStart = true;
+				
+				bigDefaultLeftIcon.alpha = 1.0;
+				bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.5);
+						
+				// set event leftIconExpand end
+				if (smallestLeftIconFactor >= 1 && bigDefaultRightIcon.alpha <= 0.6) {
+					animEvents['leftIconExpand'].isEnd = true;
+				}
+			}
+			else {
+				// rotate small icon periodically
+				tickRotate++;
+				this.rotateSmallIcon();
+			}
 			if (selectedLeftIcon) {
 				// set Text based on selectedLeftIcon
 				context.save();
@@ -300,7 +334,7 @@ XMing.Venns = new function() {
 					requireCenterRender = true;
 					var speed = 7;
 					
-					// animate bigLeftIcon to center of the canvas				
+					// animate bigLeftIcon to center of the canvas with bouncing			
 					if (bigLeftIconCenterX > BIG_LEFT_ICON_CENTER_X_FINAL + speed) {
 						bigLeftIconCenterX = BIG_LEFT_ICON_CENTER_X_FINAL + speed;
 					} 
@@ -311,7 +345,7 @@ XMing.Venns = new function() {
 						bigLeftIconCenterX += speed;
 					}
 				
-					// animate bigRightIcon to center of the canvas					
+					// animate bigRightIcon to center of the canvas	with bouncing				
 					if (bigRightIconCenterX < BIG_RIGHT_ICON_CENTER_X_FINAL - speed) {
 						bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL - speed;
 					} 
@@ -342,7 +376,7 @@ XMing.Venns = new function() {
 						
 						if (selectedAnimation.isFinished) {
 							endAnimation = XMing.AnimationManager.getEndAnimation(0);
-							endAnimation.start(100, 90, 4);
+							endAnimation.start(118, 85, 4);
 						}
 					}
 				}	
@@ -359,6 +393,24 @@ XMing.Venns = new function() {
 				}
 				if (icon.factor < smallestLeftIconFactor) {
 					smallestLeftIconFactor = icon.factor;
+				}
+				
+				if (animEvents['leftIconExpand'].isStart
+					&& !animEvents['leftIconExpand'].isEnd) {
+					if (i == 0) {
+						icon.isStart = true;
+					}
+					if (icon.isStart) {					
+						icon.factor = this.tween(icon.factor, 5 / 60, 1.0);
+						icon.alpha = this.tween(icon.alpha, 10 / 60, 0.8);
+						if (icon.factor >= 0.4 && i < smallLeftIcons.length - 1) {
+							var iconNext = smallLeftIcons[i + 1];
+							iconNext.isStart = true;
+						}
+						if (icon.factor == 1.0 && icon.alpha == 0.8) {
+							icon.isStart = false;
+						}	
+					}
 				}
 				
 				if (animEvents['bigLeftIconSelected'].isStart
@@ -451,11 +503,17 @@ XMing.Venns = new function() {
 			selectedAnimation.render(context);
 		}
 		
-		// render endAnimation
+		// render endAnimation and resetIcon
 		if (endAnimation && endAnimation.isStarted) {
 			endAnimation.renderEnd(context);
 			resetIcon.isStart = true;
-			resetIcon.render(context, 525, 100);
+			resetIcon.render(context, 558, CENTER_Y);
+			/*ribbonLeftIcon.isStart = true;
+			ribbonLeftIcon.render(context, 110, 195);
+			ribbonRightIcon.isStart = true;
+			ribbonRightIcon.render(context, 130, 195);
+			*/
+			XMing.AnimationManager.renderRibbon(context);
 		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center
@@ -473,13 +531,7 @@ XMing.Venns = new function() {
 			Math.PI - radian, Math.PI + radian, false);
 		context.closePath();
 		context.clip();
-		
-		if (leftCenterX == CENTER_X) {
-			context.fillStyle = '#FFFFFF';
-		} 
-		else {
-			context.fillStyle = '#BBBBBB';
-		}
+		context.fillStyle = '#939393';
 		context.fill();
 		context.restore();
 	},
@@ -513,7 +565,9 @@ XMing.Venns = new function() {
 		var isHover = false;
 		if (!animEvents['startScreen'].isEnd 
 			&& mousePos.x >= BIG_LEFT_ICON_CENTER_X_FINAL 
-			&& mousePos.y <= BIG_RIGHT_ICON_CENTER_X_FINAL) {
+			&& mousePos.x <= BIG_RIGHT_ICON_CENTER_X_FINAL
+			&& mousePos.y >= CENTER_Y - BIG_ICON_RADIUS
+			&& mousePos.y <= CENTER_Y + BIG_ICON_RADIUS) {
 			isHover = true;
 		}
 		
@@ -522,7 +576,7 @@ XMing.Venns = new function() {
 			
 			var icon = icons[i];
 			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
+				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon && animEvents['rightIconExpand'].isEnd)
 				|| icon.type == TYPE_ICON_RESET)
 			{
 				var startX = icon.centerX - icon.width / 2;

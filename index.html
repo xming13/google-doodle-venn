@@ -33,21 +33,19 @@
 	</style>
 </head>
 <body>
-	<div id="content">
-		<!--\\<iframe id="hplogo-complex" src="http://www.google.com/logos/2014/venn/venn.html" 
+	<div id="content" style="width: 884px;">
+		
+		<iframe id="hplogo-complex" src="http://www.google.com/logos/2014/venn/venn.html" 
 			frameborder="0" height="250px" width="900px" style="margin-top: 20px;"></iframe>
-		-->
-		<canvas id="canvas-google-doodle" width="600" height="220">
-			This text is displayed if your browser does not support HTML5 Canvas.
-		</canvas>
+		
 		<center>
-			<div id="reset">
-				Reset
-			</div>
-		</center>
-		<canvas id="canvas-color" width="600" height="300">
-			This text is displayed if your browser does not support HTML5 Canvas.
-		</canvas>		
+			<canvas id="canvas-google-doodle" width="1200" height="440">
+				This text is displayed if your browser does not support HTML5 Canvas.
+			</canvas>	
+			<canvas id="canvas-color" width="600" height="300">
+				This text is displayed if your browser does not support HTML5 Canvas.
+			</canvas>	
+		</center>			
 	</div>
 </body>  
 <script src="js/requestAnimFrame.js"></script>
@@ -61,8 +59,8 @@
 		XMing.Venns.initialize();
 		XMing.VennsColor.initialize();
 		
-		var btnReset = document.getElementById('reset');
-		btnReset.addEventListener("click", XMing.Venns.reset, false);
+		//var btnReset = document.getElementById('reset');
+		//btnReset.addEventListener("click", XMing.Venns.reset, false);
 	};
 	
 </script>

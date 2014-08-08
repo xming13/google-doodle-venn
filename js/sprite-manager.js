@@ -16,6 +16,8 @@ XMing.SpriteManager = new function() {
 	this.bigRightColorIcons			= [];
 	
 	this.resetIcon					= null;
+	this.ribbonLeftIcon				= null;
+	this.ribbonRightIcon			= null;
 	
 	// declare variable
 	var TYPE_ICON_LEFT 	= 'left',
@@ -24,8 +26,8 @@ XMing.SpriteManager = new function() {
 	
 	this.init = function() {
 		this.reset();
-		this.loadDefault();
-		this.loadCircles();
+		this.loadDefaultIcons();
+		this.loadGoogleIcons();
 		this.loadColorIcons();
 	},
 	this.reset = function() {
@@ -44,25 +46,33 @@ XMing.SpriteManager = new function() {
 		this.bigRightColorIcons			= [];
 		
 		this.resetIcon					= null;
+		this.ribbonLeftIcon				= null;
+		this.ribbonRightIcon			= null;
 	},
-	this.loadDefault = function() {
+	this.loadDefaultIcons = function() {
 		var imageInitial = new Image();
 		imageInitial.src = 'images/sprite-initial.png';
-		var coordsArray = [
+		var initialCoordsArray = [
 			[0, 1266, 178, 178],
-			[0, 1637, 178, 178]
+			[0, 1637, 178, 178],
 		];
 		
-		this.bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, imageInitial, coordsArray[0]);
-		this.bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, imageInitial, coordsArray[1], 0.75);
+		this.bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, imageInitial, initialCoordsArray[0]);
+		this.bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, imageInitial, initialCoordsArray[1], 0.75);
 		this.bigDefaultRightIcon.isOverlay = true;
 		
 		var imageEnd = new Image();
 		imageEnd.src = 'images/sprite-end.png';
-		var endCoords = [0, 2334, 48, 48];
-		this.resetIcon = new Icon(-1, TYPE_ICON_RESET, imageEnd, endCoords, 0.8);
+		var endCoordsArray = [
+			[0, 2334, 48, 48],
+			[0, 1609, 18, 38],
+			[21, 1609, 19, 38]
+		];
+		this.resetIcon = new Icon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[0], 0.8);
+		this.ribbonLeftIcon = new Icon(-1, '', imageEnd, endCoordsArray[1]);
+		this.ribbonRightIcon = new Icon(-1, '', imageEnd, endCoordsArray[2]);
 	},
-	this.loadCircles = function() {
+	this.loadGoogleIcons = function() {
 		var imageCircles = new Image();
 		imageCircles.src = 'images/sprite-circles.png';
 		var coordsArray = [
@@ -99,7 +109,7 @@ XMing.SpriteManager = new function() {
 		var icon;
 		for (var i = 0; i < coordsArray.length; i++) {
 			if (i < 5) {
-				icon = new Icon(this.smallLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i], 0.8);
+				icon = new Icon(this.smallLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i], 0.0);
 				this.smallLeftIcons.push(icon);
 			} 
 			else if (i < 10) {
@@ -152,6 +162,7 @@ XMing.SpriteManager = new function() {
 		this.bigRightColorIcons.push(new ColorIcon(5, 'Blue', '#0000FF', TYPE_ICON_RIGHT, sizeBig, sizeBig));
 		
 	}
+	
 	var ColorIcon = function(index, name, hex, type, width, height) {
 		this.index 		= index;
 		this.name		= name;
@@ -246,7 +257,7 @@ XMing.SpriteManager = new function() {
 		else {
 			this.alpha 	= alpha || 1.0;
 		}
-		this.factor 	= type == TYPE_ICON_LEFT ? 1.0 : 0.0;
+		this.factor 	= 0.0;
 		this.isStart 	= false;
 		this.isOverlay 	= false;
 		this.rotateRad 	= 0;
@@ -259,6 +270,7 @@ XMing.SpriteManager = new function() {
 			this.clipY = icon.clipY;
 			this.width = icon.width;
 			this.height = icon.height;
+			this.rotateRad = icon.rotateRad;
 		},
 		updateRotateRad: function(tick) {
 			if (tick > 160) {
@@ -280,6 +292,25 @@ XMing.SpriteManager = new function() {
 					-Math.PI * 2 * 2 / 360;
 			}	
 		},
+		rotateRebounce: function(tick) {
+			numTickForward = 30;
+			numTickBackward = 15;
+			fractionCircleForward = 3.0 / 8;
+			fractionCircleBackward = 1.0 / 8;
+			if (tick > numTickForward + numTickBackward) {
+				return;
+			} 
+			else if (tick > numTickForward) {
+				var radBackwordRate = Math.PI * 2 * fractionCircleBackward / numTickBackward;
+				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+					radBackwordRate : -radBackwordRate;
+			}
+			else {
+				var radForwardRate = Math.PI * 2 * fractionCircleForward / numTickForward;
+				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
+					-radForwardRate : radForwardRate;
+			}
+		},
 		setHover: function(isHover) {
 			if (!this.isHovered && isHover) {
 				this.isHovered = isHover;
@@ -295,10 +326,13 @@ XMing.SpriteManager = new function() {
 			this.centerY = centerY;
 			context.save();
 			context.globalAlpha = this.alpha;
-			context.beginPath();
-			context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
-			context.closePath();
-			context.clip();
+			
+			if (this.type != '') {
+				context.beginPath();
+				context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
+				context.closePath();
+				context.clip();
+			}
 			context.translate(this.centerX, this.centerY);
 			context.rotate(this.rotateRad);
 			context.translate(-this.centerX, -this.centerY);
@@ -311,8 +345,8 @@ XMing.SpriteManager = new function() {
 			);
 			
 			if (this.isOverlay) {
-				context.globalAlpha = (1.0 - this.alpha) / 2;
-				context.fillStyle = '#333333';
+				context.globalAlpha = 0.2;
+				context.fillStyle = '#848482';
 				context.fill();
 			}
 			context.restore();
