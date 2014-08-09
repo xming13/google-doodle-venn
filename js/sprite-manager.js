@@ -2,14 +2,16 @@ var XMing = XMing || {};
 
 // Base SpriteManager	
 XMing.SpriteManager = function() {
-	this.bigDefaultLeftIcon			= null;
-	this.bigDefaultRightIcon 		= null;
-	this.smallLeftIcons 			= [];
-	this.smallRightIcons 			= [];
-	this.bigLeftIcons 				= [];
-	this.bigRightIcons 				= [];
+	this.bigDefaultLeftIcon		= null;
+	this.bigDefaultRightIcon 	= null;
+	this.smallLeftIcons 		= [];
+	this.smallRightIcons 		= [];
+	this.bigLeftIcons 			= [];
+	this.bigRightIcons 			= [];
 	
-	this.resetIcon					= null;
+	this.resetIcon				= null;
+	this.linkIcon				= null;
+	this.shareIcon				= null;
 };
 XMing.SpriteManager.prototype.init = function() {
 	this.reset();
@@ -23,7 +25,9 @@ XMing.SpriteManager.prototype.reset = function() {
 	this.bigLeftIcons 			= [];
 	this.bigRightIcons 			= [];
 	
+	this.linkIcon				= null;
 	this.resetIcon				= null;
+	this.shareIcon				= null;
 };
 
 // GoogleSpriteManager (inherits Base SpriteManager)
@@ -42,7 +46,9 @@ XMing.GoogleSpriteManager.prototype.reset = function() {
 XMing.GoogleSpriteManager.prototype.loadIcons = function() {
 	var TYPE_ICON_LEFT = 'left',
 		TYPE_ICON_RIGHT = 'right',
-		TYPE_ICON_RESET = 'reset';
+		TYPE_ICON_LINK = 'link',
+		TYPE_ICON_RESET = 'reset',
+		TYPE_ICON_SHARE = 'share';
 		
 	// initial icons
 	var imageInitial = new Image();
@@ -115,12 +121,16 @@ XMing.GoogleSpriteManager.prototype.loadIcons = function() {
 	imageEnd.src = 'images/sprite-end.png';
 	var endCoordsArray = [
 		[0, 2334, 48, 48],
+		[102, 2334, 48, 48],
+		[51, 2334, 48, 48],
 		[0, 1609, 18, 38],
-		[21, 1609, 19, 38]
+		[21, 1609, 19, 38],
 	];
+	this.linkIcon = new GoogleIcon(-1, TYPE_ICON_LINK, imageEnd, endCoordsArray[1], 0.8);
 	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[0], 0.8);
-	this.ribbonLeftIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[1]);
-	this.ribbonRightIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[2]);
+	this.shareIcon = new GoogleIcon(-1, TYPE_ICON_SHARE, imageEnd, endCoordsArray[2], 0.8);
+	this.ribbonLeftIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[3]);
+	this.ribbonRightIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[4]);
 };
 	
 // ColorSpriteManager (inherits Base SpriteManager)
@@ -265,9 +275,17 @@ GoogleIcon.prototype = {
 		var TYPE_ICON_RIGHT  = 'right';
 		return this.type == TYPE_ICON_RIGHT;
 	},
+	isTypeLink : function() {
+		var TYPE_ICON_LINK = 'link';
+		return this.type == TYPE_ICON_LINK;
+	},
 	isTypeReset : function() {
 		var TYPE_ICON_RESET  = 'reset';
 		return this.type == TYPE_ICON_RESET;
+	},
+	isTypeShare : function() {
+		var TYPE_ICON_SHARE = 'share';
+		return this.type == TYPE_ICON_SHARE;
 	},
 	render : function(context, centerX, centerY) {
 		this.centerX = centerX;

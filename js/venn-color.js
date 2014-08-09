@@ -1,6 +1,6 @@
 var XMing = XMing || {};
 
-XMing.VennsColor = new function() {
+XMing.VennColor = new function() {
 	// declare the variables
 	var	requestID				= null,
 		canvas 					= null,

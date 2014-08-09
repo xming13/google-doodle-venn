@@ -1,6 +1,6 @@
 var XMing = XMing || {};
 
-XMing.VennsGoogle = new function() {
+XMing.VennGoogle = new function() {
 	// declare the variables
 	var	requestID					= null,
 		canvas 						= null,
@@ -13,7 +13,9 @@ XMing.VennsGoogle = new function() {
 		bigRightIcons	 			= [],
 		bigDefaultLeftIcon  		= null,
 		bigDefaultRightIcon 		= null,
+		linkIcon					= null,
 		resetIcon					= null,
+		shareIcon					= null,
 		ribbonLeftIcon				= null,
 		ribbonRightIcon				= null,
 		leftAngle 					= 0.0,
@@ -110,7 +112,9 @@ XMing.VennsGoogle = new function() {
 		bigRightIcons	 	= spriteManager.bigRightIcons;
 		bigDefaultLeftIcon  = spriteManager.bigDefaultLeftIcon;
 		bigDefaultRightIcon = spriteManager.bigDefaultRightIcon;
+		linkIcon			= spriteManager.linkIcon;
 		resetIcon			= spriteManager.resetIcon;
+		shareIcon			= spriteManager.shareIcon;
 		ribbonLeftIcon		= spriteManager.ribbonLeftIcon;
 		ribbonRightIcon		= spriteManager.ribbonRightIcon;
 		bigLeftIconCenterX 	= BIG_LEFT_ICON_CENTER_X_FINAL;
@@ -140,7 +144,9 @@ XMing.VennsGoogle = new function() {
 		bigRightIcons	 			= [];
 		bigDefaultLeftIcon  		= null;
 		bigDefaultRightIcon 		= null;
+		linkIcon					= null;
 		resetIcon					= null;
+		shareIcon					= null;
 		ribbonLeftIcon				= null;
 		ribbonRightIcon				= null;
 		leftAngle 					= 0.0;
@@ -508,6 +514,10 @@ XMing.VennsGoogle = new function() {
 			endAnimation.renderEnd(context);
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y);
+			linkIcon.isStart = true;
+			linkIcon.render(context, 558, CENTER_Y  - 60);			
+			shareIcon.isStart = true;
+			shareIcon.render(context, 558, CENTER_Y  + 60);
 			animationManager.renderRibbon(context);
 		}
 	},
@@ -566,12 +576,18 @@ XMing.VennsGoogle = new function() {
 			isHover = true;
 		}
 		
-		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);	
+		var icons = smallLeftIcons
+			.concat(smallRightIcons)
+			.concat(linkIcon)
+			.concat(resetIcon)
+			.concat(shareIcon);	
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			if ((icon.isTypeLeft() && !selectedLeftIcon)
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon && animEvents['rightIconExpand'].isEnd)
-				|| icon.isTypeReset()) {
+				|| icon.isTypeLink()
+				|| icon.isTypeReset()
+				|| icon.isTypeShare()) {
 				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
 					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
 					icon.setHover(true);
@@ -593,13 +609,19 @@ XMing.VennsGoogle = new function() {
 			&& mousePos.y <= BIG_RIGHT_ICON_CENTER_X_FINAL) {
 			animEvents['startScreen'].isEnd = true;
 		}
-		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);
+		var icons = smallLeftIcons
+			.concat(smallRightIcons)
+			.concat(linkIcon)
+			.concat(resetIcon)
+			.concat(shareIcon);
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			
 			if ((icon.isTypeLeft() && !selectedLeftIcon)
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
-				|| icon.isTypeReset())
+				|| icon.isTypeLink()
+				|| icon.isTypeReset()
+				|| icon.isTypeShare())
 			{
 				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
 					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
@@ -610,8 +632,14 @@ XMing.VennsGoogle = new function() {
 					else if (icon.isTypeRight()) {
 						selectedRightIcon = icon;			
 					}
+					else if (icon.isTypeLink()) {
+						window.open('https://www.google.com/search?q=John%20Venn', '_blank');
+					}
 					else if (icon.isTypeReset()) {
 						this.reset();
+					}
+					else if (icon.isTypeShare()) {
+						window.open('http://www.google.com/doodles/john-venns-180th-birthday', '_blank');
 					}
 				}
 			}
