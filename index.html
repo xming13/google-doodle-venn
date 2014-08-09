@@ -2,46 +2,85 @@
 <head>
 	<meta charset="uft-8">
     <title>Google Doodle Venn</title>
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
 	<style type="text/css">
 		@font-face {
 			font-family: 'Open Sans';
-			src: url('http://fonts.googleapis.com/css?family=Open+Sans');
 		}
-		
-		#loadfont {
-			top:-1000px;
-			position:absolute;
-			display:inline;
-			visibility:hidden;
-			font-family: 'Open Sans';
+
+		body {
+			background: -moz-linear-gradient(left, #FFB6D7 0%, #FFB6D7 20%, #E6B9FE 20%, #E6B9FE 40%, #BDD3FE 40%, #BDD3FE 60%, #E1FFB6 60%, #E1FFB6 80%, #FFFFB6 80%, #FFFFB6 100%);
+			background: -webkit-gradient(linear, left top, right top, color-stop(0%,#FFB6D7), color-stop(20%,#FFB6D7), color-stop(20%,#E6B9FE), color-stop(40%,#E6B9FE), color-stop(40%, #BDD3FE), color-stop(60%, #BDD3FE), color-stop(60%, #E1FFB6), color-stop(80%, #E1FFB6), color-stop(80%, #FFFFB6), color-stop(100%, #FFFFB6));
+			background: -webkit-linear-gradient(left, #FFB6D7 0%, #FFB6D7 20%, #E6B9FE 20%, #E6B9FE 40%, #BDD3FE 40%, #BDD3FE 60%, #E1FFB6 60%, #E1FFB6 80%, #FFFFB6 80%, #FFFFB6 100%);
+			background: -o-linear-gradient(left, #FFB6D7 0%, #FFB6D7 20%, #E6B9FE 20%, #E6B9FE 40%, #BDD3FE 40%, #BDD3FE 60%, #E1FFB6 60%, #E1FFB6 80%, #FFFFB6 80%, #FFFFB6 100%);
+			background: -ms-linear-gradient(left, #FFB6D7 0%, #FFB6D7 20%, #E6B9FE 20%, #E6B9FE 40%, #BDD3FE 40%, #BDD3FE 60%, #E1FFB6 60%, #E1FFB6 80%, #FFFFB6 80%, #FFFFB6 100%);
+			background: linear-gradient(to right, #FFB6D7 0%, #FFB6D7 20%, #E6B9FE 20%, #E6B9FE 40%, #BDD3FE 40%, #BDD3FE 60%, #E1FFB6 60%, #E1FFB6 80%, #FFFFB6 80%, #FFFFB6 100%);
+			filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#FFB6D7', endColorstr='#FFFFB6',GradientType=1 );
 		}
 		
 		#content {
-			margin: 0 auto;
-			max-width: 960px;
+			margin: 0 auto 50px;
+			width: 60%;
+			min-width: 690px;
 		}
 		
-		#canvas-google, #canvas-color { 
+		#iframe-google-doodle,
+		#canvas-google, 
+		#canvas-color {
 			background: white;
-			margin: 0 auto;
-			display: block;
+			margin-bottom: 30px;
 		}
+				
+		h1 {
+			padding: 15px 0;
+			margin-top: 0;
+			font-family: Open Sans;
+			font-size: 36px;
+			font-weight: 500;
+			line-height: 1.1;
+			width: 500px;
+			background: #FFFFFC;
+		}
+		
+		h1 a {
+			color: #000000;
+			text-decoration: none;
+		}
+		
+		h1 a:hover {
+			color: #999999;
+		}
+		
+		h1 small {
+			font-size: 65%;
+			font-weight: 400;
+			line-height: 1;
+			color: #777777;
+		}	
 	</style>
 </head>
-<body>
-	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
-	<!-- force loading of font to prevent FOUT (flash of unstyled text) -->
-	<div id="loadfont">.</div>		
-	
-	<div id="content" style="width: 884px;">	
-		<iframe id="hplogo-complex" src="http://www.google.com/logos/2014/venn/venn.html" 
-			frameborder="0" height="250px" width="900px" style="margin-top: 20px;"></iframe>
-		
+<body>	
+	<div id="content">	
 		<center>
-			<canvas id="canvas-google" width="600" height="220">
+			<h1>
+				<a href="http://www.google.com/doodles/john-venns-180th-birthday" target="_blank">
+					Original Google doodle
+				</a>
+				<br />
+				<small>for John Venn's 180<sup>th</sup> Birthday</small>
+			</h1>
+			<iframe id="iframe-google-doodle" src="http://www.google.com/logos/2014/venn/venn.html" 
+				frameborder="0" height="240px" width="610px"></iframe>
+		
+			<h1>
+				Code from scratch
+			</h1>
+			<canvas id="canvas-google" width="610" height="240">
 				This text is displayed if your browser does not support HTML5 Canvas.
-			</canvas>	
-			<canvas id="canvas-color" width="600" height="300">
+			</canvas>
+			
+			<h1>Color Mixing</h1>
+			<canvas id="canvas-color" width="610" height="300">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>	
 		</center>

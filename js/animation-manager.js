@@ -1243,7 +1243,7 @@ XMing.GoogleAnimationManager.prototype.getEndAnimation = function() {
 };
 XMing.GoogleAnimationManager.prototype.renderRibbon = function(context) {
 	var centerX = 125;
-	var centerY = 182;
+	var centerY = 192;
 	var numEndTick = 45;
 	var imageEnd = new Image();
 	imageEnd.src = 'images/sprite-end.png';
@@ -1421,7 +1421,7 @@ XMing.GoogleAnimation = function(imagePath, coordsArray, isReplay, numFrameLoopB
 XMing.GoogleAnimation.prototype = {
 	start: function(centerX, centerY, frameThreshold) {	
 		var CENTER_X 	= 310,
-			CENTER_Y	= 110;
+			CENTER_Y	= 120;
 		this.centerX = centerX || CENTER_X;
 		this.centerY = centerY || CENTER_Y;
 		this.frameThreshold = frameThreshold || 5;
@@ -1456,8 +1456,8 @@ XMing.GoogleAnimation.prototype = {
 	render: function(context) {	
 		var BIG_LEFT_ICON_CENTER_X_FINAL	= 275,
 			BIG_RIGHT_ICON_CENTER_X_FINAL	= 348,
-			BIG_LEFT_ICON_CENTER_Y 			= 110,
-			BIG_RIGHT_ICON_CENTER_Y 		= 110,
+			BIG_LEFT_ICON_CENTER_Y 			= 120,
+			BIG_RIGHT_ICON_CENTER_Y 		= 120,
 			BIG_ICON_RADIUS 				= 89;
 	
 		this.tick++;

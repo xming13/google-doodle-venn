@@ -51,10 +51,10 @@ XMing.VennGoogle = new function() {
 		BIG_RIGHT_ICON_CENTER_X_INITIAL	= 445,
 		BIG_LEFT_ICON_CENTER_X_FINAL	= 275,
 		BIG_RIGHT_ICON_CENTER_X_FINAL	= 348,
-		BIG_LEFT_ICON_CENTER_Y 			= 110,
-		BIG_RIGHT_ICON_CENTER_Y 		= 110,
+		BIG_LEFT_ICON_CENTER_Y 			= 120,
+		BIG_RIGHT_ICON_CENTER_Y 		= 120,
 		CENTER_X						= 310,
-		CENTER_Y						= 110,
+		CENTER_Y						= 120,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
 		LEFT_ICONS_MAPPING 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'],
@@ -382,7 +382,7 @@ XMing.VennGoogle = new function() {
 						
 						if (selectedAnimation.isFinished) {
 							endAnimation = animationManager.getEndAnimation();
-							endAnimation.start(118, 85, 4);
+							endAnimation.start(118, 100, 4);
 						}
 					}
 				}	
