@@ -7,19 +7,21 @@
 			font-family: 'Open Sans';
 			src: url('http://fonts.googleapis.com/css?family=Open+Sans');
 		}
-
+		
+		#loadfont {
+			top:-1000px;
+			position:absolute;
+			display:inline;
+			visibility:hidden;
+			font-family: 'Open Sans';
+		}
+		
 		#content {
 			margin: 0 auto;
 			max-width: 960px;
 		}
 		
-		#canvas-google { 
-			background: white;
-			margin: 0 auto;
-			display: block;
-		}
-		
-		#canvas-color { 
+		#canvas-google, #canvas-color { 
 			background: white;
 			margin: 0 auto;
 			display: block;
@@ -28,11 +30,12 @@
 </head>
 <body>
 	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
-	<div id="content" style="width: 884px;">
-		
-		<!-- <iframe id="hplogo-complex" src="http://www.google.com/logos/2014/venn/venn.html" 
+	<!-- force loading of font to prevent FOUT (flash of unstyled text) -->
+	<div id="loadfont">.</div>		
+	
+	<div id="content" style="width: 884px;">	
+		<iframe id="hplogo-complex" src="http://www.google.com/logos/2014/venn/venn.html" 
 			frameborder="0" height="250px" width="900px" style="margin-top: 20px;"></iframe>
-		-->
 		
 		<center>
 			<canvas id="canvas-google" width="600" height="220">
@@ -41,7 +44,7 @@
 			<canvas id="canvas-color" width="600" height="300">
 				This text is displayed if your browser does not support HTML5 Canvas.
 			</canvas>	
-		</center>			
+		</center>
 	</div>
 </body>  
 <script src="js/requestAnimFrame.js"></script>
@@ -50,10 +53,9 @@
 <script src="js/venn-google.js"></script>
 <script src="js/venn-color.js"></script>
 <script type="text/javascript">		
-	window.onload = function() {
+	window.onload = function() {	
 		XMing.VennGoogle.initialize();
 		XMing.VennColor.initialize();
 	};
-	
 </script>
 </html>

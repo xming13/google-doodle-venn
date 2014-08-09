@@ -1244,6 +1244,7 @@ XMing.GoogleAnimationManager.prototype.getEndAnimation = function() {
 XMing.GoogleAnimationManager.prototype.renderRibbon = function(context) {
 	var centerX = 125;
 	var centerY = 182;
+	var numEndTick = 45;
 	var imageEnd = new Image();
 	imageEnd.src = 'images/sprite-end.png';
 	var endCoordsArray = [
@@ -1252,7 +1253,7 @@ XMing.GoogleAnimationManager.prototype.renderRibbon = function(context) {
 		[0, 2727, 182, 38]
 	];
 	
-	if (this.tick < 45) {
+	if (this.tick < numEndTick) {
 		this.tick++;
 	}
 	context.save();
@@ -1297,7 +1298,7 @@ XMing.GoogleAnimationManager.prototype.renderRibbon = function(context) {
 	);
 	
 	// draw center text
-	if (this.tick == 45) {
+	if (this.tick == numEndTick) {
 		context.font = '14px Open Sans';
 		context.textAlign = 'center';
 		context.fillStyle = '#000000';
@@ -1327,6 +1328,77 @@ XMing.ColorAnimationManager.prototype.loadAnimation = function() {
 	this.animations.push(new XMing.ColorAnimation('#00FFFF', 'Cyan'));
 	this.animations.push(new XMing.ColorAnimation('#FF00FF', 'Magenta'));
 	this.animations.push(new XMing.ColorAnimation('#FFFFFF', 'White'));
+};
+XMing.ColorAnimationManager.prototype.renderRibbon = function(context, selectedLeftIcon) {
+	var centerX = 125;
+	var centerY = 182;
+	var numEndTick = 35;
+	var imageEnd = new Image();
+	imageEnd.src = 'images/sprite-end.png';
+	var endCoordsArray = [
+		[0, 1609, 18, 38],
+		[21, 1609, 19, 38],
+		[0, 2727, 182, 38]
+	];
+	
+	if (this.tick < numEndTick) {
+		this.tick++;
+	}
+	context.save();
+	context.globalAlpha = 1.0;
+	
+	var coords;
+	// draw left ribbon
+	coords = endCoordsArray[0];
+	context.drawImage(
+		imageEnd, 
+		coords[0], coords[1], 
+		coords[2], coords[3], 
+		centerX - 9 - coords[2] / 2.0 - this.tick * 2, 
+		centerY - coords[3] / 2.0, 
+		coords[2], 
+		coords[3]
+	);
+	// draw right ribbon
+	coords = endCoordsArray[1];
+	context.drawImage(
+		imageEnd, 
+		coords[0], coords[1], 
+		coords[2], coords[3], 
+		centerX + 9 - coords[2] / 2.0 + this.tick * 2, 
+		centerY - coords[3] / 2.0, 
+		coords[2], 
+		coords[3]
+	);
+	
+	// draw center ribbon
+	coords = endCoordsArray[2];
+	context.drawImage(
+		imageEnd,
+		coords[0], 
+		coords[1], 
+		this.tick * 2 * 2, 
+		coords[3], 
+		centerX - this.tick * 2, 
+		centerY - coords[3] / 2.0,
+		this.tick * 2 * 2,
+		coords[3]
+	);
+	
+	var text = selectedLeftIcon.index <= 2 ? 'Subtractive Mixing' : 'Addictive Mixing';
+	// draw center text
+	if (this.tick == numEndTick) {
+		context.font = '14px Open Sans';
+		context.textAlign = 'center';
+		context.fillStyle = '#000000';
+		context.fillText(
+			text, 
+			centerX, 
+			centerY + 3
+		);			
+	}
+	
+	context.restore();
 };
 
 // Google Animation

@@ -480,7 +480,8 @@ XMing.VennColor = new function() {
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y_FINAL);
 			shareIcon.isStart = true;
-			shareIcon.render(context, 558, CENTER_Y_FINAL + 60);			
+			shareIcon.render(context, 558, CENTER_Y_FINAL + 60);
+			animationManager.renderRibbon(context, selectedLeftIcon);			
 		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center

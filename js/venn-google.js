@@ -434,7 +434,6 @@ XMing.VennGoogle = new function() {
 					}
 				}	
 				
-				console.log(leftAngle);
 				icon.render(
 					context,
 					bigLeftIconCenterX - Math.cos((2 - i) * leftAngle / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor, 
