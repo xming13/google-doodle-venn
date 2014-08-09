@@ -1,6 +1,10 @@
 var XMing = XMing || {};
-
-XMing.SpriteManager = new function() {
+		
+XMing.SpriteManager = (function() {
+	var TYPE_ICON_LEFT 	= 'left',
+		TYPE_ICON_RIGHT = 'right',
+		TYPE_ICON_RESET	= 'reset';
+	
 	this.bigDefaultLeftIcon			= null;
 	this.bigDefaultRightIcon 		= null;
 	this.smallLeftIcons 			= [];
@@ -19,17 +23,12 @@ XMing.SpriteManager = new function() {
 	this.ribbonLeftIcon				= null;
 	this.ribbonRightIcon			= null;
 	
-	// declare variable
-	var TYPE_ICON_LEFT 	= 'left',
-		TYPE_ICON_RIGHT = 'right',
-		TYPE_ICON_RESET	= 'reset';
-	
 	this.init = function() {
 		this.reset();
 		this.loadDefaultIcons();
 		this.loadGoogleIcons();
 		this.loadColorIcons();
-	},
+	};
 	this.reset = function() {
 		this.bigDefaultLeftIcon			= null;
 		this.bigDefaultRightIcon 		= null;
@@ -48,7 +47,7 @@ XMing.SpriteManager = new function() {
 		this.resetIcon					= null;
 		this.ribbonLeftIcon				= null;
 		this.ribbonRightIcon			= null;
-	},
+	};
 	this.loadDefaultIcons = function() {
 		var imageInitial = new Image();
 		imageInitial.src = 'images/sprite-initial.png';
@@ -71,7 +70,7 @@ XMing.SpriteManager = new function() {
 		this.resetIcon = new Icon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[0], 0.8);
 		this.ribbonLeftIcon = new Icon(-1, '', imageEnd, endCoordsArray[1]);
 		this.ribbonRightIcon = new Icon(-1, '', imageEnd, endCoordsArray[2]);
-	},
+	};
 	this.loadGoogleIcons = function() {
 		var imageCircles = new Image();
 		imageCircles.src = 'images/sprite-circles.png';
@@ -125,10 +124,13 @@ XMing.SpriteManager = new function() {
 				this.bigRightIcons.push(icon);
 			}
 		}
-	},	
+	};
 	this.loadColorIcons = function() {	
-		var sizeSmall = 45,
-			sizeBig = 178;
+		var sizeSmall 		= 45,
+			sizeBig 		= 178,
+			TYPE_ICON_LEFT 	= 'left';
+			TYPE_ICON_RIGHT = 'right';
+			TYPE_ICON_RESET	= 'reset';
 		
 		this.bigDefaultLeftColorIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_LEFT, sizeBig, sizeBig);
 		this.bigDefaultRightColorIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_RIGHT, sizeBig, sizeBig);
@@ -160,196 +162,230 @@ XMing.SpriteManager = new function() {
 		this.bigRightColorIcons.push(new ColorIcon(3, 'Red', '#FF0000', TYPE_ICON_RIGHT, sizeBig, sizeBig));
 		this.bigRightColorIcons.push(new ColorIcon(4, 'Green', '#00FF00', TYPE_ICON_RIGHT, sizeBig, sizeBig));
 		this.bigRightColorIcons.push(new ColorIcon(5, 'Blue', '#0000FF', TYPE_ICON_RIGHT, sizeBig, sizeBig));
-		
-	}
-	
-	var ColorIcon = function(index, name, hex, type, width, height) {
-		this.index 		= index;
-		this.name		= name;
-		this.hex 		= hex;
-		this.type 		= type;
-		this.width 		= width;
-		this.height 	= height;
-		this.centerX 	= 0;
-		this.centerY 	= 0;
-		this.alpha 		= 1.0;
-		this.factor 	= type == TYPE_ICON_LEFT ? 1.0 : 0.0;
-		this.isStart 	= false;
-		this.isOverlay 	= false;
-		this.rotateRad 	= 0;
-		this.isHovered 	= false;
 	};
-	ColorIcon.prototype = {
-		copyImage: function(colorIcon) {
-			this.name = colorIcon.name;
-			this.hex = colorIcon.hex;
-			this.width = colorIcon.width;
-			this.height = colorIcon.height;
-		},
-		updateRotateRad: function(tick) {
-			if (tick > 160) {
-				return;
-			} 
-			else if (tick > 140) {
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					Math.PI * 2 * 2 / 360 :
-					-Math.PI * 2 * 2 / 360;
-			}
-			else if (tick > 120) {			
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					-Math.PI * 2 * 4 / 360 :
-					Math.PI * 2 * 4 / 360;
-			}
-			else if (tick > 100) {
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					Math.PI * 2 * 2 / 360 :
-					-Math.PI * 2 * 2 / 360;
-			}	
-		},
-		setHover: function(isHover) {
-			if (!this.isHovered && isHover) {
-				this.isHovered = isHover;
-				this.alpha = 1.0;
-			}
-			else if (this.isHovered && !isHover) {
-				this.isHovered = isHover;
-				this.alpha = 0.8;
-			}
-		},
-		render: function(context, centerX, centerY) {
-			this.centerX = centerX;
-			this.centerY = centerY;
-			context.save();
-			context.globalAlpha = this.alpha;
+	
+	return {
+		init 			 : this.init,
+		reset  			 : this.reset,
+		loadDefaultIcons : this.loadDefaultIcons,
+		loadGoogleIcons  : this.loadGoogleIcons,
+		loadColorIcons 	 : this.loadColorIcons
+	};
+})();
+
+var Icon = function(index, type, image, coords, alpha) {		
+	this.index 		= index;
+	this.type 		= type;
+	this.image 		= image;
+	if (coords != null) {
+		this.clipX 	= coords[0];
+		this.clipY 	= coords[1];
+		this.width 	= coords[2];
+		this.height = coords[3];
+	}
+	this.centerX 	= 0;
+	this.centerY 	= 0;
+	if (alpha == 0.0) {
+		this.alpha = alpha;
+	}
+	else {
+		this.alpha 	= alpha || 1.0;
+	}
+	this.factor 	= 0.0;
+	this.isStart 	= false;
+	this.isOverlay 	= false;
+	this.rotateRad 	= 0;
+	this.isHovered 	= false;
+};
+
+Icon.prototype = {
+	copyImage : function(icon) {
+		this.image = icon.image;
+		this.clipX = icon.clipX;
+		this.clipY = icon.clipY;
+		this.width = icon.width;
+		this.height = icon.height;
+		this.rotateRad = icon.rotateRad;
+	},
+	updateRotateRad : function(tick) {
+		if (tick > 160) {
+			return;
+		} 
+		else if (tick > 140) {
+			this.rotateRad += this.isTypeLeft() ?
+				Math.PI * 2 * 2 / 360 :
+				-Math.PI * 2 * 2 / 360;
+		}
+		else if (tick > 120) {			
+			this.rotateRad += this.isTypeLeft() ?
+				-Math.PI * 2 * 4 / 360 :
+				Math.PI * 2 * 4 / 360;
+		}
+		else if (tick > 100) {
+			this.rotateRad += this.isTypeLeft() ?
+				Math.PI * 2 * 2 / 360 :
+				-Math.PI * 2 * 2 / 360;
+		}	
+	},
+	rotateRebounce : function(tick) {		
+		var numTickForward 			= 30;
+			numTickBackward 		= 15;
+			fractionCircleForward 	= 3.0 / 8;
+			fractionCircleBackward 	= 1.0 / 8;
+			
+		if (tick > numTickForward + numTickBackward) {
+			return;
+		} 
+		else if (tick > numTickForward) {
+			var radBackwordRate = Math.PI * 2 * fractionCircleBackward / numTickBackward;
+			this.rotateRad += this.isTypeLeft() ?
+				radBackwordRate : -radBackwordRate;
+		}
+		else {
+			var radForwardRate = Math.PI * 2 * fractionCircleForward / numTickForward;
+			this.rotateRad += this.isTypeLeft() ?
+				-radForwardRate : radForwardRate;
+		}
+	},
+	setHover : function(isHover) {
+		if (!this.isHovered && isHover) {
+			this.isHovered = isHover;
+			this.alpha = 1.0;
+		}
+		else if (this.isHovered && !isHover) {
+			this.isHovered = isHover;
+			this.alpha = 0.8;
+		}
+	},
+	isTypeLeft : function() {
+		var TYPE_ICON_LEFT  = 'left';
+		return this.type == TYPE_ICON_LEFT;
+	},
+	isTypeRight : function() {
+		var TYPE_ICON_RIGHT  = 'right';
+		return this.type == TYPE_ICON_RIGHT;
+	},
+	isTypeReset : function() {
+		var TYPE_ICON_RESET  = 'reset';
+		return this.type == TYPE_ICON_RESET;
+	},
+	render : function(context, centerX, centerY) {
+		this.centerX = centerX;
+		this.centerY = centerY;
+		context.save();
+		context.globalAlpha = this.alpha;
+		
+		if (this.type != '') {
 			context.beginPath();
 			context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
 			context.closePath();
 			context.clip();
-			context.translate(this.centerX, this.centerY);
-			context.rotate(this.rotateRad);
-			context.translate(-this.centerX, -this.centerY);
-			context.fillStyle = this.hex;
+		}
+		context.translate(this.centerX, this.centerY);
+		context.rotate(this.rotateRad);
+		context.translate(-this.centerX, -this.centerY);
+		context.drawImage(
+			this.image, 
+			this.clipX, this.clipY, 
+			this.width, this.height, 
+			centerX - this.width / 2, centerY - this.height / 2, 
+			this.width, this.height
+		);
+		
+		if (this.isOverlay) {
+			context.globalAlpha = 0.2;
+			context.fillStyle = '#848482';
+			context.fill();
+		}
+		context.restore();
+	}
+};
+
+var ColorIcon = function(index, name, hex, type, width, height) {		
+	this.index 		= index;
+	this.name		= name;
+	this.hex 		= hex;
+	this.type 		= type;
+	this.width 		= width;
+	this.height 	= height;
+	this.centerX 	= 0;
+	this.centerY 	= 0;
+	this.alpha 		= 1.0;
+	this.factor 	= this.isTypeLeft() ? 1.0 : 0.0;
+	this.isStart 	= false;
+	this.isOverlay 	= false;
+	this.rotateRad 	= 0;
+	this.isHovered 	= false;
+};
+ColorIcon.prototype = {
+	copyImage: function(colorIcon) {
+		this.name = colorIcon.name;
+		this.hex = colorIcon.hex;
+		this.width = colorIcon.width;
+		this.height = colorIcon.height;
+	},
+	updateRotateRad: function(tick) {
+		if (tick > 160) {
+			return;
+		} 
+		else if (tick > 140) {
+			this.rotateRad += this.isTypeLeft() ?
+				Math.PI * 2 * 2 / 360 :
+				-Math.PI * 2 * 2 / 360;
+		}
+		else if (tick > 120) {			
+			this.rotateRad += this.isTypeLeft() ?
+				-Math.PI * 2 * 4 / 360 :
+				Math.PI * 2 * 4 / 360;
+		}
+		else if (tick > 100) {
+			this.rotateRad += this.isTypeLeft() ?
+				Math.PI * 2 * 2 / 360 :
+				-Math.PI * 2 * 2 / 360;
+		}	
+	},
+	setHover: function(isHover) {
+		if (!this.isHovered && isHover) {
+			this.isHovered = isHover;
+			this.alpha = 1.0;
+		}
+		else if (this.isHovered && !isHover) {
+			this.isHovered = isHover;
+			this.alpha = 0.8;
+		}
+	},
+	isTypeLeft : function() {
+		var TYPE_ICON_LEFT  = 'left';
+		return this.type == TYPE_ICON_LEFT;
+	},
+	isTypeRight : function() {
+		var TYPE_ICON_RIGHT  = 'right';
+		return this.type == TYPE_ICON_RIGHT;
+	},
+	isTypeReset : function() {
+		var TYPE_ICON_RESET  = 'reset';
+		return this.type == TYPE_ICON_RESET;
+	},
+	render: function(context, centerX, centerY) {
+		this.centerX = centerX;
+		this.centerY = centerY;
+		context.save();
+		context.globalAlpha = this.alpha;
+		context.beginPath();
+		context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
+		context.closePath();
+		context.clip();
+		context.translate(this.centerX, this.centerY);
+		context.rotate(this.rotateRad);
+		context.translate(-this.centerX, -this.centerY);
+		context.fillStyle = this.hex;
+		
 			context.shadowColor = '#999999';
 			context.shadowBlur = 20;
 			context.shadowOffsetX = 15;
 			context.shadowOffsetY = 15;
-			context.fill();
-				
-			context.restore();
-		}		
-	};
-	
-	var Icon = function(index, type, image, coords, alpha) {
-		this.index 		= index;
-		this.type 		= type;
-		this.image 		= image;
-		if (coords != null) {
-			this.clipX 	= coords[0];
-			this.clipY 	= coords[1];
-			this.width 	= coords[2];
-			this.height = coords[3];
-		}
-		this.centerX 	= 0;
-		this.centerY 	= 0;
-		if (alpha == 0.0) {
-			this.alpha = alpha;
-		}
-		else {
-			this.alpha 	= alpha || 1.0;
-		}
-		this.factor 	= 0.0;
-		this.isStart 	= false;
-		this.isOverlay 	= false;
-		this.rotateRad 	= 0;
-		this.isHovered 	= false;
-	};
-	Icon.prototype = {
-		copyImage: function(icon) {
-			this.image = icon.image;
-			this.clipX = icon.clipX;
-			this.clipY = icon.clipY;
-			this.width = icon.width;
-			this.height = icon.height;
-			this.rotateRad = icon.rotateRad;
-		},
-		updateRotateRad: function(tick) {
-			if (tick > 160) {
-				return;
-			} 
-			else if (tick > 140) {
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					Math.PI * 2 * 2 / 360 :
-					-Math.PI * 2 * 2 / 360;
-			}
-			else if (tick > 120) {			
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					-Math.PI * 2 * 4 / 360 :
-					Math.PI * 2 * 4 / 360;
-			}
-			else if (tick > 100) {
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					Math.PI * 2 * 2 / 360 :
-					-Math.PI * 2 * 2 / 360;
-			}	
-		},
-		rotateRebounce: function(tick) {
-			numTickForward = 30;
-			numTickBackward = 15;
-			fractionCircleForward = 3.0 / 8;
-			fractionCircleBackward = 1.0 / 8;
-			if (tick > numTickForward + numTickBackward) {
-				return;
-			} 
-			else if (tick > numTickForward) {
-				var radBackwordRate = Math.PI * 2 * fractionCircleBackward / numTickBackward;
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					radBackwordRate : -radBackwordRate;
-			}
-			else {
-				var radForwardRate = Math.PI * 2 * fractionCircleForward / numTickForward;
-				this.rotateRad += (this.type == TYPE_ICON_LEFT) ?
-					-radForwardRate : radForwardRate;
-			}
-		},
-		setHover: function(isHover) {
-			if (!this.isHovered && isHover) {
-				this.isHovered = isHover;
-				this.alpha = 1.0;
-			}
-			else if (this.isHovered && !isHover) {
-				this.isHovered = isHover;
-				this.alpha = 0.8;
-			}
-		},
-		render: function(context, centerX, centerY) {
-			this.centerX = centerX;
-			this.centerY = centerY;
-			context.save();
-			context.globalAlpha = this.alpha;
+		context.fill();
 			
-			if (this.type != '') {
-				context.beginPath();
-				context.arc(centerX, centerY, this.width / 2, 0, Math.PI * 2, true);
-				context.closePath();
-				context.clip();
-			}
-			context.translate(this.centerX, this.centerY);
-			context.rotate(this.rotateRad);
-			context.translate(-this.centerX, -this.centerY);
-			context.drawImage(
-				this.image, 
-				this.clipX, this.clipY, 
-				this.width, this.height, 
-				centerX - this.width / 2, centerY - this.height / 2, 
-				this.width, this.height
-			);
-			
-			if (this.isOverlay) {
-				context.globalAlpha = 0.2;
-				context.fillStyle = '#848482';
-				context.fill();
-			}
-			context.restore();
-		}
-	};
+		context.restore();
+	}		
 };

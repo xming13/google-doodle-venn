@@ -33,6 +33,7 @@ XMing.Venns = new function() {
 		biggestLeftIconFactor		= 0.0,
 		smallestRightIconFactor		= 1.0,
 		biggestRightIconFactor		= 0.0,
+		googleAnimationManager		= null,
 		animEvents					= { 
 										'startScreen'			: { isEnd : false },
 										'startingAnimation'		: { isEnd : false },
@@ -53,9 +54,6 @@ XMing.Venns = new function() {
 		CENTER_Y						= 110,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
-		TYPE_ICON_LEFT 					= 'left',
-		TYPE_ICON_RIGHT 				= 'right',
-		TYPE_ICON_RESET					= 'reset',
 		LEFT_ICONS_MAPPING 	= ['Mammals', 'Musical', 'Transport', 'Vegetation', 'Sea Life'],
 		RIGHT_ICONS_MAPPING	= [
 								[
@@ -103,7 +101,10 @@ XMing.Venns = new function() {
 		context = canvas.getContext('2d');
 		
 		XMing.SpriteManager.init();
-		XMing.AnimationManager.init();
+		googleAnimationManager = new XMing.GoogleAnimationManager();
+		googleAnimationManager.init();
+		colorAnimationManager = new XMing.ColorAnimationManager();
+		colorAnimationManager.init();
 		smallLeftIcons		= XMing.SpriteManager.smallLeftIcons;
 		smallRightIcons 	= XMing.SpriteManager.smallRightIcons;
 		bigLeftIcons 		= XMing.SpriteManager.bigLeftIcons;
@@ -167,7 +168,7 @@ XMing.Venns = new function() {
 									  };
 		
 		XMing.SpriteManager.reset();
-		XMing.AnimationManager.reset();
+		googleAnimationManager.reset();
 		XMing.Venns.initialize();
 		
 		// start animation
@@ -233,7 +234,7 @@ XMing.Venns = new function() {
 			if (selectedLeftIcon) {
 				// set Text based on selectedLeftIcon
 				context.save();
-				context.font = '14px Arial';
+				context.font = '14px Open Sans';
 				context.textAlign = 'center';
 				context.fillStyle = '#1B1B1B';
 				context.fillText(
@@ -289,7 +290,7 @@ XMing.Venns = new function() {
 			if (selectedRightIcon) {		
 				// set Text based on selectedRightIcon
 				context.save();
-				context.font = '14px Arial';
+				context.font = '14px Open Sans';
 				context.textAlign = 'center';
 				context.fillStyle = '#1B1B1B';
 				context.fillText(
@@ -302,7 +303,7 @@ XMing.Venns = new function() {
 				// set selected Animation based on the combination of the selected left and right choices
 				if (!selectedAnimation) {
 					var animIndex = RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
-					selectedAnimation = XMing.AnimationManager.getAnimation(animIndex);
+					selectedAnimation = googleAnimationManager.getAnimation(animIndex);
 				}
 						
 				// set bigDefaultRightIcon image based on selected right choice
@@ -375,7 +376,7 @@ XMing.Venns = new function() {
 						}
 						
 						if (selectedAnimation.isFinished) {
-							endAnimation = XMing.AnimationManager.getEndAnimation(0);
+							endAnimation = googleAnimationManager.getEndAnimation();
 							endAnimation.start(118, 85, 4);
 						}
 					}
@@ -508,12 +509,7 @@ XMing.Venns = new function() {
 			endAnimation.renderEnd(context);
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y);
-			/*ribbonLeftIcon.isStart = true;
-			ribbonLeftIcon.render(context, 110, 195);
-			ribbonRightIcon.isStart = true;
-			ribbonRightIcon.render(context, 130, 195);
-			*/
-			XMing.AnimationManager.renderRibbon(context);
+			googleAnimationManager.renderRibbon(context);
 		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center
@@ -575,9 +571,9 @@ XMing.Venns = new function() {
 		for (var i = 0; i < icons.length; i++) {
 			
 			var icon = icons[i];
-			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon && animEvents['rightIconExpand'].isEnd)
-				|| icon.type == TYPE_ICON_RESET)
+			if ((icon.isTypeLeft() && !selectedLeftIcon)
+				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon && animEvents['rightIconExpand'].isEnd)
+				|| icon.isTypeReset())
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -611,9 +607,9 @@ XMing.Venns = new function() {
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			
-			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
-				|| icon.type == TYPE_ICON_RESET)
+			if ((icon.isTypeLeft() && !selectedLeftIcon)
+				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
+				|| icon.isTypeReset())
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -622,14 +618,14 @@ XMing.Venns = new function() {
 
 				if (mousePos.x >= startX && mousePos.x <= endX
 					&& mousePos.y >= startY && mousePos.y <= endY) {
-					if (icon.type == TYPE_ICON_LEFT) {
+					if (icon.isTypeLeft()) {
 						selectedLeftIcon = icon;
 						iconIndexRotate = 0;
 					} 
-					else if (icon.type == TYPE_ICON_RIGHT) {
+					else if (icon.isTypeRight()) {
 						selectedRightIcon = icon;			
 					}
-					else if (icon.type == TYPE_ICON_RESET) {
+					else if (icon.isTypeReset()) {
 						XMing.Venns.reset();
 					}
 				}

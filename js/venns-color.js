@@ -18,6 +18,7 @@ XMing.VennsColor = new function() {
 		rightAngle			= 0.0;
 		requireCenterRender	= false,
 		selectedAnimation   = null,
+		colorAnimationManager	= null,
 		bigLeftIconCenterX 	= 150,
 		bigRightIconCenterX = 450,
 		factorDistLeftIcon	= 1.0,
@@ -45,19 +46,16 @@ XMing.VennsColor = new function() {
 		CENTER_Y_FINAL					= 150,
 		BIG_ICON_RADIUS 				= 89,
 		SMALL_ICON_DIST					= 122,
-		TYPE_ICON_LEFT 					= 'left',
-		TYPE_ICON_RIGHT 				= 'right',
-		TYPE_ICON_RESET				 	= 'reset',
 		COLOR_MAPPING					= [ 
 											[1, 5, 2], 
 											[2, 3, 0], 
-											[0, 4, 1], 
+											[0, 4, 1],
 											[4, 1, 5],
 											[5, 2, 3],
 											[3, 0, 4]										
 										  ],
 		RIGHT_ICONS_INFO_MAPPED			= [
-											// 0: green, 1: red, 2: blue, 3: black
+											// 0: green,  1: red,  2: blue,    3: black
 											// 4: yellow, 5: cyan, 6: magenta, 7: white
 											{ 1 : 0, 2 : 1, 5 : 3},
 											{ 0 : 0, 2 : 2, 3 : 3},
@@ -73,7 +71,8 @@ XMing.VennsColor = new function() {
 		context = canvas.getContext('2d');
 		
 		XMing.SpriteManager.init();
-		XMing.AnimationManager.init();
+		colorAnimationManager = new XMing.ColorAnimationManager();
+		colorAnimationManager.init();
 		smallLeftIcons		= XMing.SpriteManager.smallLeftColorIcons;
 		smallRightIcons 	= XMing.SpriteManager.smallRightColorIcons;
 		bigLeftIcons 		= XMing.SpriteManager.bigLeftColorIcons;
@@ -120,7 +119,7 @@ XMing.VennsColor = new function() {
 								'rightIconExpand'		: { isStart : false, isEnd : false }
 							  };
 		XMing.SpriteManager.reset();
-		XMing.AnimationManager.reset();
+		colorAnimationManager.reset();
 		XMing.VennsColor.initialize();
 	},		
 	// The main loop where everything happens
@@ -219,7 +218,7 @@ XMing.VennsColor = new function() {
 			// set selected Animation based on the combination of the selected left and right choices
 			if (!selectedAnimation) {
 				var animIndex = RIGHT_ICONS_INFO_MAPPED[selectedLeftIcon.index][selectedRightIcon.index];
-				selectedAnimation = XMing.AnimationManager.getColorAnimation(animIndex);
+				selectedAnimation = colorAnimationManager.getAnimation(animIndex);
 			}
 					
 			// set bigDefaultRightIcon image based on selected right choice
@@ -448,15 +447,19 @@ XMing.VennsColor = new function() {
 	function onMouseMove(event) {
 		var mousePos = getMousePos(this, event);
 		
-		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);
+		var icons = smallLeftIcons
+			.concat(smallRightIcons)
+			.concat(resetIcon)
+			.concat(bigDefaultLeftIcon)
+			.concat(bigDefaultRightIcon);
 		var isHover = false;
 		
-		for (var i = 0; i < icons.length; i++) {
-			
+		for (var i = 0; i < icons.length; i++) {			
 			var icon = icons[i];
-			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
-				|| icon.type == TYPE_ICON_RESET)
+			if ((icon.isTypeLeft() && !selectedLeftIcon)
+				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
+				|| icon.isTypeReset()
+				|| icon.index == -1)
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -485,9 +488,9 @@ XMing.VennsColor = new function() {
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			
-			if ((icon.type == TYPE_ICON_LEFT && !selectedLeftIcon)
-				|| (icon.type == TYPE_ICON_RIGHT && selectedLeftIcon && !selectedRightIcon)
-				|| icon.type == TYPE_ICON_RESET)
+			if ((icon.isTypeLeft() && !selectedLeftIcon)
+				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
+				|| icon.isTypeReset())
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;
@@ -496,14 +499,14 @@ XMing.VennsColor = new function() {
 
 				if (mousePos.x >= startX && mousePos.x <= endX
 					&& mousePos.y >= startY && mousePos.y <= endY) {
-					if (icon.type == TYPE_ICON_LEFT) {
+					if (icon.isTypeLeft()) {
 						selectedLeftIcon = icon;
 						iconIndexRotate = 0;
 					} 
-					else if (icon.type == TYPE_ICON_RIGHT) {
+					else if (icon.isTypeRight()) {
 						selectedRightIcon = icon;			
 					}
-					else if (icon.type == TYPE_ICON_RESET) {
+					else if (icon.isTypeReset()) {
 						XMing.VennsColor.reset();
 					}
 				}
