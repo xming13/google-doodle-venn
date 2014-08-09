@@ -205,12 +205,7 @@ var GoogleIcon = function(index, type, image, coords, alpha) {
 	}
 	this.centerX 	= 0;
 	this.centerY 	= 0;
-	if (alpha == 0.0) {
-		this.alpha = alpha;
-	}
-	else {
-		this.alpha 	= alpha || 1.0;
-	}
+	this.alpha 		= typeof alpha != 'undefined' ? alpha : 1.0;
 	this.factor 	= 0.0;
 	this.isStart 	= false;
 	this.isOverlay 	= false;
@@ -337,12 +332,7 @@ var ColorIcon = function(index, name, hex, type, width, height, alpha) {
 	this.height 	= height;
 	this.centerX 	= 0;
 	this.centerY 	= 0;
-	if (alpha == 0.0) {
-		this.alpha = alpha;
-	}
-	else {
-		this.alpha 	= alpha || 1.0;
-	}
+	this.alpha 		= typeof alpha != 'undefined' ? alpha : 1.0;
 	this.factor 	= 0.0;
 	this.isStart 	= false;
 	this.isOverlay 	= false;
