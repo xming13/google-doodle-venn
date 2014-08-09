@@ -13,7 +13,9 @@ XMing.VennColor = new function() {
 		bigRightIcons	 		= [],
 		bigDefaultLeftIcon 		= null,
 		bigDefaultRightIcon 	= null,
+		linkIcon				= null,
 		resetIcon				= null,
+		shareIcon				= null,
 		selectedLeftIcon 		= null,
 		selectedRightIcon 		= null,
 		leftAngle				= 0.0;
@@ -81,12 +83,14 @@ XMing.VennColor = new function() {
 		bigRightIcons	 	= spriteManager.bigRightIcons;
 		bigDefaultLeftIcon  = spriteManager.bigDefaultLeftIcon;
 		bigDefaultRightIcon = spriteManager.bigDefaultRightIcon;
+		linkIcon			= spriteManager.linkIcon;
 		resetIcon			= spriteManager.resetIcon;
+		shareIcon			= spriteManager.shareIcon;
 		leftAngle 			= 300.0 / (smallLeftIcons.length - 1);
 		rightAngle			= 300.0 / (smallRightIcons.length - 1);
 		
-		canvas.addEventListener("mousemove", onMouseMove, false);
-		canvas.addEventListener("click", onClick, false);
+		canvas.addEventListener("mousemove", this.onMouseMove.bind(this), false);
+		canvas.addEventListener("click", this.onClick.bind(this), false);
 		
 		this.update();
 	},
@@ -120,9 +124,7 @@ XMing.VennColor = new function() {
 								'bigRightIconSelected'  : { isStart : false, isEnd : false },
 								'rightIconExpand'		: { isStart : false, isEnd : false }
 							  };
-		spriteManager.reset();
-		animationManager.reset();
-		XMing.VennsColor.initialize();
+		this.initialize();
 	},		
 	// The main loop where everything happens
 	this.update = function() {
@@ -151,7 +153,7 @@ XMing.VennColor = new function() {
 		
 		if (selectedLeftIcon) {
 			// set Text based on selectedLeftIcon
-			context.font = 'bold 14px Arial';
+			context.font = 'bold 14px Open Sans';
 			context.textAlign = 'center';
 			context.fillText(
 				selectedLeftIcon.name, 
@@ -209,7 +211,7 @@ XMing.VennColor = new function() {
 		}
 		if (selectedRightIcon) {
 			// set Text based on selectedRightIcon
-			context.font = 'bold 14px Arial';
+			context.font = 'bold 14px Open Sans';
 			context.textAlign = 'center';
 			context.fillText(
 				selectedRightIcon.name, 
@@ -289,10 +291,7 @@ XMing.VennColor = new function() {
 					else {
 						selectedAnimation.alpha = 1.0;
 						requireCenterRender = false;
-					}
-					
-					//show reset icon
-					
+					}					
 				}
 			}	
 		}
@@ -397,8 +396,14 @@ XMing.VennColor = new function() {
 		// render selectedAnimation
 		if (selectedAnimation && selectedAnimation.isStarted) {
 			selectedAnimation.render(context);
+			
+			// show link, reset, share icons
+			linkIcon.isStart = true;
+			linkIcon.render(context, 558, CENTER_Y_FINAL - 60);
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y_FINAL);
+			shareIcon.isStart = true;
+			shareIcon.render(context, 558, CENTER_Y_FINAL + 60);			
 		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center
@@ -442,21 +447,25 @@ XMing.VennColor = new function() {
 				smallRightIcons[iconIndexRotate].updateRotateRad(tickRotate);
 			}
 		}
-	}
-		
-	function onMouseMove(event) {
-		var mousePos = getMousePos(this, event);
+	},
+	// handle mouse move event
+	this.onMouseMove = function(event) {
+		var mousePos = this.getMousePos(event);
 		
 		var icons = smallLeftIcons
 			.concat(smallRightIcons)
-			.concat(resetIcon);
+			.concat(linkIcon)
+			.concat(resetIcon)
+			.concat(shareIcon);
 		var isHover = false;
 		
 		for (var i = 0; i < icons.length; i++) {			
 			var icon = icons[i];
 			if ((icon.isTypeLeft() && !selectedLeftIcon)
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
-				|| icon.isTypeReset())
+				|| icon.isTypeLink()
+				|| icon.isTypeReset()
+				|| icon.isTypeShare())
 			{
 				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
 					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
@@ -469,18 +478,24 @@ XMing.VennColor = new function() {
 			}
 		}
 		canvas.style.cursor = isHover ? 'pointer' : 'auto';
-	}
-	
-	function onClick(event) {
-		var mousePos = getMousePos(this, event);
+	},
+	// handle click event
+	this.onClick = function(event) {
+		var mousePos = this.getMousePos(event);
 
-		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);
+		var icons = smallLeftIcons
+			.concat(smallRightIcons)
+			.concat(linkIcon)
+			.concat(resetIcon)
+			.concat(shareIcon);
 		for (var i = 0; i < icons.length; i++) {
 			var icon = icons[i];
 			
 			if ((icon.isTypeLeft() && !selectedLeftIcon)
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
-				|| icon.isTypeReset())
+				|| icon.isTypeLink()
+				|| icon.isTypeReset()
+				|| icon.isTypeShare())
 			{
 				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
 					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
@@ -491,15 +506,21 @@ XMing.VennColor = new function() {
 					else if (icon.isTypeRight()) {
 						selectedRightIcon = icon;			
 					}
+					else if (icon.isTypeLink()) {
+						window.open('http://en.wikipedia.org/wiki/Color_mixing', '_blank');
+					}					
 					else if (icon.isTypeReset()) {
-						XMing.VennsColor.reset();
+						this.reset();
+					}
+					else if (icon.isTypeShare()) {
+						window.open('https://github.com/xming13/google-doodle-venn', '_blank');
 					}
 				}
 			}
 		}
-	}
-	
-	function getMousePos(canvas, evt) {
+	},
+	// get Mouse Position
+	this.getMousePos = function(evt) {
 		var rect = canvas.getBoundingClientRect();
 		return {
 		  x: evt.clientX - rect.left,

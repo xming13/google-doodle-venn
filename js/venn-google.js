@@ -512,6 +512,8 @@ XMing.VennGoogle = new function() {
 		// render endAnimation and resetIcon
 		if (endAnimation && endAnimation.isStarted) {
 			endAnimation.renderEnd(context);
+			
+			// show link, reset, share icons
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y);
 			linkIcon.isStart = true;

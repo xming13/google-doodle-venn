@@ -120,14 +120,14 @@ XMing.GoogleSpriteManager.prototype.loadIcons = function() {
 	var imageEnd = new Image();
 	imageEnd.src = 'images/sprite-end.png';
 	var endCoordsArray = [
-		[0, 2334, 48, 48],
 		[102, 2334, 48, 48],
+		[0, 2334, 48, 48],
 		[51, 2334, 48, 48],
 		[0, 1609, 18, 38],
 		[21, 1609, 19, 38],
 	];
-	this.linkIcon = new GoogleIcon(-1, TYPE_ICON_LINK, imageEnd, endCoordsArray[1], 0.8);
-	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[0], 0.8);
+	this.linkIcon = new GoogleIcon(-1, TYPE_ICON_LINK, imageEnd, endCoordsArray[0], 0.8);
+	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[1], 0.8);
 	this.shareIcon = new GoogleIcon(-1, TYPE_ICON_SHARE, imageEnd, endCoordsArray[2], 0.8);
 	this.ribbonLeftIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[3]);
 	this.ribbonRightIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[4]);
@@ -144,7 +144,9 @@ XMing.ColorSpriteManager.prototype.loadIcons = function() {
 		sizeBig = 178,
 		TYPE_ICON_LEFT = 'left',
 		TYPE_ICON_RIGHT = 'right',
-		TYPE_ICON_RESET = 'reset';
+		TYPE_ICON_LINK = 'link',
+		TYPE_ICON_RESET = 'reset'
+		TYPE_ICON_SHARE = 'share';
 	
 	this.bigDefaultLeftIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_LEFT, sizeBig, sizeBig);
 	this.bigDefaultRightIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_RIGHT, sizeBig, sizeBig);
@@ -179,9 +181,15 @@ XMing.ColorSpriteManager.prototype.loadIcons = function() {
 	
 	// end icons
 	var imageEnd = new Image();
-	imageEnd.src = 'images/sprite-end.png';
-	var endCoords = [0, 2334, 48, 48];
-	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoords, 0.8);
+	imageEnd.src = 'images/sprite-end.png';	
+	var endCoordsArray = [
+		[102, 2334, 48, 48],
+		[0, 2334, 48, 48],
+		[51, 2334, 48, 48],
+	];
+	this.linkIcon = new GoogleIcon(-1, TYPE_ICON_LINK, imageEnd, endCoordsArray[0], 0.8);
+	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[1], 0.8);
+	this.shareIcon = new GoogleIcon(-1, TYPE_ICON_SHARE, imageEnd, endCoordsArray[2], 0.8);
 };
 
 var GoogleIcon = function(index, type, image, coords, alpha) {		
@@ -380,9 +388,17 @@ ColorIcon.prototype = {
 		var TYPE_ICON_RIGHT  = 'right';
 		return this.type == TYPE_ICON_RIGHT;
 	},
+	isTypeLink : function() {
+		var TYPE_ICON_LINK = 'link';
+		return this.type == TYPE_ICON_LINK;
+	},
 	isTypeReset : function() {
 		var TYPE_ICON_RESET  = 'reset';
 		return this.type == TYPE_ICON_RESET;
+	},
+	isTypeShare : function() {
+		var TYPE_ICON_SHARE = 'share';
+		return this.type == TYPE_ICON_SHARE;
 	},
 	render: function(context, centerX, centerY) {
 		this.centerX = centerX;

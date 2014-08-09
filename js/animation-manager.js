@@ -1472,7 +1472,7 @@ XMing.ColorAnimation.prototype = {
 		var b = parseInt(rgb.substring(4,6),16)/255;
 		var v = Math.max.apply(Math, [r, g, b]);
 		
-		context.font = 'bold 18px Arial';
+		context.font = 'bold 18px Open Sans';
 		context.textAlign = 'center';
 		context.fillStyle = v <= 0.5 ? '#f7f7f7' : '#1b1b1b';
 		context.fillText(
