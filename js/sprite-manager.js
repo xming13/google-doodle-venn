@@ -150,6 +150,7 @@ XMing.ColorSpriteManager.prototype.loadIcons = function() {
 	
 	this.bigDefaultLeftIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_LEFT, sizeBig, sizeBig);
 	this.bigDefaultRightIcon = new ColorIcon(-1, 'Grey', '#F3F3F3', TYPE_ICON_RIGHT, sizeBig, sizeBig);
+	this.bigDefaultRightIcon.isOverlay = true;
 	
 	this.smallLeftIcons.push(new ColorIcon(0, 'Yellow', '#FFFF00', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
 	this.smallLeftIcons.push(new ColorIcon(1, 'Cyan', '#00FFFF', TYPE_ICON_LEFT, sizeSmall, sizeSmall));
@@ -327,7 +328,7 @@ GoogleIcon.prototype = {
 	}
 };
 
-var ColorIcon = function(index, name, hex, type, width, height) {		
+var ColorIcon = function(index, name, hex, type, width, height, alpha) {		
 	this.index 		= index;
 	this.name		= name;
 	this.hex 		= hex;
@@ -336,8 +337,13 @@ var ColorIcon = function(index, name, hex, type, width, height) {
 	this.height 	= height;
 	this.centerX 	= 0;
 	this.centerY 	= 0;
-	this.alpha 		= 0.8;
-	this.factor 	= this.isTypeLeft() ? 1.0 : 0.0;
+	if (alpha == 0.0) {
+		this.alpha = alpha;
+	}
+	else {
+		this.alpha 	= alpha || 1.0;
+	}
+	this.factor 	= 0.0;
 	this.isStart 	= false;
 	this.isOverlay 	= false;
 	this.rotateRad 	= 0;
@@ -369,6 +375,26 @@ ColorIcon.prototype = {
 				Math.PI * 2 * 2 / 360 :
 				-Math.PI * 2 * 2 / 360;
 		}	
+	},
+	rotateRebounce : function(tick) {		
+		var numTickForward 			= 30;
+			numTickBackward 		= 15;
+			fractionCircleForward 	= 3.0 / 8;
+			fractionCircleBackward 	= 1.0 / 8;
+			
+		if (tick > numTickForward + numTickBackward) {
+			return;
+		} 
+		else if (tick > numTickForward) {
+			var radBackwordRate = Math.PI * 2 * fractionCircleBackward / numTickBackward;
+			this.rotateRad += this.isTypeLeft() ?
+				radBackwordRate : -radBackwordRate;
+		}
+		else {
+			var radForwardRate = Math.PI * 2 * fractionCircleForward / numTickForward;
+			this.rotateRad += this.isTypeLeft() ?
+				-radForwardRate : radForwardRate;
+		}
 	},
 	setHover: function(isHover) {
 		if (!this.isHovered && isHover) {
@@ -419,6 +445,11 @@ ColorIcon.prototype = {
 		context.shadowOffsetY = 15;
 		context.fill();
 			
+		if (this.isOverlay) {
+			context.globalAlpha = 0.1;
+			context.fillStyle = '#848482';
+			context.fill();
+		}
 		context.restore();
 	}		
 };

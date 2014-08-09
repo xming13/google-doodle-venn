@@ -286,7 +286,7 @@ XMing.VennGoogle = new function() {
 						bigDefaultRightIcon.alpha = 1.0;
 						
 						// set event rightIconExpand end
-						if (smallestRightIconFactor >= 1 && bigDefaultLeftIcon.alpha == 0.75) {
+						if (smallestRightIconFactor >= 1.0 && bigDefaultLeftIcon.alpha == 0.75) {
 							animEvents['rightIconExpand'].isEnd = true;
 						}
 					}
@@ -326,7 +326,7 @@ XMing.VennGoogle = new function() {
 					bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, 0.02, 1.0);
 					
 					// set event bigRightIconSelected end
-					if (biggestRightIconFactor <= 0 && bigDefaultRightIcon.alpha == 1.0) {
+					if (biggestRightIconFactor <= 0.0 && bigDefaultRightIcon.alpha == 1.0) {
 						animEvents['bigRightIconSelected'].isEnd = true;
 					}
 				}
@@ -444,6 +444,7 @@ XMing.VennGoogle = new function() {
 			// render smallRightIcons
 			biggestRightIconFactor = smallRightIcons[0].factor;
 			smallestRightIconFactor = smallRightIcons[0].factor;
+
 			for (var i = 0; i < smallRightIcons.length; i++) {
 				var icon = smallRightIcons[i];
 				
