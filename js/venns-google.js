@@ -1,6 +1,6 @@
 var XMing = XMing || {};
 
-XMing.Venns = new function() {
+XMing.VennsGoogle = new function() {
 	// declare the variables
 	var	requestID					= null,
 		canvas 						= null,
@@ -96,9 +96,7 @@ XMing.Venns = new function() {
 	
 	// init method
 	this.initialize = function() {
-		canvas = document.getElementById('canvas-google-doodle');
-		canvas.height = 220;
-		canvas.width = 600;
+		canvas = document.getElementById('canvas-google');
 		context = canvas.getContext('2d');
 		
 		spriteManager = new XMing.GoogleSpriteManager();

@@ -95,9 +95,9 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[0, 166, 107, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 10), true, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(10, 51), false, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(51), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 10), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(10, 51), false, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(51), true, 0));
 
 	imagePath = 'images/sprite-middlemammals2.png';
 	coordsArray = [
@@ -173,8 +173,8 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[218, 166, 106, 163]
 	];
 		
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 21), false, 1));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(21), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 21), false, 1));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(21), true, 0));
 	
 	imagePath = 'images/sprite-middlemusical1.png';
 	coordsArray = [
@@ -325,8 +325,8 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[218, 2158, 106, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 96), true, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(96), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 96), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(96), true, 0));
 	
 	imagePath = 'images/sprite-middlemusical2.png';
 	coordsArray = [
@@ -451,9 +451,9 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[0, 2822, 107, 163]
 	];
 		
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 72), false, 2));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(72, 100), true, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(100), false, 2));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 72), false, 2));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(72, 100), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(100), false, 2));
 	
 	imagePath = 'images/sprite-middlesealife1.png';
 	coordsArray = [
@@ -578,8 +578,8 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[109, 1996, 106, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 94), true, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(94), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 94), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(94), true, 0));
 	
 	imagePath = 'images/sprite-middlesealife2.png';
 	coordsArray = [
@@ -732,9 +732,9 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[218, 830, 106, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 70), false, 2));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(70, 118), true, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(118), false, 4));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 70), false, 2));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(70, 118), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(118), false, 4));
 	
 	imagePath = 'images/sprite-middletransport1.png';
 	coordsArray = [
@@ -845,9 +845,9 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[763, 830, 106, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 30), false, 6));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(30, 68), false, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(68), false, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 30), false, 6));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(30, 68), false, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(68), false, 0));
 	
 	imagePath = 'images/sprite-middletransport2.png';
 	coordsArray = [
@@ -946,8 +946,8 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[1417, 498, 106, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 8), true, 0));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(8), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 8), true, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(8), true, 0));
 	
 	imagePath = 'images/sprite-middlevegetation1.png';
 	coordsArray = [
@@ -1064,9 +1064,9 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[110, 2162, 107, 163]
 	];
 
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 35), false, 10));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(35, 86), false, 10));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(86), false, false));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 35), false, 10));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(35, 86), false, 10));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(86), false, false));
 	
 	imagePath = 'images/sprite-middlevegetation2.png';
 	coordsArray = [
@@ -1208,8 +1208,8 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[218, 2826, 106, 163]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(0, 94), false, 22));
-	this.animations.push(new XMing.Animation(imagePath, coordsArray.slice(94), false, 22));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(0, 94), false, 22));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray.slice(94), false, 22));
 	
 	imagePath = 'images/sprite-end.png';
 	coordsArray = [
@@ -1236,7 +1236,7 @@ XMing.GoogleAnimationManager.prototype.loadAnimation = function() {
 		[0, 1267, 176, 168]
 	];
 	
-	this.animations.push(new XMing.Animation(imagePath, coordsArray, false, 0));
+	this.animations.push(new XMing.GoogleAnimation(imagePath, coordsArray, false, 0));
 };
 XMing.GoogleAnimationManager.prototype.getEndAnimation = function() {
 	return this.animations[this.animations.length - 1];
@@ -1329,8 +1329,8 @@ XMing.ColorAnimationManager.prototype.loadAnimation = function() {
 	this.animations.push(new XMing.ColorAnimation('#FFFFFF', 'White'));
 };
 
-// Animation
-XMing.Animation = function(imagePath, coordsArray, isReplay, numFrameLoopBack) {
+// Google Animation
+XMing.GoogleAnimation = function(imagePath, coordsArray, isReplay, numFrameLoopBack) {
 	this.image 				= new Image();
 	this.image.src 			= imagePath;
 	this.coordsArray 		= coordsArray;
@@ -1346,7 +1346,7 @@ XMing.Animation = function(imagePath, coordsArray, isReplay, numFrameLoopBack) {
 	this.isStarted 			= false;
 	this.isFinished			= false;
 };
-XMing.Animation.prototype = {
+XMing.GoogleAnimation.prototype = {
 	start: function(centerX, centerY, frameThreshold) {	
 		var CENTER_X 	= 310,
 			CENTER_Y	= 110;

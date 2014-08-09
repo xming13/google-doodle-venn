@@ -52,8 +52,8 @@ XMing.GoogleSpriteManager.prototype.loadIcons = function() {
 		[0, 1637, 178, 178],
 	];
 	
-	this.bigDefaultLeftIcon = new Icon(-1, TYPE_ICON_LEFT, imageInitial, initialCoordsArray[0]);
-	this.bigDefaultRightIcon = new Icon(-1, TYPE_ICON_RIGHT, imageInitial, initialCoordsArray[1], 0.75);
+	this.bigDefaultLeftIcon = new GoogleIcon(-1, TYPE_ICON_LEFT, imageInitial, initialCoordsArray[0]);
+	this.bigDefaultRightIcon = new GoogleIcon(-1, TYPE_ICON_RIGHT, imageInitial, initialCoordsArray[1], 0.75);
 	this.bigDefaultRightIcon.isOverlay = true;
 	
 	// circle icons
@@ -93,19 +93,19 @@ XMing.GoogleSpriteManager.prototype.loadIcons = function() {
 	var icon;
 	for (var i = 0; i < coordsArray.length; i++) {
 		if (i < 5) {
-			icon = new Icon(this.smallLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i], 0.0);
+			icon = new GoogleIcon(this.smallLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i], 0.0);
 			this.smallLeftIcons.push(icon);
 		} 
 		else if (i < 10) {
-			icon = new Icon(this.smallRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i], 0.0);
+			icon = new GoogleIcon(this.smallRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i], 0.0);
 			this.smallRightIcons.push(icon);
 		}
 		else if (i < 15) {
-			icon = new Icon(this.bigLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i]);
+			icon = new GoogleIcon(this.bigLeftIcons.length, TYPE_ICON_LEFT, imageCircles, coordsArray[i]);
 			this.bigLeftIcons.push(icon);
 		}
 		else {
-			icon = new Icon(this.bigRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i]);
+			icon = new GoogleIcon(this.bigRightIcons.length, TYPE_ICON_RIGHT, imageCircles, coordsArray[i]);
 			this.bigRightIcons.push(icon);
 		}
 	}
@@ -118,9 +118,9 @@ XMing.GoogleSpriteManager.prototype.loadIcons = function() {
 		[0, 1609, 18, 38],
 		[21, 1609, 19, 38]
 	];
-	this.resetIcon = new Icon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[0], 0.8);
-	this.ribbonLeftIcon = new Icon(-1, '', imageEnd, endCoordsArray[1]);
-	this.ribbonRightIcon = new Icon(-1, '', imageEnd, endCoordsArray[2]);
+	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoordsArray[0], 0.8);
+	this.ribbonLeftIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[1]);
+	this.ribbonRightIcon = new GoogleIcon(-1, '', imageEnd, endCoordsArray[2]);
 };
 	
 // ColorSpriteManager (inherits Base SpriteManager)
@@ -171,10 +171,10 @@ XMing.ColorSpriteManager.prototype.loadIcons = function() {
 	var imageEnd = new Image();
 	imageEnd.src = 'images/sprite-end.png';
 	var endCoords = [0, 2334, 48, 48];
-	this.resetIcon = new Icon(-1, TYPE_ICON_RESET, imageEnd, endCoords, 0.8);
+	this.resetIcon = new GoogleIcon(-1, TYPE_ICON_RESET, imageEnd, endCoords, 0.8);
 };
 
-var Icon = function(index, type, image, coords, alpha) {		
+var GoogleIcon = function(index, type, image, coords, alpha) {		
 	this.index 		= index;
 	this.type 		= type;
 	this.image 		= image;
@@ -198,7 +198,7 @@ var Icon = function(index, type, image, coords, alpha) {
 	this.rotateRad 	= 0;
 	this.isHovered 	= false;
 };
-Icon.prototype = {
+GoogleIcon.prototype = {
 	copyImage : function(icon) {
 		this.image = icon.image;
 		this.clipX = icon.clipX;
