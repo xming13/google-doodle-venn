@@ -434,10 +434,11 @@ XMing.VennGoogle = new function() {
 					}
 				}	
 				
+				console.log(leftAngle);
 				icon.render(
 					context,
-					bigLeftIconCenterX - Math.cos((45.0 - i * leftAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor, 
-					BIG_LEFT_ICON_CENTER_Y - Math.sin((45.0 - i * leftAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
+					bigLeftIconCenterX - Math.cos((2 - i) * leftAngle / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor, 
+					BIG_LEFT_ICON_CENTER_Y - Math.sin((2 - i) * leftAngle / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
 				);
 			}
 			
@@ -490,8 +491,8 @@ XMing.VennGoogle = new function() {
 
 				icon.render(
 					context,
-					bigRightIconCenterX + Math.cos((45.0 - i * rightAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor,
-					BIG_RIGHT_ICON_CENTER_Y - Math.sin((45.0 - i * rightAngle) / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
+					bigRightIconCenterX + Math.cos((2 - i) * rightAngle / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor,
+					BIG_RIGHT_ICON_CENTER_Y - Math.sin((2 - i) * rightAngle / 180.0 * Math.PI) * SMALL_ICON_DIST * icon.factor
 				);
 			}		
 		}
