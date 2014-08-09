@@ -2,40 +2,41 @@ var XMing = XMing || {};
 
 XMing.VennsColor = new function() {
 	// declare the variables
-	var	requestID			= null,
-		canvas 				= null,
-		context 			= null,
-		smallLeftIcons		= [],
-		smallRightIcons 	= [],
-		bigLeftIcons 		= [],
-		bigRightIcons	 	= [],
-		bigDefaultLeftIcon  = null,
-		bigDefaultRightIcon = null,
-		resetIcon			= null,
-		selectedLeftIcon 	= null,
-		selectedRightIcon 	= null,
-		leftAngle			= 0.0;
-		rightAngle			= 0.0;
-		requireCenterRender	= false,
-		selectedAnimation   = null,
-		colorAnimationManager	= null,
-		bigLeftIconCenterX 	= 150,
-		bigRightIconCenterX = 450,
-		factorDistLeftIcon	= 1.0,
-		factorDistRightIcon	= 1.0,
-		tickRotate			= 0,
-		tickLeftIcon		= 0,
-		tickRightIcon		= 0,
-		iconIndexRotate		= 0,
-		animEvents			= { 
-								'bigLeftIconSelected'   : { isStart : false, isEnd : false },
-								'bigRightIconSelected'  : { isStart : false, isEnd : false },
-								'rightIconExpand'		: { isStart : false, isEnd : false }
-							  },
-		smallestLeftIconFactor 		= 1.0,
-		biggestLeftIconFactor		= 0.0,
-		smallestRightIconFactor		= 1.0,
-		biggestRightIconFactor		= 0.0;
+	var	requestID				= null,
+		canvas 					= null,
+		context 				= null,
+		spriteManager       	= null,
+		animationManager	= null,
+		smallLeftIcons			= [],
+		smallRightIcons 		= [],
+		bigLeftIcons 			= [],
+		bigRightIcons	 		= [],
+		bigDefaultLeftIcon 		= null,
+		bigDefaultRightIcon 	= null,
+		resetIcon				= null,
+		selectedLeftIcon 		= null,
+		selectedRightIcon 		= null,
+		leftAngle				= 0.0;
+		rightAngle				= 0.0;
+		requireCenterRender		= false,
+		selectedAnimation   	= null,
+		bigLeftIconCenterX 		= 150,
+		bigRightIconCenterX 	= 450,
+		factorDistLeftIcon		= 1.0,
+		factorDistRightIcon		= 1.0,
+		tickRotate				= 0,
+		tickLeftIcon			= 0,
+		tickRightIcon			= 0,
+		iconIndexRotate			= 0,
+		animEvents				= { 
+									'bigLeftIconSelected'   : { isStart : false, isEnd : false },
+									'bigRightIconSelected'  : { isStart : false, isEnd : false },
+									'rightIconExpand'		: { isStart : false, isEnd : false }
+								  },
+		smallestLeftIconFactor 	= 1.0,
+		biggestLeftIconFactor	= 0.0,
+		smallestRightIconFactor	= 1.0,
+		biggestRightIconFactor	= 0.0;
 		
 	// declare constants
 	var BIG_LEFT_ICON_CENTER_X_FINAL	= 264,
@@ -70,16 +71,17 @@ XMing.VennsColor = new function() {
 		canvas = document.getElementById("canvas-color");
 		context = canvas.getContext('2d');
 		
-		XMing.SpriteManager.init();
-		colorAnimationManager = new XMing.ColorAnimationManager();
-		colorAnimationManager.init();
-		smallLeftIcons		= XMing.SpriteManager.smallLeftColorIcons;
-		smallRightIcons 	= XMing.SpriteManager.smallRightColorIcons;
-		bigLeftIcons 		= XMing.SpriteManager.bigLeftColorIcons;
-		bigRightIcons	 	= XMing.SpriteManager.bigRightColorIcons;
-		bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftColorIcon;
-		bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightColorIcon;
-		resetIcon			= XMing.SpriteManager.resetIcon;
+		spriteManager = new XMing.ColorSpriteManager();
+		spriteManager.init();
+		animationManager = new XMing.ColorAnimationManager();
+		animationManager.init();
+		smallLeftIcons		= spriteManager.smallLeftIcons;
+		smallRightIcons 	= spriteManager.smallRightIcons;
+		bigLeftIcons 		= spriteManager.bigLeftIcons;
+		bigRightIcons	 	= spriteManager.bigRightIcons;
+		bigDefaultLeftIcon  = spriteManager.bigDefaultLeftIcon;
+		bigDefaultRightIcon = spriteManager.bigDefaultRightIcon;
+		resetIcon			= spriteManager.resetIcon;
 		leftAngle 			= 300.0 / (smallLeftIcons.length - 1);
 		rightAngle			= 300.0 / (smallRightIcons.length - 1);
 		
@@ -118,8 +120,8 @@ XMing.VennsColor = new function() {
 								'bigRightIconSelected'  : { isStart : false, isEnd : false },
 								'rightIconExpand'		: { isStart : false, isEnd : false }
 							  };
-		XMing.SpriteManager.reset();
-		colorAnimationManager.reset();
+		spriteManager.reset();
+		animationManager.reset();
 		XMing.VennsColor.initialize();
 	},		
 	// The main loop where everything happens
@@ -218,7 +220,7 @@ XMing.VennsColor = new function() {
 			// set selected Animation based on the combination of the selected left and right choices
 			if (!selectedAnimation) {
 				var animIndex = RIGHT_ICONS_INFO_MAPPED[selectedLeftIcon.index][selectedRightIcon.index];
-				selectedAnimation = colorAnimationManager.getAnimation(animIndex);
+				selectedAnimation = animationManager.getAnimation(animIndex);
 			}
 					
 			// set bigDefaultRightIcon image based on selected right choice
@@ -449,17 +451,14 @@ XMing.VennsColor = new function() {
 		
 		var icons = smallLeftIcons
 			.concat(smallRightIcons)
-			.concat(resetIcon)
-			.concat(bigDefaultLeftIcon)
-			.concat(bigDefaultRightIcon);
+			.concat(resetIcon);
 		var isHover = false;
 		
 		for (var i = 0; i < icons.length; i++) {			
 			var icon = icons[i];
 			if ((icon.isTypeLeft() && !selectedLeftIcon)
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
-				|| icon.isTypeReset()
-				|| icon.index == -1)
+				|| icon.isTypeReset())
 			{
 				var startX = icon.centerX - icon.width / 2;
 				var endX = icon.centerX + icon.width / 2;

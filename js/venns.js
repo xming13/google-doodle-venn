@@ -5,6 +5,8 @@ XMing.Venns = new function() {
 	var	requestID					= null,
 		canvas 						= null,
 		context 					= null,
+		spriteManager				= null,
+		animationManager			= null,
 		smallLeftIcons				= [],
 		smallRightIcons 			= [],
 		bigLeftIcons 				= [],
@@ -33,7 +35,6 @@ XMing.Venns = new function() {
 		biggestLeftIconFactor		= 0.0,
 		smallestRightIconFactor		= 1.0,
 		biggestRightIconFactor		= 0.0,
-		googleAnimationManager		= null,
 		animEvents					= { 
 										'startScreen'			: { isEnd : false },
 										'startingAnimation'		: { isEnd : false },
@@ -100,27 +101,27 @@ XMing.Venns = new function() {
 		canvas.width = 600;
 		context = canvas.getContext('2d');
 		
-		XMing.SpriteManager.init();
-		googleAnimationManager = new XMing.GoogleAnimationManager();
-		googleAnimationManager.init();
-		colorAnimationManager = new XMing.ColorAnimationManager();
-		colorAnimationManager.init();
-		smallLeftIcons		= XMing.SpriteManager.smallLeftIcons;
-		smallRightIcons 	= XMing.SpriteManager.smallRightIcons;
-		bigLeftIcons 		= XMing.SpriteManager.bigLeftIcons;
-		bigRightIcons	 	= XMing.SpriteManager.bigRightIcons;
-		bigDefaultLeftIcon  = XMing.SpriteManager.bigDefaultLeftIcon;
-		bigDefaultRightIcon = XMing.SpriteManager.bigDefaultRightIcon;
-		resetIcon			= XMing.SpriteManager.resetIcon;
-		ribbonLeftIcon		= XMing.SpriteManager.ribbonLeftIcon;
-		ribbonRightIcon		= XMing.SpriteManager.ribbonRightIcon;
+		spriteManager = new XMing.GoogleSpriteManager();
+		spriteManager.init();
+		animationManager = new XMing.GoogleAnimationManager();
+		animationManager.init();
+		
+		smallLeftIcons		= spriteManager.smallLeftIcons;
+		smallRightIcons 	= spriteManager.smallRightIcons;
+		bigLeftIcons 		= spriteManager.bigLeftIcons;
+		bigRightIcons	 	= spriteManager.bigRightIcons;
+		bigDefaultLeftIcon  = spriteManager.bigDefaultLeftIcon;
+		bigDefaultRightIcon = spriteManager.bigDefaultRightIcon;
+		resetIcon			= spriteManager.resetIcon;
+		ribbonLeftIcon		= spriteManager.ribbonLeftIcon;
+		ribbonRightIcon		= spriteManager.ribbonRightIcon;
 		bigLeftIconCenterX 	= BIG_LEFT_ICON_CENTER_X_FINAL;
 		bigRightIconCenterX = BIG_RIGHT_ICON_CENTER_X_FINAL;
 		leftAngle 			= 90.0 / (smallLeftIcons.length - 1);
 		rightAngle			= 90.0 / (smallRightIcons.length - 1);
 		
-		canvas.addEventListener('mousemove', onMouseMove, false);
-		canvas.addEventListener('click', onClick, false);	
+		canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
+		canvas.addEventListener('click', this.onClick.bind(this), false);	
 		
 		this.update();
 	},
@@ -130,6 +131,8 @@ XMing.Venns = new function() {
 		
 		canvas 						= null;
 		context 					= null;
+		spriteManager 				= null;
+		animationManager			= null;
 		smallLeftIcons				= [];
 		smallRightIcons 			= [];
 		bigLeftIcons 				= [];
@@ -167,9 +170,7 @@ XMing.Venns = new function() {
 										'rightIconExpand'		: { isStart : false, isEnd : false }
 									  };
 		
-		XMing.SpriteManager.reset();
-		googleAnimationManager.reset();
-		XMing.Venns.initialize();
+		this.initialize();
 		
 		// start animation
 		animEvents['startScreen'].isEnd = true;
@@ -207,8 +208,8 @@ XMing.Venns = new function() {
 			bigDefaultRightIcon.rotateRebounce(tickRotate);
 					
 			if (bigLeftIconCenterX == BIG_LEFT_ICON_CENTER_X_INITIAL 
-				&& tickRotate > 45
-				&& bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_INITIAL) {
+				&& bigRightIconCenterX == BIG_RIGHT_ICON_CENTER_X_INITIAL
+				&& tickRotate > 45) {
 				tickRotate = 0;
 				animEvents['startingAnimation'].isEnd = true;
 			}
@@ -222,7 +223,7 @@ XMing.Venns = new function() {
 				bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.5);
 						
 				// set event leftIconExpand end
-				if (smallestLeftIconFactor >= 1 && bigDefaultRightIcon.alpha <= 0.6) {
+				if (smallestLeftIconFactor >= 1 && bigDefaultRightIcon.alpha <= 0.5) {
 					animEvents['leftIconExpand'].isEnd = true;
 				}
 			}
@@ -278,7 +279,7 @@ XMing.Venns = new function() {
 						
 						// change the opacity of bigDefaultRightIcon
 						bigDefaultRightIcon.isOverlay = false;
-						bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, +0.01, 1.0);
+						bigDefaultRightIcon.alpha = 1.0;
 						
 						// set event rightIconExpand end
 						if (smallestRightIconFactor >= 1 && bigDefaultLeftIcon.alpha == 0.75) {
@@ -303,7 +304,7 @@ XMing.Venns = new function() {
 				// set selected Animation based on the combination of the selected left and right choices
 				if (!selectedAnimation) {
 					var animIndex = RIGHT_ICONS_MAPPING[selectedLeftIcon.index][selectedRightIcon.index].animIndex;
-					selectedAnimation = googleAnimationManager.getAnimation(animIndex);
+					selectedAnimation = animationManager.getAnimation(animIndex);
 				}
 						
 				// set bigDefaultRightIcon image based on selected right choice
@@ -376,7 +377,7 @@ XMing.Venns = new function() {
 						}
 						
 						if (selectedAnimation.isFinished) {
-							endAnimation = googleAnimationManager.getEndAnimation();
+							endAnimation = animationManager.getEndAnimation();
 							endAnimation.start(118, 85, 4);
 						}
 					}
@@ -509,7 +510,7 @@ XMing.Venns = new function() {
 			endAnimation.renderEnd(context);
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y);
-			googleAnimationManager.renderRibbon(context);
+			animationManager.renderRibbon(context);
 		}
 	},
 	// render overlapped area when two BigDefaultIcons move to center
@@ -553,10 +554,10 @@ XMing.Venns = new function() {
 				smallRightIcons[iconIndexRotate].updateRotateRad(tickRotate);
 			}
 		}
-	}
-		
-	function onMouseMove(event) {
-		var mousePos = getMousePos(this, event);
+	},
+	// handle mouse move event
+	this.onMouseMove = function(event) {
+		var mousePos = this.getMousePos(event);
 		
 		var isHover = false;
 		if (!animEvents['startScreen'].isEnd 
@@ -593,10 +594,10 @@ XMing.Venns = new function() {
 			}
 		}
 		canvas.style.cursor = isHover ? 'pointer' : 'auto';
-	}
-	
-	function onClick(event) {
-		var mousePos = getMousePos(this, event);
+	},
+	// handle click event
+	this.onClick = function(event) {
+		var mousePos = this.getMousePos(event);
 
 		if (!animEvents['startScreen'].isEnd 
 			&& mousePos.x >= BIG_LEFT_ICON_CENTER_X_FINAL 
@@ -626,14 +627,14 @@ XMing.Venns = new function() {
 						selectedRightIcon = icon;			
 					}
 					else if (icon.isTypeReset()) {
-						XMing.Venns.reset();
+						this.reset();
 					}
 				}
 			}
 		}
-	}
-	
-	function getMousePos(canvas, evt) {
+	},
+	// get Mouse Position
+	this.getMousePos = function(evt) {
 		var rect = canvas.getBoundingClientRect();
 		return {
 		  x: evt.clientX - rect.left,
