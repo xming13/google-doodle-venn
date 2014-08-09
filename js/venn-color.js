@@ -18,8 +18,8 @@ XMing.VennColor = new function() {
 		shareIcon				= null,
 		selectedLeftIcon 		= null,
 		selectedRightIcon 		= null,
-		leftAngle				= 0.0;
-		rightAngle				= 0.0;
+		leftAngle				= 0.0,
+		rightAngle				= 0.0,
 		requireCenterRender		= false,
 		selectedAnimation   	= null,
 		bigLeftIconCenterX 		= 0,
@@ -109,35 +109,45 @@ XMing.VennColor = new function() {
 	this.reset = function() {
 		cancelAnimationFrame(requestID);
 		
-		canvas 				= null;
-		context 			= null;
-		smallLeftIcons		= [];
-		smallRightIcons 	= [];
-		bigLeftIcons 		= [];
-		bigRightIcons	 	= [];
-		bigDefaultLeftIcon  = null;
-		bigDefaultRightIcon = null;
-		resetIcon			= null;
-		selectedLeftIcon 	= null;
-		selectedRightIcon 	= null;
-		requireCenterRender	= false;
-		selectedAnimation   = null;
-		bigLeftIconCenterX 	= 0;
-		bigRightIconCenterX = 0;
-		factorDistLeftIcon	= 1.0;
-		factorDistRightIcon	= 1.0;
-		tickRotate			= 0;
-		tickLeftIcon		= 0;
-		tickRightIcon		= 0;
-		iconIndexRotate 	= 0;
-		animEvents			= { 
-								'startScreen'			: { isEnd : false },
-								'startingAnimation'		: { isEnd : false },
-								'leftIconExpand'		: { isStart : false, isEnd : false },
-								'bigLeftIconSelected'  	: { isStart : false, isEnd : false },
-								'bigRightIconSelected'  : { isStart : false, isEnd : false },
-								'rightIconExpand'		: { isStart : false, isEnd : false }
-							  };
+		canvas 					= null;
+		context 				= null;
+		spriteManager       	= null;
+		animationManager		= null;
+		smallLeftIcons			= [];
+		smallRightIcons 		= [];
+		bigLeftIcons 			= [];
+		bigRightIcons	 		= [];
+		bigDefaultLeftIcon 		= null;
+		bigDefaultRightIcon 	= null;
+		linkIcon				= null;
+		resetIcon				= null;
+		shareIcon				= null;
+		selectedLeftIcon 		= null;
+		selectedRightIcon 		= null;
+		leftAngle				= 0.0;
+		rightAngle				= 0.0;
+		requireCenterRender		= false;
+		selectedAnimation   	= null;
+		bigLeftIconCenterX 		= 0;
+		bigRightIconCenterX 	= 0;
+		factorDistLeftIcon		= 1.0;
+		factorDistRightIcon		= 1.0;
+		tickRotate				= 0;
+		tickLeftIcon			= 0;
+		tickRightIcon			= 0;
+		iconIndexRotate			= 0;
+		smallestLeftIconFactor 	= 0.0;
+		biggestLeftIconFactor	= 0.0;
+		smallestRightIconFactor	= 1.0;
+		biggestRightIconFactor	= 0.0;
+		animEvents				= { 
+									'startScreen'			: { isEnd : false },
+									'startingAnimation'		: { isEnd : false },
+									'leftIconExpand'		: { isStart : false, isEnd : false },
+									'bigLeftIconSelected'   : { isStart : false, isEnd : false },
+									'bigRightIconSelected'  : { isStart : false, isEnd : false },
+									'rightIconExpand'		: { isStart : false, isEnd : false }
+								  };
 		this.initialize();
 	},		
 	// The main loop where everything happens

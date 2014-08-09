@@ -399,11 +399,11 @@ ColorIcon.prototype = {
 	setHover: function(isHover) {
 		if (!this.isHovered && isHover) {
 			this.isHovered = isHover;
-			this.alpha = 0.8;
+			this.alpha = 1.0;
 		}
 		else if (this.isHovered && !isHover) {
 			this.isHovered = isHover;
-			this.alpha = 1.0;
+			this.alpha = 0.8;
 		}
 	},
 	isTypeLeft : function() {
