@@ -293,7 +293,7 @@ GoogleIcon.prototype = {
 		);
 		
 		if (this.isOverlay) {
-			context.globalAlpha = 0.2;
+			context.globalAlpha = 0.1;
 			context.fillStyle = '#848482';
 			context.fill();
 		}

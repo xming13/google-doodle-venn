@@ -121,6 +121,9 @@ XMing.VennsGoogle = new function() {
 		canvas.addEventListener('mousemove', this.onMouseMove.bind(this), false);
 		canvas.addEventListener('click', this.onClick.bind(this), false);	
 		
+		// start animation
+		animEvents['startScreen'].isEnd = true;
+		
 		this.update();
 	},
 	// reset 
@@ -169,9 +172,6 @@ XMing.VennsGoogle = new function() {
 									  };
 		
 		this.initialize();
-		
-		// start animation
-		animEvents['startScreen'].isEnd = true;
 	},		
 	// The main loop where everything happens
 	this.update = function() {
@@ -221,7 +221,7 @@ XMing.VennsGoogle = new function() {
 				bigDefaultRightIcon.alpha = this.tween(bigDefaultRightIcon.alpha, -0.01, 0.5);
 						
 				// set event leftIconExpand end
-				if (smallestLeftIconFactor >= 1 && bigDefaultRightIcon.alpha <= 0.5) {
+				if (smallestLeftIconFactor >= 1.0 && bigDefaultRightIcon.alpha <= 0.5) {
 					animEvents['leftIconExpand'].isEnd = true;
 				}
 			}
@@ -556,7 +556,7 @@ XMing.VennsGoogle = new function() {
 	// handle mouse move event
 	this.onMouseMove = function(event) {
 		var mousePos = this.getMousePos(event);
-		
+				
 		var isHover = false;
 		if (!animEvents['startScreen'].isEnd 
 			&& mousePos.x >= BIG_LEFT_ICON_CENTER_X_FINAL 
@@ -568,27 +568,18 @@ XMing.VennsGoogle = new function() {
 		
 		var icons = smallLeftIcons.concat(smallRightIcons).concat(resetIcon);	
 		for (var i = 0; i < icons.length; i++) {
-			
 			var icon = icons[i];
 			if ((icon.isTypeLeft() && !selectedLeftIcon)
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon && animEvents['rightIconExpand'].isEnd)
-				|| icon.isTypeReset())
-			{
-				var startX = icon.centerX - icon.width / 2;
-				var endX = icon.centerX + icon.width / 2;
-				var startY = icon.centerY - icon.height / 2;
-				var endY = icon.centerY + icon.height / 2;
-				
-				if (mousePos.x >= startX 
-					&& mousePos.x <= endX
-					&& mousePos.y >= startY 
-					&& mousePos.y <= endY) {
+				|| icon.isTypeReset()) {
+				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
+					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
 					icon.setHover(true);
 					isHover = true;
-				} 
+				}
 				else {
 					icon.setHover(false);
-				}
+				}				
 			}
 		}
 		canvas.style.cursor = isHover ? 'pointer' : 'auto';
@@ -610,13 +601,8 @@ XMing.VennsGoogle = new function() {
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
 				|| icon.isTypeReset())
 			{
-				var startX = icon.centerX - icon.width / 2;
-				var endX = icon.centerX + icon.width / 2;
-				var startY = icon.centerY - icon.height / 2;
-				var endY = icon.centerY + icon.height / 2;
-
-				if (mousePos.x >= startX && mousePos.x <= endX
-					&& mousePos.y >= startY && mousePos.y <= endY) {
+				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
+					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
 					if (icon.isTypeLeft()) {
 						selectedLeftIcon = icon;
 						iconIndexRotate = 0;

@@ -400,8 +400,6 @@ XMing.VennsColor = new function() {
 			resetIcon.isStart = true;
 			resetIcon.render(context, 558, CENTER_Y_FINAL);
 		}
-		
-		
 	},
 	// render overlapped area when two BigDefaultIcons move to center
 	this.renderOverlappedCenter = function(leftCenterX, rightCenterX) {
@@ -460,15 +458,8 @@ XMing.VennsColor = new function() {
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
 				|| icon.isTypeReset())
 			{
-				var startX = icon.centerX - icon.width / 2;
-				var endX = icon.centerX + icon.width / 2;
-				var startY = icon.centerY - icon.height / 2;
-				var endY = icon.centerY + icon.height / 2;
-				
-				if (mousePos.x >= startX 
-					&& mousePos.x <= endX
-					&& mousePos.y >= startY 
-					&& mousePos.y <= endY) {
+				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
+					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
 					icon.setHover(true);
 					isHover = true;
 				} 
@@ -491,13 +482,8 @@ XMing.VennsColor = new function() {
 				|| (icon.isTypeRight() && selectedLeftIcon && !selectedRightIcon)
 				|| icon.isTypeReset())
 			{
-				var startX = icon.centerX - icon.width / 2;
-				var endX = icon.centerX + icon.width / 2;
-				var startY = icon.centerY - icon.height / 2;
-				var endY = icon.centerY + icon.height / 2;
-
-				if (mousePos.x >= startX && mousePos.x <= endX
-					&& mousePos.y >= startY && mousePos.y <= endY) {
+				if (Math.sqrt(Math.pow(mousePos.x - icon.centerX, 2) 
+					+ Math.pow(mousePos.y - icon.centerY, 2)) < icon.width / 2.0) {
 					if (icon.isTypeLeft()) {
 						selectedLeftIcon = icon;
 						iconIndexRotate = 0;
