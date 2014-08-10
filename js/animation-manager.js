@@ -1408,8 +1408,7 @@ XMing.GoogleAnimation = function(imagePath, coordsArray, isReplay, numFrameLoopB
     this.image.src = imagePath;
     this.coordsArray = coordsArray;
     this.frameIndex = 0;
-    this.frame = coordsArray;
-    [0];
+    this.frame = coordsArray[0];
     this.frameThreshold = 5;
     this.tick = 0;
     this.alpha = 0.0;
