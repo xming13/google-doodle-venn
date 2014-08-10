@@ -1386,7 +1386,7 @@ XMing.ColorAnimationManager.prototype.renderRibbon = function(context, selectedL
         coords[3]
     );
 
-    var text = selectedLeftIcon.index <= 2 ? 'Subtractive Mixing' : 'Addictive Mixing';
+    var text = selectedLeftIcon.index <= 2 ? 'Subtractive Mixing' : 'Additive Mixing';
     // draw center text
     if (this.tick == numEndTick) {
         context.font = '14px Open Sans';
